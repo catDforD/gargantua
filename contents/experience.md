@@ -1,21 +1,31 @@
-### **Software Engineer Intern**  
-**January 2025 – June 2025 | ByteDance**  
+### **Research Assistant**
+**Zhejiang University** | Multi-Agent Systems (LLM-based) (2024 – Present)
 
-Worked on the development and optimization of large-scale recommendation systems, focusing on algorithm improvements and system efficiency enhancements. Contributed to real-time data processing pipelines and model optimization for personalized content delivery.
+Research on automatic generation of multi-agent systems based on large language models.
 
-#### Key Contributions:  
-- Developed and optimized recommendation algorithms to enhance user engagement and content relevance.  
-- Designed and implemented real-time data processing workflows to improve model inference efficiency.  
-- Conducted A/B testing and performance analysis to refine recommendation strategies based on user behavior data.  
+- 1 paper under review
 
 ---
 
-### **软件工程师实习生**  
-**2025年1月 – 2025年6月 | 字节跳动**  
+### **Undergraduate Research Projects**
 
-负责大规模推荐系统的开发与优化，专注于算法改进和系统效率提升。参与实时数据处理管道的构建，并优化模型推理流程，以提升个性化内容推荐效果。
+**Intelligent Cleaning Robot** (National First Prize, 2024)  
+- Built Linux system environment, ROS control, and OpenCV visual recognition  
+- Won National First Prize at the 7th China University Intelligent Robot Creative Competition  
+- Optimized motion logic and improved system speed  
 
-#### 主要贡献:  
-- 研发并优化推荐算法，提高用户互动率和内容相关性。  
-- 设计并实现实时数据处理流程，提升模型推理的计算效率。  
-- 进行A/B测试与性能分析，基于用户行为数据优化推荐策略。
+**Pharmaceutical Classification and Recognition Management System** (National SRTP, 2023-2024)  
+- Implemented YOLOV5-based drug bottle label classification and detection  
+- Lightweight optimization: 20% parameter reduction, 25% performance improvement  
+- Developed HTML5 mobile application for enhanced portability  
+- Improved search algorithm for sample database efficiency  
+- Result: 1 software copyright + 1 conference paper  
+
+**Intelligent Logistics Handling Robot** (2023)  
+- Independently completed hardware framework design and PCB circuit board  
+- Implemented robotic arm control using PNP solving for target pose prediction  
+- Performed inverse kinematics calculations for joint angle determination  
+- Achieved closed-loop high-precision control with encoders  
+
+---
+

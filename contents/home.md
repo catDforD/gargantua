@@ -1,20 +1,16 @@
-[![XX](https://img.shields.io/badge/XX-github-blue?logo=github)](https://github.com/XX)
+[![GitHub](https://img.shields.io/badge/GitHub-catDforD-blue?logo=github)](https://github.com/catDforD)
 
-I'm currently pursuing a Master's degree in XX at the Department of XX, XX University, XX.
+I am currently pursuing a Master's degree at the Department of Control Science and Engineering, Zhejiang University.
 
-#### Email  
-<code>XX@XX.XX</code>  
-<code>XX@XX.XX</code>
+#### Email
+<code>22532097@zju.edu.cn</code>
 
-#### Education  
-**XX University**, Master of XX (XX – XX)  
-• GPA: XX/XX  
+#### Education
+**Zhejiang University**, M.S. in Control Science and Engineering (2024 – Present)
 
-**XX University**, Exchange student <br>  
-• As a XX, represented my college as an outstanding student for a XX exchange program.  
+**Southwest Jiaotong University**, B.S. in Electronic Information Engineering (2021 – 2024)  
+• GPA: 3.82/4 (Rank 1/36)  
+• Best Graduating Thesis Award
 
-**XX University**, Honours Bachelor of XX (XX – XX)  
-• GPA: XX/XX (top XX%)  
-
-#### Research Interests  
-XX, XX, XX, XX.
+#### Research Interests
+Multi-Agent Systems, Agent, Embodied AI
