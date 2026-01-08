@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Blog - Xinyu Deng" />
+    <meta name="author" content="yixin0313" />
+    <title>Blog - Xinyu Deng</title>
+
+    <!-- Icon -->
+    <link rel="icon" type="image/x-icon" href="static/assets/favicon.ico" />
+
+    <!-- Bootstrap icons-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+
+    <!-- Google fonts-->
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,600;1,600&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,300;0,500;0,600;0,700;1,300;1,500;1,600;1,700&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;1,400&amp;display=swap"
+        rel="stylesheet" />
+
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link type="text/css" href="static/css/styles.css" rel="stylesheet" />
+    <link type="text/css" href="static/css/main.css" rel="stylesheet" />
+
+    <!-- Bootstrap core JS-->
+    <script type="text/javascript" src="static/js/bootstrap.bundle.min.js"></script>
+
+    <!-- For Compatability -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+    <!-- Markdown -->
+    <script type="text/javascript" src="static/js/marked.min.js"></script>
+
+    <!-- Mathematics -->
+    <script>
+        MathJax = {
+            tex: {
+                packages: {},
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: false,
+                processEnvironments: true,
+                processRefs: true,
+                tags: 'all',
+                formatError: (jax, err) => jax.formatError(err)
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script"
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- YAML -->
+    <script type="text/javascript" src="static/js/js-yaml.min.js"></script>
+
+</head>
+
+<body id="page-top">
+    <!-- Navigation-->
+    <nav class="header navbar navbar-expand-lg navbar-light fixed-top shadow-sm" id="mainNav">
+        <div class="container px-5">
+            <a id="page-top-title" class="navbar-brand fw-bold" href="index.html">Xinyu Deng</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
+                aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                MENU
+                <i class="bi-list"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ms-auto me-4 my-3 my-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link me-lg-3" href="index.html">HOME</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link me-lg-3 active" href="blog.html">BLOG</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link me-lg-3" href="index.html#news">NEWS</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link me-lg-3" href="index.html#awards">AWARDS</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link me-lg-3" href="index.html#experience">EXPERIENCE</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link me-lg-3" href="index.html#publications">PUBLICATIONS</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Article List View -->
+    <div id="article-list-view">
+        <!-- Blog Header -->
+        <section class="blog-header">
+            <div class="blog-header-overlay"></div>
+            <div class="container px-5 blog-header-content">
+                <h1 class="text-white display-3 font-alt mb-3">Blog</h1>
+                <p class="text-white lead opacity-90">技术笔记 · 生活随笔 · 思考与分享</p>
+                <div class="mt-4">
+                    <span class="badge bg-light text-dark me-2"><i class="bi bi-book"></i> <span id="article-count">0</span> 篇文章</span>
+                    <span class="badge bg-light text-dark"><i class="bi bi-tag"></i> <span id="tag-count">0</span> 个标签</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog Content -->
+        <main class="container px-5 my-5">
+            <div class="row">
+                <!-- Sidebar: Filters -->
+                <aside class="col-lg-3 mb-4">
+                    <div class="blog-sidebar">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title mb-3">
+                                    <i class="bi bi-funnel"></i> 筛选
+                                </h6>
+
+                                <!-- Category Filter -->
+                                <label class="form-label small text-muted">分类</label>
+                                <select id="category-filter" class="form-select mb-3">
+                                    <option value="">所有分类</option>
+                                </select>
+
+                                <!-- Tag Search -->
+                                <label class="form-label small text-muted">标签搜索</label>
+                                <input type="text" id="tag-search" class="form-control mb-3"
+                                       placeholder="输入标签名称...">
+
+                                <!-- Sort Order -->
+                                <label class="form-label small text-muted">排序方式</label>
+                                <select id="sort-order" class="form-select">
+                                    <option value="date-desc">按日期（最新优先）</option>
+                                    <option value="date-asc">按日期（最早优先）</option>
+                                    <option value="title">按标题</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main: Article List -->
+                <section class="col-lg-9">
+                    <div id="articles-container" class="row">
+                        <!-- Articles will be loaded here -->
+                        <div class="col-12 text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">加载中...</span>
+                            </div>
+                            <p class="text-muted mt-2">加载文章中...</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Article Detail View -->
+    <div id="article-detail-view" class="d-none">
+        <main class="article-detail-container">
+            <!-- Breadcrumb -->
+            <nav class="article-breadcrumb" aria-label="breadcrumb">
+                <div class="container px-5">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item">
+                            <a href="blog.html"><i class="bi bi-house"></i> 首页</a>
+                        </li>
+                        <li class="breadcrumb-item active" id="breadcrumb-category">分类</li>
+                        <li class="breadcrumb-item active" id="breadcrumb-title">文章标题</li>
+                    </ol>
+                </div>
+            </nav>
+
+            <!-- Article Header -->
+            <header class="article-header">
+                <div class="container px-5">
+                    <div class="article-meta">
+                        <span class="article-category" id="detail-category">
+                            <i class="bi bi-folder"></i> 分类
+                        </span>
+                        <span class="article-date" id="detail-date">
+                            <i class="bi bi-calendar3"></i> 日期
+                        </span>
+                    </div>
+                    <h1 class="article-title" id="detail-title">文章标题</h1>
+                    <div class="article-tags" id="detail-tags">
+                        <!-- Tags will be loaded here -->
+                    </div>
+                </div>
+            </header>
+
+            <!-- Article Content -->
+            <article class="article-content">
+                <div class="container px-5">
+                    <div class="article-body" id="detail-content">
+                        <!-- Article content will be loaded here -->
+                    </div>
+                </div>
+            </article>
+
+            <!-- Back to Top / Share -->
+            <div class="article-footer-nav">
+                <div class="container px-5">
+                    <a href="blog.html" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left"></i> 返回文章列表
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer-->
+    <footer class="bg-bottom text-center py-5">
+        <div class="container px-5">
+            <div class="text-white-50 small">
+                <div class="mb-2">&copy; Xinyu Deng 2023-2026. All Rights Reserved.</div>
+                <a href="https://github.com/catDforD">Github</a>
+                <span class="mx-1">&middot;</span>
+                <a href="https://github.com/catDforD/catDforD.github.io/blob/main/LICENSE">License</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Blog JS -->
+    <script type="text/javascript" src="static/js/blog.js"></script>
+
+</body>
+
+</html>
