@@ -1,5 +1,15 @@
-title: Xinyu Deng's Homepage
-page-top-title: Xinyu Deng
-top-section-bg-text: Be what you wanna be
-home-subtitle: Xinyu Deng | Control Science & Engineering, ZJU
-copyright-text: '&copy; Xinyu Deng 2023-2026. All Rights Reserved.'
+title:
+  en: "Xinyu Deng's Homepage"
+  zh: "邓鑫宇的主页"
+page-top-title:
+  en: "Xinyu Deng"
+  zh: "邓鑫宇"
+top-section-bg-text:
+  en: "Be what you wanna be"
+  zh: "成为你想成为的人"
+home-subtitle:
+  en: "Xinyu Deng | Control Science & Engineering, ZJU"
+  zh: "邓鑫宇 | 浙江大学 控制科学与工程"
+copyright-text:
+  en: "&copy; Xinyu Deng 2023-2026. All Rights Reserved."
+  zh: "&copy; 邓鑫宇 2023-2026. 版权所有。"

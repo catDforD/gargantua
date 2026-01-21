@@ -9,7 +9,7 @@
 - **Provincial Second Prize**, Engineering Practice and Innovation Competition (Intelligent Logistics), 2024
 
 ### Scholarships
-- **Top 1%**, Kai Ma Lv Neng Special Scholarship, SWJTU
+- **Top 1%**, Kaima Green Energy Scholarship, SWJTU
 - **Top 1%**, Xin Cheng Rui Special Scholarship, SWJTU
 
 ### Honors

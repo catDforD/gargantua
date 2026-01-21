@@ -1,4 +1,4 @@
-### **Research Assistant**
+### **Graduate Researcher**
 **Zhejiang University** | Multi-Agent Systems (LLM-based) (2024 – Present)
 
 Research on automatic generation of multi-agent systems based on large language models.

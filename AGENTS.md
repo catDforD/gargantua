@@ -110,7 +110,6 @@ window.addEventListener('DOMContentLoaded', event => {
 
 ## Github Pages 部署注意事项
 - 请使用中文规范编写commit message
-- username:`catdford`
 - 部署前确保所有文件已提交到 Git 仓库
 - 确保 `index.html` 位于仓库根目录
 - 仓库设置中启用 GitHub Pages，选择 `main` 分支

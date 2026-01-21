@@ -688,3 +688,48 @@ section .main-body{
     .article-body h2 { font-size: 1.35rem; }
     .article-body h3 { font-size: 1.2rem; }
 }
+
+/* Language Switcher Styles */
+.language-btn {
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    padding: 0.4rem 0.8rem !important;
+    transition: all 0.3s ease !important;
+    /* Desktop styles - dark text on light navbar */
+    background-color: rgba(57, 72, 210, 0.15) !important;
+    color: #2a3a9e !important;
+    border-color: #2a3a9e !important;
+    font-weight: 600 !important;
+}
+
+.language-btn:hover {
+    background-color: rgba(57, 72, 210, 0.2) !important;
+    transform: scale(1.05);
+}
+
+#language-switcher {
+    display: flex;
+    align-items: center;
+}
+
+/* Mobile styles for language switcher */
+@media (max-width: 991px) {
+    #language-switcher {
+        margin: 1rem 0;
+        padding: 0 1rem;
+    }
+
+    #language-switcher .language-btn {
+        background-color: rgba(57, 72, 210, 0.1) !important;
+        color: #3948d2 !important;
+        border-color: #3948d2 !important;
+    }
+
+    .navbar-collapse {
+        background-color: rgba(255, 255, 255, 0.98);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+}
