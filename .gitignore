@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Package files
+package-lock.json
+
+# Temporary files
+*.tmp
+*.log
+.DS_Store
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local files
+paper_raw.txt
