@@ -25,3 +25,8 @@ npx hexo generate
 ```
 
 Generated output is written to `public/` and is not committed.
+
+## Deployment
+
+Pushes to `main` trigger GitHub Actions, which builds the site and syncs `public/`
+to the production server at `catdfd.com`.
