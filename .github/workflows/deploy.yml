@@ -16,6 +16,8 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
 
     steps:
       - name: Checkout source
@@ -36,14 +38,14 @@ jobs:
           npx hexo generate
 
       - name: Configure SSH
-        if: ${{ secrets.DEPLOY_SSH_KEY != '' }}
+        if: ${{ env.DEPLOY_SSH_KEY != '' }}
         run: |
           install -m 700 -d ~/.ssh
-          printf '%s\n' '${{ secrets.DEPLOY_SSH_KEY }}' > ~/.ssh/id_ed25519
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -p 22 38.55.34.92 >> ~/.ssh/known_hosts
 
       - name: Deploy static site
-        if: ${{ secrets.DEPLOY_SSH_KEY != '' }}
+        if: ${{ env.DEPLOY_SSH_KEY != '' }}
         run: |
           rsync -az --delete public/ hexodeploy@38.55.34.92:/var/www/catdfd.com/
