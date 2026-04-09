@@ -234,10 +234,12 @@ font:
 # 指定自定义 .js 文件路径，支持列表；路径是相对 source 目录，如 /js/custom.js 对应存放目录 source/js/custom.js
 # Specify the path of your custom js file, support list. The path is relative to the source directory, such as `/js/custom.js` corresponding to the directory `source/js/custom.js`
 custom_js:
+  - /js/custom.js
 
 # 指定自定义 .css 文件路径，用法和 custom_js 相同
 # The usage is the same as custom_js
 custom_css:
+  - /css/custom.css
 
 # 网页访问统计
 # Analysis of website visitors
@@ -385,7 +387,12 @@ navbar:
     - { key: "archive", link: "/archives/", icon: "iconfont icon-archive-fill" }
     - { key: "category", link: "/categories/", icon: "iconfont icon-category-fill" }
     - { key: "tag", link: "/tags/", icon: "iconfont icon-tags-fill" }
-    - { key: "about", link: "/about/", icon: "iconfont icon-user-fill" }
+    - key: "about"
+      name: "关于"
+      icon: "iconfont icon-user-fill"
+      submenu:
+        - { key: "about-profile", name: "个人简介", link: "/about/", icon: "iconfont icon-brush" }
+        - { key: "about-photo", name: "流光札记", link: "/photography/", icon: "iconfont icon-images" }
     - { key: "links", link: "/links/", icon: "iconfont icon-link-fill" }
 
 # 搜索功能，基于 hexo-generator-search 插件，若已安装其他搜索插件请关闭此功能，以避免生成多余的索引文件
@@ -1009,6 +1016,8 @@ about:
   # More icons can be found from https://hexo.fluid-dev.com/docs/en/icon/  `class` is the css class of the icon. If adding `qrcode`, the icon is no longer a link, but a hovering QR code
   icons:
     - { class: "iconfont icon-github-fill", link: "https://github.com/catDforD", tip: "GitHub" }
+    - { class: "iconfont icon-mail", link: "mailto:husdengsh@gmail.com", tip: "husdengsh@gmail.com" }
+    - { class: "iconfont icon-qq-fill", link: "https://wpa.qq.com/msgrd?v=3&uin=3276453835&site=qq&menu=yes", tip: "QQ: 3276453835" }
 
 
 #---------------------------
