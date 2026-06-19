@@ -387,6 +387,7 @@ navbar:
     - { key: "archive", link: "/archives/", icon: "iconfont icon-archive-fill" }
     - { key: "category", link: "/categories/", icon: "iconfont icon-category-fill" }
     - { key: "tag", link: "/tags/", icon: "iconfont icon-tags-fill" }
+    - { key: "works", name: "Works", link: "/works/", icon: "iconfont icon-images" }
     - key: "about"
       name: "关于"
       icon: "iconfont icon-user-fill"
