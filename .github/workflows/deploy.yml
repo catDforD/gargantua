@@ -7,17 +7,15 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
-  group: deploy-production
+  group: deploy-pages
   cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
 
     steps:
       - name: Checkout source
@@ -37,15 +35,21 @@ jobs:
           npx hexo clean
           npx hexo generate
 
-      - name: Configure SSH
-        if: ${{ env.DEPLOY_SSH_KEY != '' }}
+      - name: Publish to GitHub Pages
         run: |
-          install -m 700 -d ~/.ssh
-          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p 22 38.55.34.92 >> ~/.ssh/known_hosts
+          touch public/.nojekyll
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Deploy static site
-        if: ${{ env.DEPLOY_SSH_KEY != '' }}
-        run: |
-          rsync -az --delete public/ hexodeploy@38.55.34.92:/var/www/catdfd.com/
+          git fetch origin gh-pages --depth=1
+          git worktree add gh-pages-worktree origin/gh-pages
+          rsync -a --delete --exclude .git public/ gh-pages-worktree/
+
+          cd gh-pages-worktree
+          git add --all
+          if git diff --cached --quiet; then
+            echo "No changes to deploy."
+          else
+            git commit -m "Site updated: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            git push origin HEAD:gh-pages
+          fi

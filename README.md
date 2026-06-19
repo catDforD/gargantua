@@ -28,5 +28,5 @@ Generated output is written to `public/` and is not committed.
 
 ## Deployment
 
-Pushes to `main` trigger GitHub Actions, which builds the site and syncs `public/`
-to the production server at `catdfd.com`.
+Pushes to `main` trigger GitHub Actions, which builds the site and publishes
+`public/` to the `gh-pages` branch for GitHub Pages.
