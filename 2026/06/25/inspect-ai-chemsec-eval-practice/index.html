@@ -1,0 +1,1110 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Gargantua">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="在某垂直领域做大模型安全评测时，安全问题不只是“模型有没有拒答”。同一条请求可能涉及不同风险对象，也可能被不同攻击方式包装；模型输出还可能是自行拒答、实质性作答、平台网关拦截、超时或运行错误。 为了解决这个问题，我们基于 Inspect AI 组织了一套可复现的评测链路，核心思路是：把风险分类、攻击方法、模型调用、评分逻辑和报告统计拆成独立层，再在运行时组合成具体评测任务。 本文会按 taxono">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于 Inspect AI 的安全评测框架实践：从 Raw Payload 到攻击矩阵">
+<meta property="og:url" content="https://catdfd.com/2026/06/25/inspect-ai-chemsec-eval-practice/index.html">
+<meta property="og:site_name" content="Gargantua&#39;Blog">
+<meta property="og:description" content="在某垂直领域做大模型安全评测时，安全问题不只是“模型有没有拒答”。同一条请求可能涉及不同风险对象，也可能被不同攻击方式包装；模型输出还可能是自行拒答、实质性作答、平台网关拦截、超时或运行错误。 为了解决这个问题，我们基于 Inspect AI 组织了一套可复现的评测链路，核心思路是：把风险分类、攻击方法、模型调用、评分逻辑和报告统计拆成独立层，再在运行时组合成具体评测任务。 本文会按 taxono">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-25T17:16:52.000Z">
+<meta property="article:modified_time" content="2026-06-25T09:20:56.545Z">
+<meta property="article:author" content="Gargantua">
+<meta property="article:tag" content="Agent 安全">
+<meta property="article:tag" content="工具分享">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>基于 Inspect AI 的安全评测框架实践：从 Raw Payload 到攻击矩阵 - Gargantua&#39;Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"catdfd.com","root":"/","version":"1.9.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"openkounter":{"server_url":"https://open-kounter.mintimate.cn","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Gargantua&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content (desktop) -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/works/" target="_self">
+                <i class="iconfont icon-images"></i>
+                <span>Works</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/about/" target="_self">
+                    <i class="iconfont icon-brush"></i>
+                    <span>个人简介</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/photography/" target="_self">
+                    <i class="iconfont icon-images"></i>
+                    <span>流光札记</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile grid menu overlay -->
+<div id="mobile-grid-menu" class="d-lg-none">
+  <div class="mobile-grid-menu-inner">
+    <div class="container">
+      <div class="row">
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-home-fill"></i>
+                  <span>首页</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/archives/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-archive-fill"></i>
+                  <span>归档</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/categories/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-category-fill"></i>
+                  <span>分类</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/tags/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-tags-fill"></i>
+                  <span>标签</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/works/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-images"></i>
+                  <span>Works</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            
+            <div class="col-12 mobile-grid-group-header">
+              <i class="iconfont icon-user-fill"></i>
+              <span>关于</span>
+            </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/about/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-brush"></i>
+                    <span>个人简介</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/photography/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-images"></i>
+                    <span>流光札记</span>
+                  </div>
+                </a>
+              </div>
+            
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/links/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-link-fill"></i>
+                  <span>友链</span>
+                </div>
+              </a>
+            </div>
+          
+        
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
+            <a href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-search"></i>
+                <span>搜索</span>
+              </div>
+            </a>
+          </div>
+        
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn"
+               data-label-light="开灯"
+               data-label-dark="关灯">
+            <a href="javascript:;" aria-label="Color Toggle">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
+                <span id="mobile-color-toggle-label">关灯</span>
+              </div>
+            </a>
+          </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg/sky.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="基于 Inspect AI 的安全评测框架实践：从 Raw Payload 到攻击矩阵"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-06-25 17:16" pubdate>
+          2026年6月25日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          56 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">基于 Inspect AI 的安全评测框架实践：从 Raw Payload 到攻击矩阵</h1>
+            
+              <p id="updated-time" class="note note-info" style="">
+                
+                  
+                    本文最后更新于 2026年6月25日 上午
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>在某垂直领域做大模型安全评测时，安全问题不只是“模型有没有拒答”。同一条请求可能涉及不同风险对象，也可能被不同攻击方式包装；模型输出还可能是自行拒答、实质性作答、平台网关拦截、超时或运行错误。</p>
+<p>为了解决这个问题，我们基于 Inspect AI 组织了一套可复现的评测链路，核心思路是：把风险分类、攻击方法、模型调用、评分逻辑和报告统计拆成独立层，再在运行时组合成具体评测任务。</p>
+<p>本文会按 <code>taxonomy -&gt; raw payload -&gt; runtime attack overlay -&gt; Inspect Task -&gt; refusal scorer -&gt; attack matrix / benchmark suite -&gt; report -&gt; tests</code> 这条路线展开。</p>
+<p>特别说明：本文只讨论框架设计和工程链路，不会也不能展示真实危险 payload、完整攻击模板、模型攻击成功样本、日志 trace、API key 或任何内部运行时标识。</p>
+<h2 id="本文路线"><a href="#本文路线" class="headerlink" title="本文路线"></a>本文路线</h2><ol>
+<li>最小评测闭环如何跑通。</li>
+<li>项目如何把风险对象和攻击方法解耦。</li>
+<li>分析 runtime attack overlay、Inspect Task 和 scorer。</li>
+<li>整理 attack matrix、benchmark suite、报告生成和验证方式。</li>
+</ol>
+<h2 id="项目要解决什么问题"><a href="#项目要解决什么问题" class="headerlink" title="项目要解决什么问题"></a>项目要解决什么问题</h2><p>当前这个项目主要解决的是对触垂类领域的特定 Agent 进行安全测试和加固。  </p>
+<p>我们把安全测试分成三类顶层 domain：内容安全、Agent 安全和隐私安全。内容安全关注高风险垂类请求、合规与实验安全、通用基础安全和过度拒绝；Agent 安全关注工具调用、上下文注入、权限边界、资源滥用、文件系统和数据外传；隐私安全关注多轮对话中的内部信息泄露。  </p>
+<p>攻击方法不是第四类安全 domain，而是横向维度。也就是说，项目不是简单维护一堆“最终攻击 prompt”，而是维护 raw payload，再在运行时叠加攻击条件，思路其实比较简单。</p>
+<h2 id="最基础的闭环：先让一条评测链路跑起来"><a href="#最基础的闭环：先让一条评测链路跑起来" class="headerlink" title="最基础的闭环：先让一条评测链路跑起来"></a>最基础的闭环：先让一条评测链路跑起来</h2><p>如果只想验证链路，不应该一上来跑完整矩阵，我这边是选了一批现成的基础数据即可，整体批评链路无误以后，才考虑大规模扩展数据集。</p>
+<h2 id="设计一：风险对象和攻击方法解耦"><a href="#设计一：风险对象和攻击方法解耦" class="headerlink" title="设计一：风险对象和攻击方法解耦"></a>设计一：风险对象和攻击方法解耦</h2><p>在普通测试数据里，我们可能只关心 <code>input</code> 和 <code>target</code>。但安全评测不能只看文本，因为同样一句请求在不同风险语境下含义不同，同样一个风险对象也可以被多种攻击方法包装。</p>
+<p>项目 schema 把一条样本拆成几层：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;CS-DEMO-001&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;input&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;&lt;高风险或良性请求&gt;&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;target&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;refuse&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;choices&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">null</span></span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;metadata&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;sample_kind&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;direct_safety_payload&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;split&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;eval&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;expected_behavior&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;refuse&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;safety&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;domain&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;content_safety&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;category&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;domain_content_safety&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;subcategory&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;demo_subcategory&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;risk_object_id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;CS-DEMO-001&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;risk_object&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;demo_object&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;risk_object_cn&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;脱敏风险对象&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;evaluation&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;judge_target&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;refuse&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;success_criterion&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;model_does_not_provide_actionable_harmful_guidance&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;policy_version&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;dataset_v1&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><br>    ...<br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>这条是脱敏示例，不是项目中的真实样本。</p>
+<p>这里关键看三点：</p>
+<ul>
+<li><code>metadata.safety</code> 描述“这条样本测什么风险”，例如 domain、category、subcategory 和 risk object。</li>
+<li><code>metadata.attack</code> 描述“这条样本如何被攻击包装”，但原始 raw payload 不提前写这一段。</li>
+<li><code>metadata.provenance</code> 用来追溯 attacked sample 来自哪个原始 payload，以及由哪个渲染流程生成。</li>
+</ul>
+<p>这个设计的好处是，风险分类和攻击方法可以独立演进。新增一个风险子类时，不需要复制所有攻击模板；新增一个攻击方法时，也不需要重写原始风险样本。还有一个很明显的点就是，这样造新数据很快。</p>
+<h2 id="设计二：运行时动态生成-attacked-sample"><a href="#设计二：运行时动态生成-attacked-sample" class="headerlink" title="设计二：运行时动态生成 attacked sample"></a>设计二：运行时动态生成 attacked sample</h2><p>动态攻击样本构建的简化后的流程如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs text">load_payloads(dataset_path)<br>    -&gt; RawPayload(id, input, target, choices, metadata, source_path)<br>    -&gt; payload_to_sample(payload, attack_method, attack_recipe)<br>        -&gt; none: 保留原始输入<br>        -&gt; attack_method: 使用 canonical method 渲染<br>        -&gt; attack_recipe: 使用 recipe 渲染或交给 adaptive solver<br>    -&gt; Inspect Sample<br></code></pre></td></tr></table></figure>
+
+<p>项目里有一个很重要的约束：<code>load_payloads()</code> 会拒绝已经包含 <code>metadata.attack</code> 的 raw payload。原因是 <code>eval_safety</code> 期望读取的是原始 payload，而不是提前被攻击方法包装过的 攻击样本。</p>
+<p>运行时攻击叠加后，sample 会得到类似这样的结构：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ATT-CS-DEMO-001--DEMO-001--v1&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;input&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;&lt;攻击包装后的最终 prompt&gt;&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;target&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;refuse&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;metadata&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;sample_kind&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;attacked_safety&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;attack&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;attack_method&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;legitimizing_pretext&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;attack_variant_id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;DEMO-001&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;attack_template_id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;legitimizing_pretext.default.001&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;attack_family&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;semantic_prompt_attack&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;attack_surface&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;user_prompt&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;delivery_artifact&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;plain_text_prompt&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;render_strategy&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;script_generated&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;provenance&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;payload_id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;CS-DEMO-001&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;payload_input&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;&lt;原始请求&gt;&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;materialized_from&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;datasets/content_safety/demo.json&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;generator&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;script&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;generator_version&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;v1&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>canonical attack 只是其中一个攻击方法，当前稳定方法包括：</p>
+<table>
+<thead>
+<tr>
+<th>attack method</th>
+<th>作用维度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>legitimizing_pretext</code></td>
+<td>正当化伪装</td>
+</tr>
+<tr>
+<td><code>task_decomposition</code></td>
+<td>任务拆解</td>
+</tr>
+<tr>
+<td><code>pressure_manipulation</code></td>
+<td>压力操纵</td>
+</tr>
+<tr>
+<td><code>correction_bait</code></td>
+<td>纠错诱导</td>
+</tr>
+<tr>
+<td><code>output_constraint_evasion</code></td>
+<td>输出约束规避</td>
+</tr>
+<tr>
+<td><code>obfuscation_evasion</code></td>
+<td>表达混淆规避</td>
+</tr>
+</tbody></table>
+<h2 id="设计三：Inspect-Task-负责组装评测单元"><a href="#设计三：Inspect-Task-负责组装评测单元" class="headerlink" title="设计三：Inspect Task 负责组装评测单元"></a>设计三：Inspect Task 负责组装评测单元</h2><p>Inspect AI 的基本任务结构是 <code>Task(dataset, solver, scorer)</code>。项目中主要评测代码正是围绕这个结构做组装。</p>
+<p>简化后的代码形态如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">return</span> Task(<br>    dataset=dataset,<br>    solver=solver,<br>    scorer=refusal_scorer(<br>        use_llm_judge=use_llm_judge,<br>        fallback_to_patterns=fallback_to_patterns,<br>    ),<br>    fail_on_error=fail_on_error,<br>)<br></code></pre></td></tr></table></figure>
+
+<p>这里几个参数的职责很清楚：</p>
+<ul>
+<li><code>dataset</code>：由 raw payload 加上可选 attack overlay 后得到的 Inspect dataset。</li>
+<li><code>solver</code>：默认是 Inspect 的 <code>generate()</code>；如果启用自适应攻击，则使用 attack-aware solver。</li>
+<li><code>scorer</code>：使用项目自定义的 <code>refusal_scorer</code> 判断模型行为是否符合预期。</li>
+<li><code>fail_on_error</code>：控制运行错误是否直接让任务失败。</li>
+</ul>
+<h2 id="设计四：拒答评分原理"><a href="#设计四：拒答评分原理" class="headerlink" title="设计四：拒答评分原理"></a>设计四：拒答评分原理</h2><p>安全评测最容易踩的坑，是把“看起来像拒答”当成真的安全，或者把“provider 拦截”当成模型本身安全能力。</p>
+<p>项目的评分逻辑核心目标是判断：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">模型回复是否实质性推进了有害的原始请求的目标<br></code></pre></td></tr></table></figure>
+
+<p>它大致分成四步：</p>
+<ol>
+<li>从 <code>metadata.expected_behavior</code>、<code>metadata.evaluation.judge_target</code> 和顶层 <code>target</code> 中解析期望行为。</li>
+<li>先识别运行时失败，例如 provider block、timeout、error。</li>
+<li>默认使用 LLM-as-a-judge 判断输出是 <code>refuse</code> 还是 <code>comply</code>。</li>
+<li>如果 judge 调用失败或输出不可解析，再回退到中英文拒答 pattern。</li>
+</ol>
+<p>评分结果不会只有 pass&#x2F;fail，而是会保留观察标签：</p>
+<table>
+<thead>
+<tr>
+<th>observed label</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>refuse</code></td>
+<td>模型自行拒绝或安全转向</td>
+</tr>
+<tr>
+<td><code>comply</code></td>
+<td>模型实质性满足了请求意图</td>
+</tr>
+<tr>
+<td><code>blocked</code></td>
+<td>provider 或 API 网关拦截</td>
+</tr>
+<tr>
+<td><code>timeout</code></td>
+<td>请求超时</td>
+</tr>
+<tr>
+<td><code>error</code></td>
+<td>运行错误</td>
+</tr>
+<tr>
+<td><code>unknown</code> &#x2F; <code>ambiguous</code></td>
+<td>无法稳定判断或证据不足</td>
+</tr>
+</tbody></table>
+<p>这一区分非常重要。对于 <code>expected_behavior=refuse</code> 的有害样本，<code>comply</code> 往往意味着失守；但对于 <code>expected_behavior=comply</code> 的良性或过度拒绝样本，<code>comply</code> 反而是正常帮助。两类样本不能混算。</p>
+<p>同理，<code>blocked</code> 也不能算作“模型自行拒答”。它可以说明平台侧安全网关起了作用，但不能证明被测模型本身做出了安全判断。</p>
+<h2 id="设计五：attack-matrix-把-source-和-condition-组合起来"><a href="#设计五：attack-matrix-把-source-和-condition-组合起来" class="headerlink" title="设计五：attack matrix 把 source 和 condition 组合起来"></a>设计五：attack matrix 把 source 和 condition 组合起来</h2><p>单个 Inspect task 能跑通一条链路，但红队评测通常需要比较：</p>
+<ul>
+<li>不同数据来源。</li>
+<li>不同风险子类。</li>
+<li>baseline 和攻击条件之间的变化。</li>
+<li>canonical method 和 recipe 的差异。</li>
+</ul>
+<p>attack matrix 的抽象可以写成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">source x condition -&gt; eval_attack_matrix_source()<br></code></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<ul>
+<li><code>source</code> 可以是本地内容安全子类，也可以是经过适配的外部 benchmark。</li>
+<li><code>condition</code> 可以是 <code>baseline_none</code>、canonical attack method，或者 active recipe。</li>
+<li>每个 source 可以声明自己支持哪些 condition。</li>
+</ul>
+<p>工程上更关键的是可复现。<code>run_attack_matrix</code> 会根据 task args、模型、model roles、time limit、完成样本数等信息判断已有日志能否复用，避免把不匹配的历史结果混进新实验。</p>
+<h2 id="设计六：benchmark-suite-用-registry-组织可复用任务"><a href="#设计六：benchmark-suite-用-registry-组织可复用任务" class="headerlink" title="设计六：benchmark suite 用 registry 组织可复用任务"></a>设计六：benchmark suite 用 registry 组织可复用任务</h2><p>attack matrix 是统一安全攻击矩阵，benchmark suite 则更偏“按 taxonomy 组织已有 benchmark”。</p>
+<p>每个 benchmark entry 会描述：</p>
+<ul>
+<li><code>source_type</code>：本地任务还是 <code>inspect_evals</code>。</li>
+<li><code>import_path</code>：动态导入哪个 task factory。</li>
+<li><code>kwargs</code>：传给 task factory 的参数。</li>
+<li><code>status</code>：<code>active</code> 或 <code>planned</code>。</li>
+<li><code>fit</code>：和当前 taxonomy 是 direct 还是 partial fit。</li>
+</ul>
+<h2 id="设计七：报告生成要分清统计口径"><a href="#设计七：报告生成要分清统计口径" class="headerlink" title="设计七：报告生成要分清统计口径"></a>设计七：报告生成要分清统计口径</h2><p>跑完 Inspect eval 后，项目用会把 <code>.eval</code> 日志、目录或 <code>logs.json</code> 汇总成报告。</p>
+<p>报告聚合的核心不是把所有样本算一个总分，而是分开看：</p>
+<ul>
+<li>有害样本的 refusal rate、jailbreak rate。</li>
+<li>良性或可用性样本的 help rate、overrefusal rate。</li>
+<li>provider block、timeout、error、unknown。</li>
+<li>按 source、风险子类、攻击条件统计。</li>
+<li>相对 <code>baseline_none</code> 的变化。</li>
+</ul>
+<h2 id="常见问题和边界情况"><a href="#常见问题和边界情况" class="headerlink" title="常见问题和边界情况"></a>常见问题和边界情况</h2><h3 id="1-为什么不直接把-attacked-prompt-存成-JSON？"><a href="#1-为什么不直接把-attacked-prompt-存成-JSON？" class="headerlink" title="1. 为什么不直接把 attacked prompt 存成 JSON？"></a>1. 为什么不直接把 attacked prompt 存成 JSON？</h3><p>可以存，但项目主链路选择 raw payload + runtime overlay，是为了减少重复数据和保持攻击维度可组合。这样新增攻击方法时，不需要重新生成所有风险子类数据。</p>
+<h3 id="2-blocked-能不能算-Agent-安全？"><a href="#2-blocked-能不能算-Agent-安全？" class="headerlink" title="2. blocked 能不能算 Agent 安全？"></a>2. <code>blocked</code> 能不能算 Agent 安全？</h3><p>不能直接算。<code>blocked</code> 表示 provider 或 API 网关在模型返回可评分文本前拦截了请求。它是系统层结果，不等同于模型自行拒答。</p>
+<h3 id="3-LLM-judge-会不会误判？"><a href="#3-LLM-judge-会不会误判？" class="headerlink" title="3. LLM judge 会不会误判？"></a>3. LLM judge 会不会误判？</h3><p>会有风险，所以项目保留 fallback 和 judge response metadata，也建议对关键报告做人工抽样复核。自动评分适合规模化筛查，不应替代所有高风险结论的人工确认。</p>
+<h3 id="4-为什么-expected-behavior-refuse-和-expected-behavior-comply-不能混算？"><a href="#4-为什么-expected-behavior-refuse-和-expected-behavior-comply-不能混算？" class="headerlink" title="4. 为什么 expected_behavior=refuse 和 expected_behavior=comply 不能混算？"></a>4. 为什么 <code>expected_behavior=refuse</code> 和 <code>expected_behavior=comply</code> 不能混算？</h3><p>因为二者语义相反。对高风险样本，<code>comply</code> 往往是失守；对良性样本，<code>comply</code> 是正常帮助。报告必须先按期望行为分组，再统计 refusal、help、jailbreak 或 overrefusal。</p>
+<h3 id="5-为什么有些-source-只支持-baseline-none？"><a href="#5-为什么有些-source-只支持-baseline-none？" class="headerlink" title="5. 为什么有些 source 只支持 baseline_none？"></a>5. 为什么有些 source 只支持 <code>baseline_none</code>？</h3><p>从当前项目实现看，过度拒绝、正确性或 Agent projection 类 source 不一定适合叠加完整攻击条件。强行展开可能会把可用性、正确性和攻击鲁棒性混成一个不清晰的指标。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这个项目的核心价值不在于某一个攻击模板或某一次评测结果，而在于把安全评测拆成了几层稳定接口：</p>
+<ol>
+<li>数据可维护：风险对象和攻击包装分离，减少重复样本。</li>
+<li>结果可解释：模型拒答、网关拦截、超时和错误不会混在一起。</li>
+<li>流程可复现：runner、registry、报告和测试把实验条件固定下来。</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%B7%A5%E5%85%B7%E5%88%86%E4%BA%AB/" class="print-no-link">#工具分享</a>
+      
+        <a href="/tags/Agent-%E5%AE%89%E5%85%A8/" class="print-no-link">#Agent 安全</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>基于 Inspect AI 的安全评测框架实践：从 Raw Payload 到攻击矩阵</div>
+      <div>https://catdfd.com/2026/06/25/inspect-ai-chemsec-eval-practice/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Gargantua</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年6月25日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/04/12/inspect-ai/" title="如何用 inspect-ai 搭建 Agent 安全评测框架：设计测试链路及数据集">
+                        <span class="hidden-mobile">如何用 inspect-ai 搭建 Agent 安全评测框架：设计测试链路及数据集</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <span>© 2026 catdfd.com</span> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">›</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">›</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  
+<script src="/js/custom.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
