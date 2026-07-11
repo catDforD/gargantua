@@ -3,14 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>只在你眼里，世界有光</title>
+    <title>DANDADAN × Star Crossing Night</title>
     <link rel="icon" href="/img/fluid.png" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <header class="site-header" aria-label="页面标题">
-      <a class="brand" href="#top" aria-label="回到首页">DANDADAN</a>
-      <span>Love Edit</span>
+      <a class="brand" href="/works/" aria-label="返回作品集">DANDADAN</a>
+      <span class="site-edition">Love Edit <i>·</i> 2026</span>
+      <span class="reading-progress" aria-hidden="true"></span>
     </header>
 
     <main id="top">
@@ -18,23 +19,43 @@
         <img class="hero__image" src="./assets/images/01.png" alt="女生托腮看着坐在身边读书的男生" />
         <div class="hero__shade"></div>
         <div class="hero__copy">
-          <p class="eyebrow">A quiet fever</p>
+          <p class="eyebrow">Aliens × Ghosts × Crushes</p>
           <h1 class="hero-title" id="hero-title">
             <span class="hero-title__line">还记得第一面</span>
             <span class="hero-title__line">见到你</span>
             <span class="hero-title__line">我心是怎样波动</span>
           </h1>
-          <p>喧闹、失控、坠落之前，先学会彼此靠近。</p>
+          <p>桃不信外星人，厄卡伦不信幽灵。两个人都赌输了。</p>
+          <div class="hero__meta" aria-label="作品信息">
+            <span>Momo × Okarun</span>
+            <span>THE 8 / GALI</span>
+            <span>Sound on</span>
+          </div>
         </div>
+        <a class="scroll-cue" href="#story"><span>Start the edit</span><i aria-hidden="true"></i></a>
       </section>
 
-      <section class="gallery" aria-label="爱情影像序列">
-        <div class="story-duo" aria-label="回声与靠近">
+      <section class="story-intro" id="story" aria-labelledby="story-title">
+        <span class="story-intro__count" aria-hidden="true">01—14</span>
+        <div class="story-intro__copy">
+          <p class="eyebrow">Aliens / Ghosts / Both real</p>
+          <h2 id="story-title">外星人是真的。<br />幽灵也是真的。</h2>
+        </div>
+        <p>桃和厄卡伦为了证明对方错了，各自去了最不该去的地方。结果：两边都有。</p>
+      </section>
+
+      <section class="gallery" aria-label="桃与厄卡伦影像序列">
+        <header class="chapter-heading">
+          <span>Chapter 01</span>
+          <strong>第一次见面</strong>
+        </header>
+
+        <div class="story-duo" aria-label="初见与靠近">
           <figure class="photo photo--wide">
             <button class="photo__button" type="button" data-index="0">
               <img src="./assets/images/02.png" alt="男生站在火光与夜色之间" />
             </button>
-            <figcaption><span>02</span><strong>回声</strong><em>每一次看见你，世界都开始失重。</em></figcaption>
+            <figcaption><span>02</span><strong>初见</strong><em>第一面，就不太对劲。</em></figcaption>
           </figure>
 
           <figure class="photo photo--offset-right">
@@ -45,77 +66,102 @@
           </figure>
         </div>
 
-        <div class="photo-pair" aria-label="秒针与心意">
+        <div class="photo-pair" aria-label="厄卡伦与桃">
           <figure class="photo">
-            <button class="photo__button" type="button" data-index="3">
+            <button class="photo__button" type="button" data-index="2">
               <img src="./assets/images/04.png" alt="男生戴着圆框眼镜望向前方" loading="lazy" />
             </button>
-            <figcaption><span>04</span><strong>秒针</strong><em>心意在倒数里变得清楚。</em></figcaption>
+            <figcaption><span>04</span><strong>告白预演</strong><em>厄卡伦又卡壳了。</em></figcaption>
           </figure>
 
           <figure class="photo photo--wide">
-            <button class="photo__button" type="button" data-index="4">
+            <button class="photo__button" type="button" data-index="3">
               <img src="./assets/images/05.png" alt="女生在教室里抬头凝视" loading="lazy" />
             </button>
-            <figcaption><span>05</span><strong>心意</strong><em>她没有躲开自己的认真。</em></figcaption>
+            <figcaption><span>05</span><strong>桃</strong><em>听见了，先装没听见。</em></figcaption>
+          </figure>
+        </div>
+
+        <header class="chapter-heading">
+          <span>Chapter 02</span>
+          <strong>夜路和怪谈</strong>
+        </header>
+
+        <figure class="photo photo--cinema photo--inset-left">
+          <button class="photo__button" type="button" data-index="4">
+            <img src="./assets/images/06.png" alt="星空下两人隔着画面遥望" loading="lazy" />
+          </button>
+          <figcaption><span>06</span><strong>Star Crossing Night</strong><em>I saw you in the sky.</em></figcaption>
+        </figure>
+
+        <figure class="photo photo--cinema photo--inset-right">
+          <button class="photo__button" type="button" data-index="5">
+            <img src="./assets/images/07.png" alt="夜晚女生抱着物品微笑" loading="lazy" />
+          </button>
+          <figcaption><span>07</span><strong>回家路上</strong><em>今天也没被怪吃掉。</em></figcaption>
+        </figure>
+
+        <header class="chapter-heading">
+          <span>Chapter 03</span>
+          <strong>变身时间</strong>
+        </header>
+
+        <div class="photo-pair photo-pair--neon" aria-label="厄卡伦变身与桃的念力">
+          <figure class="photo">
+            <button class="photo__button" type="button" data-index="6">
+              <img src="./assets/images/08.png" alt="男生霓虹光下的眼睛特写" loading="lazy" />
+            </button>
+            <figcaption><span>08</span><strong>变身</strong><em>厄卡伦，开跑。</em></figcaption>
+          </figure>
+
+          <figure class="photo">
+            <button class="photo__button" type="button" data-index="7">
+              <img src="./assets/images/09.png" alt="女生在强烈霓虹光中仰头呼喊" loading="lazy" />
+            </button>
+            <figcaption><span>09</span><strong>念力</strong><em>桃不跟怪讲道理。</em></figcaption>
           </figure>
         </div>
 
         <figure class="photo photo--cinema">
-          <button class="photo__button" type="button" data-index="5">
-            <img src="./assets/images/06.png" alt="星空下两人隔着画面遥望" loading="lazy" />
-          </button>
-          <figcaption><span>06</span><strong>星夜</strong><em>夜空很大，想念很近。</em></figcaption>
-        </figure>
-
-        <figure class="photo photo--cinema">
-          <button class="photo__button" type="button" data-index="6">
-            <img src="./assets/images/07.png" alt="夜晚女生抱着物品微笑" loading="lazy" />
-          </button>
-          <figcaption><span>07</span><strong>回忆</strong><em>笑意像暗处保存下来的火。</em></figcaption>
-        </figure>
-
-        <figure class="photo photo--cinema">
-          <button class="photo__button" type="button" data-index="9">
+          <button class="photo__button" type="button" data-index="8">
             <img src="./assets/images/10.png" alt="两人分置画面两侧低头沉思" loading="lazy" />
           </button>
-          <figcaption><span>10</span><strong>分线</strong><em>沉默也在靠近。</em></figcaption>
+          <figcaption><span>10</span><strong>嘴硬</strong><em>谁都不肯先说。</em></figcaption>
         </figure>
 
-        <figure class="photo">
-          <button class="photo__button" type="button" data-index="7">
-            <img src="./assets/images/08.png" alt="男生霓虹光下的眼睛特写" loading="lazy" />
-          </button>
-          <figcaption><span>08</span><strong>心跳</strong><em>颜色替他把秘密说出口。</em></figcaption>
-        </figure>
+        <header class="chapter-heading">
+          <span>Final chapter</span>
+          <strong>还是要一起上</strong>
+        </header>
 
-        <figure class="photo">
-          <button class="photo__button" type="button" data-index="8">
-            <img src="./assets/images/09.png" alt="女生在强烈霓虹光中仰头呼喊" loading="lazy" />
-          </button>
-          <figcaption><span>09</span><strong>失重</strong><em>爱有时像被光突然击中。</em></figcaption>
-        </figure>
+        <div class="photo-pair photo-pair--finale" aria-label="并肩与追击">
+          <figure class="photo">
+            <button class="photo__button" type="button" data-index="9">
+              <img src="./assets/images/12.png" alt="红色光影中女生蜷身漂浮" loading="lazy" />
+            </button>
+            <figcaption><span>12</span><strong>并肩</strong><em>先救人，再吵架。</em></figcaption>
+          </figure>
 
-        <figure class="photo">
-          <button class="photo__button" type="button" data-index="11">
-            <img src="./assets/images/12.png" alt="红色光影中女生蜷身漂浮" loading="lazy" />
-          </button>
-          <figcaption><span>12</span><strong>炽热</strong><em>所有克制都藏着燃烧。</em></figcaption>
-        </figure>
-
-        <figure class="photo">
-          <button class="photo__button" type="button" data-index="12">
-            <img src="./assets/images/13.png" alt="男生在月色与黄光前行动" loading="lazy" />
-          </button>
-          <figcaption><span>13</span><strong>月下</strong><em>他带着夜色奔向答案。</em></figcaption>
-        </figure>
+          <figure class="photo">
+            <button class="photo__button" type="button" data-index="10">
+              <img src="./assets/images/13.png" alt="男生在月色与黄光前行动" loading="lazy" />
+            </button>
+            <figcaption><span>13</span><strong>追上去</strong><em>跑快点，厄卡伦。</em></figcaption>
+          </figure>
+        </div>
 
         <figure class="photo photo--final">
-          <button class="photo__button" type="button" data-index="13">
+          <button class="photo__button" type="button" data-index="11">
             <img src="./assets/images/14.png" alt="两人倒置同框看向镜头" loading="lazy" />
           </button>
-          <figcaption><span>14</span><strong>同框</strong><em>故事最后，世界被翻转成他们的方向。</em></figcaption>
+          <figcaption><span>14</span><strong>桃 × 厄卡伦</strong><em>外星人和幽灵的问题还没吵完。</em></figcaption>
         </figure>
+      </section>
+
+      <section class="story-end" aria-label="作品结尾">
+        <span>Aliens × Ghosts</span>
+        <p>MOMO<br />× OKARUN</p>
+        <a href="/works/">Back to works <i aria-hidden="true">&#8599;&#xfe0e;</i></a>
       </section>
     </main>
 
@@ -124,7 +170,7 @@
       <span class="music-toggle__icon" aria-hidden="true">♪</span>
     </button>
 
-    <div class="lightbox" aria-hidden="true" role="dialog" aria-label="图片预览">
+    <div class="lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="图片预览">
       <button class="lightbox__close" type="button" aria-label="关闭预览" title="关闭">×</button>
       <button class="lightbox__nav lightbox__nav--prev" type="button" aria-label="上一张" title="上一张">‹</button>
       <figure class="lightbox__stage">
