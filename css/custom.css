@@ -181,22 +181,40 @@ html[data-user-color-scheme="dark"] .photography-frame {
 
 .works-layout {
   display: grid;
-  gap: 1.5rem;
-  max-width: 1040px;
+  gap: 2.4rem;
+  width: 100%;
+  max-width: 1080px;
   margin: 0 auto;
-  padding: 0.5rem 1rem 1.25rem;
+  padding: 0.75rem 1rem 1.5rem;
+}
+
+body:has(.works-layout) #banner .banner-text {
+  display: none;
 }
 
 .works-header {
   display: grid;
-  gap: 0.45rem;
+  gap: 0.65rem;
+}
+
+.works-header__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--line-color);
+  color: var(--sec-text-color);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .works-kicker {
   margin: 0;
   color: var(--sec-text-color);
-  font-size: 0.76rem;
-  letter-spacing: 0;
+  font-size: inherit;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
@@ -204,18 +222,22 @@ html[data-user-color-scheme="dark"] .photography-frame {
   margin: 0;
   color: var(--text-color);
   font-family: Georgia, "Times New Roman", "Songti SC", serif;
-  font-size: 3.75rem;
+  font-size: clamp(3.4rem, 8vw, 5.75rem);
   font-weight: 500;
-  line-height: 1.05;
-  letter-spacing: 0;
+  line-height: 0.96;
+  letter-spacing: -0.045em;
+}
+
+.works-header h2 span {
+  color: #a71d2a;
 }
 
 .works-header p:last-child {
-  max-width: 720px;
+  max-width: 660px;
   margin: 0;
   color: var(--sec-text-color);
-  font-size: 1rem;
-  line-height: 1.8;
+  font-size: 0.98rem;
+  line-height: 1.75;
 }
 
 .works-list {
@@ -226,34 +248,39 @@ html[data-user-color-scheme="dark"] .photography-frame {
 .work-card {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(240px, 42%) minmax(0, 1fr);
-  min-height: 320px;
+  grid-template-columns: minmax(0, 56%) minmax(300px, 44%);
+  min-height: 430px;
   overflow: hidden;
   color: inherit;
   text-decoration: none !important;
-  border: 1px solid var(--line-color);
-  border-radius: 8px;
-  background:
-    linear-gradient(135deg, rgba(167, 29, 42, 0.12), rgba(73, 184, 166, 0.08) 48%, rgba(188, 163, 107, 0.12)),
-    rgba(255, 255, 255, 0.9);
-  box-shadow: 0 18px 46px rgba(47, 65, 84, 0.11);
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  border: 1px solid rgba(21, 23, 25, 0.25);
+  border-radius: 22px;
+  background: #09090a;
+  box-shadow:
+    0 30px 70px rgba(20, 27, 36, 0.2),
+    0 6px 18px rgba(20, 27, 36, 0.1);
+  isolation: isolate;
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
 }
 
 .work-card::before {
   content: "";
   position: absolute;
-  inset: 0 auto 0 0;
-  width: 5px;
-  background: linear-gradient(180deg, #a71d2a, #49b8a6 55%, #bca36b);
+  inset: 0 0 auto;
+  z-index: 3;
+  height: 2px;
+  background: linear-gradient(90deg, #a71d2a 0 33%, #49b8a6 33% 66%, #bca36b 66%);
+  opacity: 0.85;
 }
 
 .work-card:hover,
 .work-card:focus-visible {
   color: inherit;
-  border-color: rgba(167, 29, 42, 0.32);
-  box-shadow: 0 22px 54px rgba(47, 65, 84, 0.16);
-  transform: translateY(-4px);
+  border-color: rgba(188, 163, 107, 0.5);
+  box-shadow:
+    0 38px 84px rgba(20, 27, 36, 0.26),
+    0 8px 22px rgba(20, 27, 36, 0.12);
+  transform: translateY(-7px);
 }
 
 .work-card:focus-visible {
@@ -262,64 +289,159 @@ html[data-user-color-scheme="dark"] .photography-frame {
 }
 
 .work-card__media {
+  position: relative;
   display: block;
-  min-height: 320px;
+  min-height: 430px;
   overflow: hidden;
   background: #0b0b0c;
+}
+
+.work-card__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(5, 5, 5, 0.05), rgba(5, 5, 5, 0.52)),
+    linear-gradient(90deg, transparent 68%, rgba(5, 5, 5, 0.28));
+  pointer-events: none;
 }
 
 .work-card__media img {
   width: 100%;
   height: 100%;
-  min-height: 320px;
+  min-height: 430px;
   object-fit: cover;
-  filter: saturate(0.88) contrast(1.05);
-  transition: transform 0.35s ease, filter 0.35s ease;
+  object-position: 54% center;
+  filter: saturate(0.72) contrast(1.08) brightness(0.8);
+  transform: scale(1.015);
+  transition: transform 0.7s cubic-bezier(0.2, 0.75, 0.25, 1), filter 0.5s ease;
 }
 
 .work-card:hover .work-card__media img,
 .work-card:focus-visible .work-card__media img {
-  filter: saturate(1.02) contrast(1.08);
-  transform: scale(1.035);
+  filter: saturate(0.94) contrast(1.08) brightness(0.88);
+  transform: scale(1.055);
+}
+
+.work-card__sequence,
+.work-card__preview {
+  position: absolute;
+  z-index: 2;
+  color: rgba(243, 239, 231, 0.82);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.work-card__sequence {
+  top: 1.6rem;
+  left: 1.75rem;
+}
+
+.work-card__preview {
+  bottom: 1.65rem;
+  left: 1.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.work-card__preview::before {
+  content: "";
+  width: 2.5rem;
+  height: 1px;
+  background: #bca36b;
+  transform-origin: left;
+  transition: transform 0.35s ease;
+}
+
+.work-card:hover .work-card__preview::before,
+.work-card:focus-visible .work-card__preview::before {
+  transform: scaleX(1.35);
 }
 
 .work-card__body {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  gap: 0.85rem;
-  padding: 2.75rem;
+  justify-content: center;
+  gap: 1rem;
+  padding: clamp(2rem, 4vw, 3.75rem);
+  background:
+    radial-gradient(circle at 100% 0, rgba(73, 184, 166, 0.12), transparent 36%),
+    radial-gradient(circle at 0 100%, rgba(167, 29, 42, 0.12), transparent 42%),
+    #09090a;
+}
+
+.work-card__eyebrow {
+  color: #bca36b;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
 }
 
 .work-card__meta {
-  color: var(--sec-text-color);
-  font-size: 0.78rem;
-  letter-spacing: 0;
+  color: rgba(243, 239, 231, 0.46);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .work-card__body strong {
-  color: var(--text-color);
+  color: #f3efe7;
   font-family: Georgia, "Times New Roman", "Songti SC", serif;
-  font-size: 3.25rem;
+  font-size: clamp(2.7rem, 4.2vw, 4rem);
   font-weight: 500;
-  line-height: 1.02;
-  letter-spacing: 0;
+  line-height: 0.94;
+  letter-spacing: -0.045em;
+}
+
+.work-card__body strong span {
+  display: block;
+  font-size: 0.78em;
+  letter-spacing: -0.025em;
 }
 
 .work-card__body em {
   max-width: 520px;
-  color: var(--sec-text-color);
+  color: rgba(243, 239, 231, 0.58);
   font-style: normal;
-  font-size: 1rem;
-  line-height: 1.75;
+  font-size: 0.9rem;
+  line-height: 1.8;
 }
 
-html[data-user-color-scheme="dark"] .work-card {
-  background:
-    linear-gradient(135deg, rgba(167, 29, 42, 0.18), rgba(73, 184, 166, 0.11) 50%, rgba(188, 163, 107, 0.14)),
-    rgba(37, 45, 56, 0.92);
-  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.28);
+.work-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.65rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(243, 239, 231, 0.12);
+  color: rgba(243, 239, 231, 0.78);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.work-card__arrow {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid rgba(243, 239, 231, 0.2);
+  border-radius: 50%;
+  color: #f3efe7;
+  font-family: Arial, sans-serif;
+  font-size: 1rem;
+  transition: color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+
+.work-card:hover .work-card__arrow,
+.work-card:focus-visible .work-card__arrow {
+  border-color: #bca36b;
+  color: #bca36b;
+  transform: translate(2px, -2px);
 }
 
 @media (max-width: 991.98px) {
@@ -347,25 +469,50 @@ html[data-user-color-scheme="dark"] .work-card {
     padding-left: 0.75rem;
   }
 
+  .works-header__meta {
+    align-items: flex-start;
+  }
+
   .works-header h2 {
-    font-size: 2.4rem;
+    font-size: clamp(3.25rem, 18vw, 4.75rem);
   }
 
   .work-card {
     grid-template-columns: 1fr;
     min-height: 0;
+    border-radius: 18px;
   }
 
   .work-card__media,
   .work-card__media img {
-    min-height: 230px;
+    min-height: 250px;
+  }
+
+  .work-card__media {
+    aspect-ratio: 16 / 10;
   }
 
   .work-card__body {
-    padding: 1.35rem;
+    padding: 1.6rem;
   }
 
   .work-card__body strong {
-    font-size: 2.25rem;
+    font-size: clamp(2.65rem, 13vw, 3.65rem);
+  }
+
+  .work-card__sequence,
+  .work-card__preview {
+    left: 1.25rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .works-header__meta > span {
+    display: none;
+  }
+
+  .work-card__media,
+  .work-card__media img {
+    min-height: 220px;
   }
 }
