@@ -21,16 +21,31 @@ banner_mask_alpha: 0.45
     <a class="work-card work-card--dandandang" href="/works/dandandang/">
       <span class="work-card__media">
         <img src="/works/dandandang/assets/images/01.png" alt="DANDADAN Love Edit 封面" loading="lazy">
-        <span class="work-card__sequence" aria-hidden="true">01 / 01</span>
+        <span class="work-card__sequence" aria-hidden="true">01 / 02</span>
         <span class="work-card__preview" aria-hidden="true">Open edit</span>
       </span>
       <span class="work-card__body">
-        <span class="work-card__eyebrow">Featured edit</span>
-        <span class="work-card__meta">Anime edit · 2026</span>
-        <strong><span>DANDADAN</span> Love Edit</strong>
-        <em>《胆大党》桃 × 厄卡伦动画剪辑。配乐：THE 8 / GALI《Star Crossing Night》。</em>
+        <span class="work-card__eyebrow">Anime edit</span>
+        <strong>DANDADAN</strong>
+        <span class="work-card__meta">Love edit · 2026</span>
         <span class="work-card__footer">
-          <span>View project</span>
+          <span>View</span>
+          <span class="work-card__arrow" aria-hidden="true">&#8599;&#xfe0e;</span>
+        </span>
+      </span>
+    </a>
+    <a class="work-card work-card--hailmary" href="/works/hailmary/">
+      <span class="work-card__media">
+        <img src="/works/hailmary/images/stills/hero_389.jpg" alt="《挽救计划》粉丝致敬页封面" loading="lazy">
+        <span class="work-card__sequence" aria-hidden="true">02 / 02</span>
+        <span class="work-card__preview" aria-hidden="true">Open tribute</span>
+      </span>
+      <span class="work-card__body">
+        <span class="work-card__eyebrow">Interactive web</span>
+        <strong>HAIL MARY</strong>
+        <span class="work-card__meta">Fan tribute · 2026</span>
+        <span class="work-card__footer">
+          <span>View</span>
           <span class="work-card__arrow" aria-hidden="true">&#8599;&#xfe0e;</span>
         </span>
       </span>

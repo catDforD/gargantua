@@ -1,0 +1,230 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.625rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+/* ===== 挽救计划 致敬页 · 自定义样式 ===== */
+
+:root {
+  --phm-amber: 28 96% 62%;
+  --phm-gold: 40 90% 66%;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #050608;
+  color: #e8e6e1;
+  font-family: 'Noto Sans SC', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+.font-serif-sc {
+  font-family: 'Noto Serif SC', serif;
+}
+
+.font-en {
+  font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+}
+
+/* 滚动显现 */
+.reveal {
+  opacity: 0;
+  transform: translateY(48px);
+  transition: opacity 1.1s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.15s; }
+.reveal-delay-2 { transition-delay: 0.3s; }
+.reveal-delay-3 { transition-delay: 0.45s; }
+
+/* 弹幕轨道 */
+@keyframes danmaku-scroll {
+  from { transform: translateX(100vw); }
+  to { transform: translateX(-100%); }
+}
+.danmaku-item {
+  animation: danmaku-scroll linear infinite;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+/* 英雄区缓慢缩放 */
+@keyframes hero-drift {
+  from { transform: scale(1.02); }
+  to { transform: scale(1.12); }
+}
+.hero-drift {
+  animation: hero-drift 28s ease-in-out infinite alternate;
+}
+
+/* 星光呼吸 */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+.glow-pulse {
+  animation: glow-pulse 4s ease-in-out infinite;
+}
+
+/* 章节图片 */
+.chapter-img {
+  transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 1.4s ease;
+}
+.chapter-img:hover {
+  transform: scale(1.025);
+  box-shadow: 0 30px 80px -20px rgba(255, 140, 60, 0.25);
+}
+
+/* 画廊卡片 */
+.gallery-card {
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.gallery-card:hover {
+  transform: translateY(-6px);
+}
+.gallery-card img {
+  transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.gallery-card:hover img {
+  transform: scale(1.06);
+}
+
+/* 竖排引言装饰 */
+.quote-mark {
+  font-family: 'Cormorant Garamond', serif;
+  line-height: 0.6;
+}
+
+/* 留言卡片 */
+.note-card {
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.6s ease,
+    border-color 0.6s ease;
+}
+.note-card:hover {
+  transform: translateY(-4px) rotate(0deg) !important;
+  box-shadow: 0 20px 50px -15px rgba(255, 150, 70, 0.18);
+  border-color: rgba(255, 170, 90, 0.45);
+}
+
+/* 滚动提示 */
+@keyframes scroll-hint {
+  0%, 100% { transform: translateY(0); opacity: 0.9; }
+  50% { transform: translateY(10px); opacity: 0.4; }
+}
+.scroll-hint {
+  animation: scroll-hint 2.2s ease-in-out infinite;
+}
+
+/* 细滚动条 */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #050608; }
+::-webkit-scrollbar-thumb { background: #2a2d34; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #4a4038; }
+
+::selection {
+  background: rgba(255, 150, 60, 0.35);
+  color: #fff;
+}
+
+/* 横向画廊滚动条 */
+.gallery-track,
+.gallery-caption {
+  padding-inline: max(1.5rem, calc((100% - 72rem) / 2 + 1.5rem));
+}
+
+.gallery-track {
+  scroll-padding-inline: max(1.5rem, calc((100% - 72rem) / 2 + 1.5rem));
+  scrollbar-width: thin;
+  scrollbar-color: #3a332c transparent;
+}
+.gallery-track::-webkit-scrollbar {
+  height: 6px;
+}
+.gallery-track::-webkit-scrollbar-track {
+  background: transparent;
+}
+.gallery-track::-webkit-scrollbar-thumb {
+  background: #3a332c;
+  border-radius: 3px;
+}
+.gallery-track::-webkit-scrollbar-thumb:hover {
+  background: #6b5636;
+}
