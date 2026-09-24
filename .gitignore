@@ -9,3 +9,5 @@ _multiconfig.yml
 /.codex
 photos/
 .serena/
+knowledge_map/dist/
+knowledge_map/.tsbuildinfo

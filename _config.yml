@@ -25,6 +25,10 @@ source_dir: source
 public_dir: public
 tag_dir: tags
 archive_dir: archives
+
+# 归档内容已由知识图谱替代，关闭归档生成器以移除 /archives/ 页面。
+archive_generator:
+  enabled: false
 category_dir: categories
 code_dir: downloads/code
 i18n_dir: :lang

@@ -32,6 +32,7 @@ jobs:
 
       - name: Build Hexo
         run: |
+          npm run build:knowledge-map
           npx hexo clean
           npx hexo generate
 
