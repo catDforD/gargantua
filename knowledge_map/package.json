@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prebuild": "node ../tools/generate-knowledge-map-data.js",
     "dev": "vite --port 3015 --host 0.0.0.0 --strictPort",
     "build": "vite build",
     "preview": "vite preview --port 3015 --host 0.0.0.0",

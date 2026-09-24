@@ -375,17 +375,13 @@ export function KnowledgeGraph() {
   return (
     <div className="bg-card">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-        {/* Header */}
+        {/* Animated pet */}
         <div className="mb-6 sm:mb-8">
-          <h1
-            className="font-bold text-foreground tracking-tight"
-            style={{ fontSize: "2rem", lineHeight: 1.25 }}
-          >
-            知识图谱
-          </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            把零散的技术概念连成一张可探索的地图 · 拖拽节点 · 滚轮缩放 · 点击查看详情
-          </p>
+          <div className="knowledge-map-pet-stage" role="img" aria-label="角色正在来回奔跑">
+            <span className="knowledge-map-pet" aria-hidden="true">
+              <img className="knowledge-map-pet__gif" src="/graph/assets/pet-running.gif" alt="" draggable="false" />
+            </span>
+          </div>
         </div>
 
         {/* Search */}

@@ -17,3 +17,4 @@ fi
 mkdir -p "$GRAPH_ASSETS_DIR"
 cp "$KNOWLEDGE_MAP_DIR/dist/assets/knowledge-graph.css" "$GRAPH_ASSETS_DIR/knowledge-graph.css"
 cp "$KNOWLEDGE_MAP_DIR/dist/assets/knowledge-graph.js" "$GRAPH_ASSETS_DIR/knowledge-graph.js"
+cp "$KNOWLEDGE_MAP_DIR/pets/pet-running.gif" "$GRAPH_ASSETS_DIR/pet-running.gif"
