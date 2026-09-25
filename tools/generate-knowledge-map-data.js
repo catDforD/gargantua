@@ -24,7 +24,7 @@ const categoryLabels = {
   computer_science: "计算机科学",
 };
 
-const palette = ["#525252", "#737373", "#a3a3a3", "#b0b0b0", "#c4c4c4", "#d4d4d4"];
+const palette = ["#666666", "#808080", "#999999", "#b0b0b0", "#c4c4c4", "#d6d6d6"];
 
 function parseNodeFile(fileName) {
   const filePath = path.join(nodesDir, fileName);

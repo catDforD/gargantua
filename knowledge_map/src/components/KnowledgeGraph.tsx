@@ -95,8 +95,9 @@ export function KnowledgeGraph() {
       .selectAll<SVGLineElement, SimLink>("line")
       .data(links)
       .join("line")
-      .attr("stroke", "#e0e0e0")
-      .attr("stroke-opacity", 0.3)
+      .attr("class", "knowledge-map-link")
+      .attr("stroke", "#b8b8b8")
+      .attr("stroke-opacity", 0.6)
       .attr("stroke-width", (d) => Math.max(0.5, d.weight * 0.4))
       .attr("stroke-dasharray", "4 3")
       .attr("stroke-dashoffset", 0);
@@ -120,6 +121,7 @@ export function KnowledgeGraph() {
       .selectAll<SVGGElement, SimNode>("g")
       .data(nodes)
       .join("g")
+      .attr("class", "knowledge-map-node")
       .style("cursor", "grab");
 
     const nodeRadius = (d: SimNode) => {
@@ -259,10 +261,10 @@ export function KnowledgeGraph() {
           .transition()
           .duration(200)
           .attr("stroke-opacity", (l) =>
-            (l.source as SimNode).id === d.id || (l.target as SimNode).id === d.id ? 0.6 : 0.04,
+            (l.source as SimNode).id === d.id || (l.target as SimNode).id === d.id ? 0.85 : 0.12,
           )
           .attr("stroke", (l) =>
-            (l.source as SimNode).id === d.id || (l.target as SimNode).id === d.id ? "#a3a3a3" : "#e0e0e0",
+            (l.source as SimNode).id === d.id || (l.target as SimNode).id === d.id ? "#808080" : "#b8b8b8",
           );
 
         d3.select(this).select("circle").transition().duration(350).ease(d3.easeElasticOut.amplitude(1).period(0.4)).attr("r", function () {
@@ -277,8 +279,8 @@ export function KnowledgeGraph() {
         linkElements
           .transition()
           .duration(300)
-          .attr("stroke-opacity", 0.3)
-          .attr("stroke", "#e0e0e0");
+          .attr("stroke-opacity", 0.6)
+          .attr("stroke", "#b8b8b8");
 
         d3.select(this).select("circle").transition().duration(400).ease(d3.easeElasticOut.amplitude(1).period(0.5)).attr("r", function () {
           const parent = (this as Element | null)?.parentNode;
@@ -332,7 +334,7 @@ export function KnowledgeGraph() {
     }
 
     d3.select(svg)
-      .selectAll<SVGGElement, SimNode>("g g")
+      .selectAll<SVGGElement, SimNode>(".knowledge-map-node")
       .transition()
       .duration(200)
       .style("opacity", (d) => {
@@ -341,14 +343,14 @@ export function KnowledgeGraph() {
       });
 
     d3.select(svg)
-      .selectAll<SVGLineElement, SimLink>("g line")
+      .selectAll<SVGLineElement, SimLink>(".knowledge-map-link")
       .transition()
       .duration(200)
       .attr("stroke-opacity", (d) => {
-        if (!hasFilter) return 0.3;
+        if (!hasFilter) return 0.6;
         const s = typeof d.source === "string" ? d.source : (d.source as SimNode).id;
         const t = typeof d.target === "string" ? d.target : (d.target as SimNode).id;
-        return matchIds.has(s) && matchIds.has(t) ? 0.3 : 0.03;
+        return matchIds.has(s) && matchIds.has(t) ? 0.6 : 0.08;
       });
   }, [searchQuery, activeCategory]);
 
