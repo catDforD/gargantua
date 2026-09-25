@@ -20,22 +20,66 @@ export interface GraphData {
 
 export const CATEGORIES = [
   {
-    "name": "Agent",
+    "name": "llm",
     "color": "#666666"
   },
   {
-    "name": "工程实践",
+    "name": "rag",
     "color": "#808080"
+  },
+  {
+    "name": "Agent",
+    "color": "#999999"
+  },
+  {
+    "name": "工程实践",
+    "color": "#b0b0b0"
   }
 ] as const;
 
 export const graphData: GraphData = {
   "nodes": [
     {
+      "id": "node:DPO",
+      "name": "DPO",
+      "category": "llm",
+      "description": "DPO（Direct Preference Optimization）通过对奖励模型做闭式重参数化、把 RLHF 化为单个偏好分类（最大似然）损失的对齐方法：直接拉大偏好对的对数似然差，无需显式奖励模型、无需在线采样，只需策略模型和冻结的参考模型。"
+    },
+    {
+      "id": "node:GRPO",
+      "name": "GRPO",
+      "category": "llm",
+      "description": "GRPO（Group Relative Policy Optimization）是 DeepSeek 提出的 PPO 变体：对同一提示从旧策略采样 G 个输出，用组内奖励的均值与标准差归一化后的相对优势替代价值（critic）模型估计的基线，在保留奖励模型与 KL 约束的同时省去与策略同规模的价值模型。"
+    },
+    {
+      "id": "node:GraphRAG",
+      "name": "GraphRAG",
+      "category": "rag",
+      "description": "GraphRAG 是微软提出的图式 RAG 方法：先用 LLM 从语料抽取实体—关系知识图谱，再对图做层级社区发现并为每个社区预生成摘要，查询时用社区摘要（全局）或实体邻域（局部）而非单纯向量相似度来组装上下文。"
+    },
+    {
       "id": "node:Harness",
       "name": "Harness",
       "category": "Agent",
       "description": "Harness 是模型之外负责执行的那一层系统：它维持跨回合的上下文、调用工具、约束运行边界、处理审批与失败，并让工作继续推进；模型只在这一层提供的循环里做推理。它不包含模型本身，也不包含模型服务的托管部分。"
+    },
+    {
+      "id": "node:KV Cache",
+      "name": "KV Cache",
+      "category": "llm",
+      "description": "KV Cache（键值缓存）是自回归 Transformer 推理解码阶段的专用缓存，把已生成 token 的 Key / Value 张量驻留 GPU 显存以避免重复计算；它不是通用缓存，也不改变模型的数学结果。"
+    },
+    {
+      "id": "node:LangGraph",
+      "name": "LangGraph",
+      "category": "Agent",
+      "description": "LangGraph 是 LangChain 团队开源的低层级 Agent 编排框架与运行时，用图（State / Nodes / Edges）显式建模 Agent 流程，提供持久化执行、流式输出与人机协同；它不是模型、不是 Prompt 库，也不提供预置 Agent 架构。"
+    },
+    {
+      "id": "node:LoRA",
+      "name": "LoRA",
+      "category": "llm",
+      "description": "LoRA（Low-Rank Adaptation）是一种参数高效微调方法，冻结预训练权重、仅向 Transformer 各层注入可训练的低秩分解矩阵来学习下游任务增量；它不是全量微调，也不是推理期缓存或量化技术。"
     },
     {
       "id": "node:MCP",
@@ -44,16 +88,46 @@ export const graphData: GraphData = {
       "description": "MCP（Model Context Protocol）是一个开放标准，用统一的客户端—服务器协议把 AI 应用连接到外部系统：数据源、工具和工作流由 MCP 服务器暴露，AI 应用通过 MCP 客户端连接并取用。"
     },
     {
+      "id": "node:PPO",
+      "name": "PPO",
+      "category": "llm",
+      "description": "PPO（Proximal Policy Optimization）是一族策略梯度强化学习算法，用截断（clipped）代理目标限制单次策略更新幅度；在 RLHF 中它优化奖励模型给出的期望奖励，需同时维护策略、参考、奖励、价值四个模型。"
+    },
+    {
       "id": "node:PTC",
       "name": "PTC",
       "category": "Agent",
       "description": "PTC（Programmatic Tool Calling）是一种让模型生成程序、由程序组织多次工具调用和控制流的方法。"
     },
     {
+      "id": "node:Plan-and-Execute",
+      "name": "Plan-and-Execute",
+      "category": "Agent",
+      "description": "Plan-and-Execute 是先由规划器（planner）一次性生成完整多步计划、再由执行器（executor）逐步执行、必要时经重规划器（replanner）修订计划的智能体编排模式；它与 [[ReAct]] 的单步交替循环相对，本身不特指某一具体框架实现。"
+    },
+    {
+      "id": "node:RAG",
+      "name": "RAG",
+      "category": "rag",
+      "description": "RAG（检索增强生成）是在生成前先从外部知识源检索相关内容、再把检索结果与问题一起送入语言模型的方法；基线形态依赖对语义相似文本做向量检索，它不改动模型权重。"
+    },
+    {
+      "id": "node:ReAct",
+      "name": "ReAct",
+      "category": "Agent",
+      "description": "ReAct 是让模型在解决任务时交替生成推理轨迹（Thought）与具体行动（Action，如调用工具或查询环境），并依据观察结果（Observation）循环修正的提示范式；它不包含多智能体协作，也不预先一次性生成完整计划。"
+    },
+    {
       "id": "node:SSE",
       "name": "SSE",
       "category": "工程实践",
       "description": "SSE（Server-Sent Events）是一种基于 HTTP 的服务器到客户端单向事件流机制，客户端建立连接后，服务器以事件流持续发送数据，客户端不能通过同一 SSE 连接向服务器发送事件。"
+    },
+    {
+      "id": "node:Sandbox",
+      "name": "Sandbox",
+      "category": "Agent",
+      "description": "Sandbox 是模型运行自己生成的代码、修改文件的隔离执行环境。它把模型的动作限制在可丢弃的边界内，因此一次失败可以当作一条工具调用错误处理，而不必抢救整个会话。"
     },
     {
       "id": "node:Streamable HTTP",
@@ -66,11 +140,92 @@ export const graphData: GraphData = {
       "name": "Tool Calling",
       "category": "Agent",
       "description": "Tool Calling 是模型选择并调用外部工具、再根据工具结果继续决定后续步骤的交互机制。"
+    },
+    {
+      "id": "node:WebSocket",
+      "name": "WebSocket",
+      "category": "工程实践",
+      "description": "WebSocket 是基于 TCP、经 HTTP Upgrade 握手建立的全双工双向通信协议（RFC 6455），浏览器通过 `WebSocket` API 在同一条长连接上同时收发文本或二进制消息，无需轮询。"
+    },
+    {
+      "id": "node:动态规划",
+      "name": "动态规划",
+      "category": "工程实践",
+      "description": "动态规划是把问题拆成相互重叠的子问题、保存子问题解以避免重复计算的方法；它要求问题具备最优子结构，实现上表现为记忆化搜索（自顶向下）或递推填表（自底向上），与只解一次子问题的分治不同。"
+    },
+    {
+      "id": "node:多阶段检索",
+      "name": "多阶段检索",
+      "category": "rag",
+      "description": "多阶段检索指把检索拆成目标不同的若干**串联**阶段——先用廉价高召回的方式取大候选集，再用昂贵高精度的模型对小 top-k 精排，最后交给生成——以在延迟预算内同时逼近 recall 与 precision；它是串联多级，不同于并行多路的 [[混合检索]]。"
+    },
+    {
+      "id": "node:最长递增子序列",
+      "name": "最长递增子序列",
+      "category": "工程实践",
+      "description": "最长递增子序列（LIS，LeetCode 300，Medium）指给定整数数组 `nums`，在不改变其余元素相对顺序的前提下删除若干元素，所能得到的最长**严格**递增序列的长度；求的是子序列而非子串，且默认严格递增。"
+    },
+    {
+      "id": "node:混合检索",
+      "name": "混合检索",
+      "category": "rag",
+      "description": "混合检索指在同一次查询里并行执行多路互补召回（典型为 BM25 / 稀疏词法加稠密向量语义），再用融合策略把多份排名合并为单一结果列表，以弥补单一信号的召回盲区；它是并行的多路召回，不同于串联多级的 [[多阶段检索]]。"
+    },
+    {
+      "id": "node:目标和",
+      "name": "目标和",
+      "category": "工程实践",
+      "description": "目标和（Target Sum，LeetCode 494，Medium）指给定非负整数数组 `nums` 与整数 `target`，为每个元素前各添加一个 `+` 或 `-` 并串联（必须用到全部元素），求运算结果恰为 `target` 的不同表达式数目。"
     }
   ],
   "links": [
     {
+      "source": "node:DPO",
+      "target": "node:LoRA",
+      "weight": 2
+    },
+    {
+      "source": "node:DPO",
+      "target": "node:PPO",
+      "weight": 2
+    },
+    {
+      "source": "node:GraphRAG",
+      "target": "node:RAG",
+      "weight": 4
+    },
+    {
+      "source": "node:GRPO",
+      "target": "node:LoRA",
+      "weight": 2
+    },
+    {
+      "source": "node:GRPO",
+      "target": "node:PPO",
+      "weight": 4
+    },
+    {
       "source": "node:Harness",
+      "target": "node:LangGraph",
+      "weight": 2
+    },
+    {
+      "source": "node:Harness",
+      "target": "node:Sandbox",
+      "weight": 2
+    },
+    {
+      "source": "node:Harness",
+      "target": "node:Tool Calling",
+      "weight": 2
+    },
+    {
+      "source": "node:KV Cache",
+      "target": "node:LoRA",
+      "weight": 2
+    },
+    {
+      "source": "node:LangGraph",
       "target": "node:Tool Calling",
       "weight": 2
     },
@@ -83,6 +238,16 @@ export const graphData: GraphData = {
       "source": "node:MCP",
       "target": "node:Tool Calling",
       "weight": 2
+    },
+    {
+      "source": "node:Plan-and-Execute",
+      "target": "node:ReAct",
+      "weight": 2
+    },
+    {
+      "source": "node:Plan-and-Execute",
+      "target": "node:Tool Calling",
+      "weight": 5
     },
     {
       "source": "node:PTC",
@@ -90,8 +255,43 @@ export const graphData: GraphData = {
       "weight": 5
     },
     {
+      "source": "node:RAG",
+      "target": "node:多阶段检索",
+      "weight": 4
+    },
+    {
+      "source": "node:RAG",
+      "target": "node:混合检索",
+      "weight": 4
+    },
+    {
+      "source": "node:ReAct",
+      "target": "node:Tool Calling",
+      "weight": 5
+    },
+    {
       "source": "node:SSE",
       "target": "node:Streamable HTTP",
+      "weight": 2
+    },
+    {
+      "source": "node:SSE",
+      "target": "node:WebSocket",
+      "weight": 2
+    },
+    {
+      "source": "node:动态规划",
+      "target": "node:最长递增子序列",
+      "weight": 4
+    },
+    {
+      "source": "node:动态规划",
+      "target": "node:目标和",
+      "weight": 4
+    },
+    {
+      "source": "node:多阶段检索",
+      "target": "node:混合检索",
       "weight": 2
     }
   ]
