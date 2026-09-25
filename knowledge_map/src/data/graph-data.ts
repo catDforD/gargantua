@@ -21,11 +21,11 @@ export interface GraphData {
 export const CATEGORIES = [
   {
     "name": "Agent",
-    "color": "#525252"
+    "color": "#666666"
   },
   {
     "name": "工程实践",
-    "color": "#737373"
+    "color": "#808080"
   }
 ] as const;
 
@@ -53,13 +53,13 @@ export const graphData: GraphData = {
       "id": "node:SSE",
       "name": "SSE",
       "category": "工程实践",
-      "description": "一句话定义：SSE（Server-Sent Events）是一种基于 HTTP 的服务器到客户端单向事件流机制，客户端建立连接后，服务器以事件流持续发送数据，客户端不能通过同一 SSE 连接向服务器发送事件。"
+      "description": "SSE（Server-Sent Events）是一种基于 HTTP 的服务器到客户端单向事件流机制，客户端建立连接后，服务器以事件流持续发送数据，客户端不能通过同一 SSE 连接向服务器发送事件。"
     },
     {
       "id": "node:Streamable HTTP",
       "name": "Streamable HTTP",
       "category": "Agent",
-      "description": "一句话定义：Streamable HTTP 是 MCP 的一种 HTTP 传输方式：服务器提供同时支持 POST 和 GET 的单一 MCP 端点，客户端通过 POST 发送 JSON-RPC 消息，服务器可返回单个 JSON 对象或使用 SSE 流式返回消息。"
+      "description": "Streamable HTTP 是 MCP 的一种 HTTP 传输方式：服务器提供同时支持 POST 和 GET 的单一 MCP 端点，客户端通过 POST 发送 JSON-RPC 消息，服务器可返回单个 JSON 对象或使用 SSE 流式返回消息。"
     },
     {
       "id": "node:Tool Calling",

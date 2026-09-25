@@ -9,6 +9,9 @@ interface SimLink extends d3.SimulationLinkDatum<SimNode> {
 
 export function KnowledgeGraph() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const simulationRef = useRef<d3.Simulation<SimNode, SimLink> | null>(null);
+  const focusNodeIdRef = useRef<string | null>(null);
+  const relatedNodeIdsRef = useRef<Set<string>>(new Set());
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -50,6 +53,22 @@ export function KnowledgeGraph() {
     [],
   );
 
+  const focusNode = useCallback(
+    (node: GraphNode | null) => {
+      focusNodeIdRef.current = node?.id || null;
+      relatedNodeIdsRef.current = node
+        ? new Set([node.id, ...getConnected(node.id).connected])
+        : new Set();
+      setSelectedNode(node);
+
+      const simulation = simulationRef.current;
+      if (simulation) {
+        simulation.alpha(0.7).alphaTarget(node ? 0.06 : 0).restart();
+      }
+    },
+    [getConnected],
+  );
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -61,6 +80,9 @@ export function KnowledgeGraph() {
 
     const nodes: SimNode[] = graphData.nodes.map((d) => ({ ...d }));
     const links: SimLink[] = graphData.links.map((d) => ({ ...d }));
+    let layoutWidth = width;
+    let layoutHeight = height;
+    let brownianPhase = 0;
 
     // Start in the middle of the canvas so the graph never animates in from
     // the top-left corner while the force simulation is warming up.
@@ -153,6 +175,38 @@ export function KnowledgeGraph() {
     const gravityX = d3.forceX<SimNode>(width / 2).strength(0.045);
     const gravityY = d3.forceY<SimNode>(height / 2).strength(0.045);
     const centerForce = d3.forceCenter(width / 2, height / 2).strength(0.85);
+    // On selection, direct neighbors gather at the center while other nodes
+    // drift around the perimeter with a small, damped Brownian motion.
+    const focusForce: d3.Force<SimNode, undefined> = (alpha) => {
+      if (!focusNodeIdRef.current) return;
+
+      brownianPhase += 0.035;
+      const ringRadius = Math.min(layoutWidth, layoutHeight) * 0.38;
+      const centerX = layoutWidth / 2;
+      const centerY = layoutHeight / 2;
+
+      nodes.forEach((node, index) => {
+        const x = node.x || centerX;
+        const y = node.y || centerY;
+        const related = relatedNodeIdsRef.current.has(node.id);
+
+        if (related) {
+          const strength = node.id === focusNodeIdRef.current ? 0.16 : 0.08;
+          node.vx = (node.vx || 0) + (centerX - x) * strength * alpha;
+          node.vy = (node.vy || 0) + (centerY - y) * strength * alpha;
+          return;
+        }
+
+        const angle = (index / nodes.length) * Math.PI * 2 - Math.PI / 2;
+        const jitterX = Math.sin(brownianPhase * 0.8 + index * 1.7) * 12;
+        const jitterY = Math.cos(brownianPhase + index * 1.3) * 10;
+        const targetX = centerX + Math.cos(angle) * ringRadius + jitterX;
+        const targetY = centerY + Math.sin(angle) * ringRadius + jitterY;
+        const strength = 0.12;
+        node.vx = (node.vx || 0) + (targetX - x) * strength * alpha;
+        node.vy = (node.vy || 0) + (targetY - y) * strength * alpha;
+      });
+    };
 
     const simulation = d3
       .forceSimulation<SimNode>(nodes)
@@ -170,7 +224,9 @@ export function KnowledgeGraph() {
       .force("center", centerForce)
       .force("gravity-x", gravityX)
       .force("gravity-y", gravityY)
+      .force("focus", focusForce)
       .force("collision", d3.forceCollide<SimNode>().radius((d) => nodeRadius(d) + 10).strength(0.8));
+    simulationRef.current = simulation;
 
     let shouldFitLayout = true;
 
@@ -290,7 +346,7 @@ export function KnowledgeGraph() {
         });
       })
       .on("click", (_event, d) => {
-        setSelectedNode({
+        focusNode({
           id: d.id,
           name: d.name,
           category: d.category,
@@ -301,6 +357,8 @@ export function KnowledgeGraph() {
     const resizeObserver = new ResizeObserver(() => {
       const newWidth = container.clientWidth;
       const newHeight = Math.max(400, container.clientHeight || 560);
+      layoutWidth = newWidth;
+      layoutHeight = newHeight;
       svg.attr("width", newWidth).attr("height", newHeight);
       shouldFitLayout = true;
       simulation.force("center", d3.forceCenter(newWidth / 2, newHeight / 2).strength(0.85));
@@ -312,10 +370,11 @@ export function KnowledgeGraph() {
 
     return () => {
       simulation.stop();
+      if (simulationRef.current === simulation) simulationRef.current = null;
       flowTimer.stop();
       resizeObserver.disconnect();
     };
-  }, [degreeMap, categoryColor]);
+  }, [degreeMap, categoryColor, focusNode]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -433,7 +492,7 @@ export function KnowledgeGraph() {
                   </span>
                 </div>
                 <button
-                  onClick={() => setSelectedNode(null)}
+                  onClick={() => focusNode(null)}
                   className="p-1 hover:bg-neutral-100 rounded-md transition-colors text-neutral-400 hover:text-neutral-700"
                 >
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -463,7 +522,7 @@ export function KnowledgeGraph() {
                   {connectedInfo.nodes.map((n) => (
                     <button
                       key={n.id}
-                      onClick={() => setSelectedNode(n)}
+                      onClick={() => focusNode(n)}
                       className="px-2 py-1 bg-neutral-100 hover:bg-neutral-200 rounded-md transition-colors text-neutral-600"
                       style={{ fontSize: "0.75rem", lineHeight: 1.35 }}
                     >

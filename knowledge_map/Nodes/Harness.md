@@ -27,9 +27,9 @@ status: active
 
 ## 展开
 
-- 来源把可复用的那部分称为 agent loop，把包围它的执行系统称为 harness：理解任务、维护上下文、检查相关信息、调用工具、暴露进度、处理失败、请求人工审批、返回结果，都由这一层承担。
-- harness 设计会直接改变能力表现。在 ARC-AGI-3 上，保留推理并压缩上下文后，作者报告分数从 13.3% 升到 38.3%，同时输出 token 降到约六分之一。这是单个被报告案例，不是对所有任务的保证。
-- Claude Agent SDK 被描述为通用的 agent harness，自带 compaction 等上下文管理能力，因此可以跨多个上下文窗口持续工作；但来源也指出，仅靠压缩并不足以支撑复杂工程任务。
-- harness 里编码了关于「模型做不到什么」的假设，模型升级后这些补偿机制可能变成负担，需要被持续质疑。见 [[30-Resources/AI/Agent/托管 Agent 的扩展与脑手解耦#Don’t adopt a pet]]。
-- 开源 harness 会暴露多个集成面：Codex 除了 App、CLI 和 IDE 扩展，还提供 `codex exec`、SDK 与 app-server；其中 app-server 让应用自己保留会话、事件流与审批处理。来源明确区分 harness 与模型访问，二者不一起开源。
+- 可复用的那部分称为 agent loop，把包围它的执行系统称为 harness：理解任务、维护上下文、检查相关信息、调用工具、暴露进度、处理失败、请求人工审批、返回结果，都由这一层承担。
+- harness 设计会直接改变能力表现。在 ARC-AGI-3 上，保留推理并压缩上下文后，作者报告分数从 13.3% 升到 38.3%，同时输出 token 降到约六分之一。
+- Claude Agent SDK 被描述为通用的 agent harness，自带 compaction 等上下文管理能力，因此可以跨多个上下文窗口持续工作；但仅靠压缩并不足以支撑复杂工程任务。
+- harness 里编码了关于「模型做不到什么」的假设，模型升级后这些补偿机制可能变成负担，需要被持续审查和优化。见 [[30-Resources/AI/Agent/托管 Agent 的扩展与脑手解耦#Don’t adopt a pet]]。
+- 开源 harness 会暴露多个集成面：Codex 除了 App、CLI 和 IDE 扩展，还提供 `codex exec`、SDK 与 app-server；其中 app-server 让应用自己保留会话、事件流与审批处理。
 - 与 [[Tool Calling]] 的关系：harness 负责把模型提出的工具调用路由到实际执行体并处理结果，工具调用机制本身不包含上下文管理、运行边界与审批。

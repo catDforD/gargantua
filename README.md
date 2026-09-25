@@ -22,6 +22,8 @@ Posts are stored in `source/_posts/`.
 ```bash
 npx hexo clean
 npx hexo generate
+
+ npm run build
 ```
 
 Generated output is written to `public/` and is not committed.
