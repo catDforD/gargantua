@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback, type ReactNode } from "react";
 import * as d3 from "d3";
 import { graphData, CATEGORIES, type GraphNode, type GraphLink } from "@/data/graph-data";
 
@@ -7,12 +7,159 @@ interface SimLink extends d3.SimulationLinkDatum<SimNode> {
   weight: number;
 }
 
+function renderInlineMarkdown(text: string, keyPrefix: string): ReactNode[] {
+  const tokenPattern = /(\[[^\]]+\]\([^\)]+\)|\[\[[^\]]+\]\]|`[^`]+`|\*\*[^*]+\*\*|__[^_]+__|\*[^*]+\*|_[^_]+_)/g;
+  const pieces: ReactNode[] = [];
+  let lastIndex = 0;
+
+  for (const match of text.matchAll(tokenPattern)) {
+    const token = match[0];
+    const index = match.index ?? 0;
+    if (index > lastIndex) pieces.push(text.slice(lastIndex, index));
+
+    if (token.startsWith("[[")) {
+      pieces.push(
+        <span className="knowledge-map-wiki-link" key={`${keyPrefix}-${index}`}>
+          {token.slice(2, -2).split("#")[0]}
+        </span>,
+      );
+    } else if (token.startsWith("[")) {
+      const link = token.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+      if (link) {
+        pieces.push(
+          <a
+            href={link[2]}
+            target="_blank"
+            rel="noreferrer"
+            key={`${keyPrefix}-${index}`}
+          >
+            {link[1]}
+          </a>,
+        );
+      } else {
+        pieces.push(token);
+      }
+    } else if (token.startsWith("`")) {
+      pieces.push(<code key={`${keyPrefix}-${index}`}>{token.slice(1, -1)}</code>);
+    } else if (token.startsWith("**") || token.startsWith("__")) {
+      pieces.push(<strong key={`${keyPrefix}-${index}`}>{token.slice(2, -2)}</strong>);
+    } else {
+      pieces.push(<em key={`${keyPrefix}-${index}`}>{token.slice(1, -1)}</em>);
+    }
+    lastIndex = index + token.length;
+  }
+
+  if (lastIndex < text.length) pieces.push(text.slice(lastIndex));
+  return pieces;
+}
+
+function MarkdownContent({
+  markdown,
+  title,
+}: {
+  markdown: string;
+  title: string;
+}) {
+  const lines = markdown.split(/\r?\n/);
+  const blocks: ReactNode[] = [];
+  let index = 0;
+  let blockKey = 0;
+  let skippedTitle = false;
+  let skippedIntro = false;
+
+  while (index < lines.length) {
+    const line = lines[index].trimEnd();
+    const trimmed = line.trim();
+    if (!trimmed) {
+      index += 1;
+      continue;
+    }
+
+    const titleHeading = trimmed.match(/^#\s+(.+)$/);
+    if (!skippedTitle && titleHeading?.[1].trim() === title) {
+      skippedTitle = true;
+      index += 1;
+      continue;
+    }
+    skippedTitle = true;
+
+    if (/^##\s+展开\s*$/.test(trimmed)) {
+      index += 1;
+      continue;
+    }
+
+    if (trimmed.startsWith(">")) {
+      const quoteLines: string[] = [];
+      while (index < lines.length && lines[index].trim().startsWith(">")) {
+        quoteLines.push(lines[index].trim().replace(/^>\s?/, ""));
+        index += 1;
+      }
+      const quote = quoteLines.join(" ");
+      if (skippedIntro) {
+        blocks.push(
+          <blockquote key={`block-${blockKey++}`}>
+            {renderInlineMarkdown(quote, `quote-${blockKey}`)}
+          </blockquote>,
+        );
+      }
+      skippedIntro = true;
+      continue;
+    }
+
+    if (/^[-*]\s+/.test(trimmed)) {
+      const items: string[] = [];
+      while (index < lines.length && /^\s*[-*]\s+/.test(lines[index])) {
+        items.push(lines[index].trim().replace(/^[-*]\s+/, ""));
+        index += 1;
+      }
+      blocks.push(
+        <ul key={`block-${blockKey++}`}>
+          {items.map((item, itemIndex) => (
+            <li key={`item-${itemIndex}`}>
+              {renderInlineMarkdown(item, `list-${blockKey}-${itemIndex}`)}
+            </li>
+          ))}
+        </ul>,
+      );
+      continue;
+    }
+
+    const heading = trimmed.match(/^(#{2,6})\s+(.+)$/);
+    if (heading) {
+      const Heading = heading[1].length > 2 ? "h5" : "h4";
+      blocks.push(
+        <Heading key={`block-${blockKey++}`}>
+          {renderInlineMarkdown(heading[2], `heading-${blockKey}`)}
+        </Heading>,
+      );
+      index += 1;
+      continue;
+    }
+
+    const paragraphLines: string[] = [];
+    while (index < lines.length) {
+      const next = lines[index].trim();
+      if (!next || /^#{2,6}\s+/.test(next) || next.startsWith(">") || /^[-*]\s+/.test(next)) break;
+      paragraphLines.push(next);
+      index += 1;
+    }
+    blocks.push(
+      <p key={`block-${blockKey++}`}>
+        {renderInlineMarkdown(paragraphLines.join(" "), `paragraph-${blockKey}`)}
+      </p>,
+    );
+  }
+
+  return <div className="knowledge-map-markdown">{blocks}</div>;
+}
+
 export function KnowledgeGraph() {
   const containerRef = useRef<HTMLDivElement>(null);
   const simulationRef = useRef<d3.Simulation<SimNode, SimLink> | null>(null);
   const focusNodeIdRef = useRef<string | null>(null);
   const relatedNodeIdsRef = useRef<Set<string>>(new Set());
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
@@ -351,6 +498,7 @@ export function KnowledgeGraph() {
           name: d.name,
           category: d.category,
           description: d.description,
+          content: d.content,
         });
       });
 
@@ -433,6 +581,10 @@ export function KnowledgeGraph() {
     return { nodes: connectedNodes, links: connectedLinks };
   }, [selectedNode]);
 
+  useEffect(() => {
+    setIsExpanded(false);
+  }, [selectedNode?.id]);
+
   return (
     <div className="bg-card">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
@@ -471,7 +623,7 @@ export function KnowledgeGraph() {
 
           {/* Info panel */}
           {selectedNode && (
-            <div className="absolute top-3 right-3 w-72 bg-white/90 backdrop-blur-md border border-neutral-200 rounded-xl p-3.5 shadow-sm max-h-[calc(100% - 24px)] overflow-y-auto text-sm">
+            <div className="knowledge-map-card absolute top-3 right-3 bg-white/90 backdrop-blur-md border border-neutral-200 rounded-xl p-3.5 shadow-sm text-sm">
               <div className="flex items-start justify-between mb-2.5">
                 <div>
                   <h3
@@ -511,6 +663,46 @@ export function KnowledgeGraph() {
               >
                 {selectedNode.description}
               </p>
+              <button
+                type="button"
+                aria-expanded={isExpanded}
+                aria-controls="knowledge-map-reader"
+                onClick={() => setIsExpanded((expanded) => !expanded)}
+                className="knowledge-map-expand-button"
+              >
+                <span>{isExpanded ? "收起正文" : "展开正文"}</span>
+                <svg
+                  className={isExpanded ? "is-expanded" : ""}
+                  width="14"
+                  height="14"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M3.25 5.25 7 9l3.75-3.75"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+              <div
+                id="knowledge-map-reader"
+                className={`knowledge-map-reader ${isExpanded ? "is-expanded" : ""}`}
+                aria-hidden={!isExpanded}
+                inert={!isExpanded}
+              >
+                <div className="knowledge-map-reader__clip">
+                  <div className="knowledge-map-reader__content">
+                    <MarkdownContent
+                      markdown={selectedNode.content}
+                      title={selectedNode.name}
+                    />
+                  </div>
+                </div>
+              </div>
               <div>
                 <h4
                   className="font-medium text-neutral-400 mb-1.5"

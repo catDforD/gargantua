@@ -1054,7 +1054,8 @@ page404:
 #---------------------------
 links:
   enable: true
-  banner_img: /img/bg/sea.png
+  subtitle: 咕咕嘎嘎
+  banner_img: /img/bg/gugugaga.png
   banner_img_height: 60
   banner_mask_alpha: 0.3
   # 友链的成员项
