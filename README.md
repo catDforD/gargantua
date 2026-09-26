@@ -17,6 +17,13 @@ npx hexo new "post title"
 
 Posts are stored in `source/_posts/`.
 
+## Write moments
+
+Keep each short update in its own Markdown file under `moments/`. The YAML
+front matter stores the time and optional location, mood, and image list; the
+body is regular Markdown. See [`moments/README.md`](moments/README.md) for the
+format.
+
 ## Build
 
 ```bash
