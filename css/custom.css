@@ -503,3 +503,297 @@ body:has(.works-layout) #banner .banner-text {
     min-height: 220px;
   }
 }
+
+.moments-layout {
+  width: min(100%, 930px);
+  margin: 0 auto;
+  padding: 0.75rem 1rem 2rem;
+}
+
+body:has(.moments-layout) #banner .banner-text {
+  display: none;
+}
+
+.moments-header {
+  display: grid;
+  margin-bottom: 1.5rem;
+  padding: 0 0.25rem 1rem;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.moments-header h2 {
+  margin: 0;
+  color: var(--text-color);
+  font-family: Georgia, "Times New Roman", "Songti SC", serif;
+  font-size: 2rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.moments-header h2 span {
+  color: #49b8a6;
+}
+
+.moments-feed {
+  position: relative;
+  display: grid;
+  gap: 1.35rem;
+  padding-left: 3.7rem;
+}
+
+.moments-feed::before {
+  position: absolute;
+  top: 1.4rem;
+  bottom: 1.4rem;
+  left: 1.35rem;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--line-color) 8%, var(--line-color) 92%, transparent);
+  content: "";
+}
+
+.moment-card {
+  position: relative;
+  overflow: visible;
+  padding: 1.35rem 1.45rem 1.45rem;
+  color: var(--text-color);
+  border: 1px solid var(--line-color);
+  border-radius: 18px;
+  background: var(--board-color);
+  box-shadow: 0 12px 30px rgba(47, 65, 84, 0.08);
+}
+
+.moment-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.8rem;
+}
+
+.moment-card__avatar {
+  position: absolute;
+  top: 1.05rem;
+  left: -3.7rem;
+  width: 2.8rem;
+  height: 2.8rem;
+  border: 3px solid var(--board-color);
+  border-radius: 50%;
+  background: var(--board-color);
+  box-shadow: 0 3px 12px rgba(47, 65, 84, 0.16);
+  object-fit: cover;
+}
+
+.moment-card__identity {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.moment-card__identity strong {
+  color: var(--text-color);
+  font-size: 0.96rem;
+  font-weight: 600;
+}
+
+.moment-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  color: var(--sec-text-color);
+  font-size: 0.76rem;
+}
+
+.moment-card__mood {
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(73, 184, 166, 0.12);
+  color: #279481;
+}
+
+.moment-card__body {
+  margin-top: 1rem;
+  line-height: 1.8;
+}
+
+.moment-card__body > :first-child {
+  margin-top: 0;
+}
+
+.moment-card__body > :last-child {
+  margin-bottom: 0;
+}
+
+.moment-card__body a {
+  color: var(--post-link-color);
+}
+
+.moment-card__body blockquote {
+  margin: 1rem 0;
+  padding-left: 1rem;
+  border-left: 3px solid rgba(73, 184, 166, 0.55);
+  color: var(--sec-text-color);
+}
+
+.moment-card__images {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.moment-card__images figure {
+  overflow: hidden;
+  margin: 0;
+  border-radius: 10px;
+  background: var(--body-bg-color);
+}
+
+.moment-card__images img {
+  display: block;
+  width: 100%;
+  height: 170px;
+  cursor: zoom-in;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.moment-card__images img:hover {
+  transform: scale(1.04);
+}
+
+.moment-card__images[data-count="1"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.moment-card__images[data-count="1"] img {
+  height: auto;
+  max-height: 520px;
+  object-fit: contain;
+}
+
+.moments-status {
+  margin: 0;
+  padding: 2rem 1.2rem;
+  color: var(--sec-text-color);
+  border: 1px dashed var(--line-color);
+  border-radius: 16px;
+  text-align: center;
+}
+
+.moment-lightbox-open {
+  overflow: hidden;
+}
+
+.moment-lightbox {
+  position: fixed;
+  z-index: 10000;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background: rgba(8, 13, 20, 0.86);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.moment-lightbox.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.moment-lightbox__image {
+  display: block;
+  width: auto;
+  max-width: min(92vw, 1400px);
+  height: auto;
+  max-height: 88vh;
+  border-radius: 10px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  object-fit: contain;
+}
+
+.moment-lightbox__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.28);
+  color: #fff;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.moment-lightbox__close:hover,
+.moment-lightbox__close:focus-visible {
+  border-color: rgba(255, 255, 255, 0.8);
+  background: rgba(0, 0, 0, 0.55);
+}
+
+@media (max-width: 575px) {
+  .moment-lightbox {
+    padding: 1rem;
+  }
+
+  .moment-lightbox__image {
+    max-width: 96vw;
+    max-height: 82vh;
+  }
+}
+
+html[data-user-color-scheme="dark"] .moment-card {
+  background: var(--board-color);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.22);
+}
+
+html[data-user-color-scheme="dark"] .moment-card__mood {
+  color: #6ed2bf;
+}
+
+@media (max-width: 767.98px) {
+  .moments-layout {
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+  }
+
+  .moments-feed {
+    gap: 1rem;
+    padding-left: 2.8rem;
+  }
+
+  .moments-feed::before {
+    left: 0.9rem;
+  }
+
+  .moment-card {
+    padding: 1.15rem 1rem 1.2rem;
+    border-radius: 15px;
+  }
+
+  .moment-card__avatar {
+    top: 0.9rem;
+    left: -2.8rem;
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .moment-card__images {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .moment-card__images img {
+    height: 125px;
+  }
+}
+
+@media (max-width: 575px) {
+  .moments-header h2 {
+    font-size: 1.35rem;
+  }
+}
