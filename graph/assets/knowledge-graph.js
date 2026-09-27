@@ -66,8 +66,7 @@ Error generating stack: `+i.message+`
 - 质量与延迟：在 RoBERTa、DeBERTa、GPT-2、GPT-3 上与全量微调持平或更优；训练吞吐更高，且与 adapter 类方法不同，**不引入额外推理延迟**（权重可合并回原模型）。
 - 理论依据：论文附带对语言模型适配中 rank-deficiency（秩亏）的实证研究，用以解释低秩为何有效。
 - 变体 QLoRA（arXiv 2305.14314，已核验）：梯度穿过冻结的 4-bit 量化预训练模型回传到 LoRA 适配器；三项创新为 NF4（4-bit NormalFloat）、Double Quantization（量化量化常数）、Paged Optimizers（应对显存峰值）。可在单张 48GB GPU 上微调 65B 模型并保持全 16-bit 微调的任务性能；其 Guanaco 模型族在 Vicuna benchmark 上达 ChatGPT 的 99.3%，单卡微调约 24 小时。
-- 与对齐方法的关系：TRL 的 DPOTrainer 与 GRPOTrainer 官方支持以 LoRA 作为参数高效底座（\`LoraConfig\` / \`--use_peft\`），因此常与 [[DPO]]、[[GRPO]] 组合使用。
-- 未核验、不写入事实的内容：具体秩取值（r=1/2/4/8/64）、缩放系数 alpha、「仅注入 Wq/Wv」等实现细节不在论文摘要中；DoRA、AdaLoRA 等其他变体未经核验。
+- 与对齐方法的关系：TRL 的 DPOTrainer 与 GRPOTrainer 官方支持以 LoRA 作为参数高效底座（\`LoraConfig\` / \`--use_peft\`），因此常与 [[DPO]]、[[GRPO]] 组合使用
 - 缺口：最自然的父概念是「参数高效微调 / PEFT」，本库尚无该节点。
 - 来源：[arXiv 2106.09685](https://arxiv.org/abs/2106.09685)、[arXiv 2305.14314 (QLoRA)](https://arxiv.org/abs/2305.14314)、[TRL DPO Trainer](https://huggingface.co/docs/trl/dpo_trainer)、[TRL GRPO Trainer](https://huggingface.co/docs/trl/grpo_trainer)（访问：2026-09-25）。`},{id:"node:MCP",name:"MCP",category:"Agent",description:"MCP（Model Context Protocol）是一个开放标准，用统一的客户端—服务器协议把 AI 应用连接到外部系统：数据源、工具和工作流由 MCP 服务器暴露，AI 应用通过 MCP 客户端连接并取用。",content:`# MCP
 
@@ -152,8 +151,7 @@ PTC 将循环、分支、并发调用、重试、聚合和中间结果过滤交�
 - MDN 将 server-sent events 描述为服务器向前端持续推送事件的单向连接；客户端使用 \`EventSource\` 接收事件。
 - 服务器端响应使用 \`text/event-stream\` 媒体类型；事件由文本块组成，并以空行分隔。
 - SSE 适合服务器主动向客户端推送连续事件；它本身不提供客户端到服务器的双向消息通道。
-- 来源：[MDN · Using server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)（访问：2026-09-24）。
-- 面经中的对应考察题：[[20-Areas/实习与求职/面试题与经验/小红书-Agent服务端开发实习-一面面经#项目与 Agent 服务端]]。`},{id:"node:Sandbox",name:"Sandbox",category:"Agent",description:"Sandbox 是模型运行自己生成的代码、修改文件的隔离执行环境。它把模型的动作限制在可丢弃的边界内，因此一次失败可以当作一条工具调用错误处理，而不必抢救整个会话。",content:`# Sandbox
+- 来源：[MDN · Using server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)（访问：2026-09-24）。`},{id:"node:Sandbox",name:"Sandbox",category:"Agent",description:"Sandbox 是模型运行自己生成的代码、修改文件的隔离执行环境。它把模型的动作限制在可丢弃的边界内，因此一次失败可以当作一条工具调用错误处理，而不必抢救整个会话。",content:`# Sandbox
 
 > Sandbox 是模型运行自己生成的代码、修改文件的隔离执行环境。它把模型的动作限制在可丢弃的边界内，因此一次失败可以当作一条工具调用错误处理，而不必抢救整个会话。
 
@@ -172,9 +170,7 @@ PTC 将循环、分支、并发调用、重试、聚合和中间结果过滤交�
 - MCP 官方传输规范要求服务器提供一个同时支持 POST 和 GET 的单一 MCP endpoint。
 - 客户端发送的每条 JSON-RPC 请求、通知或响应都通过新的 HTTP POST 请求提交。
 - 对 JSON-RPC 请求，服务器可以返回 \`application/json\` 的单个 JSON 对象，也可以返回 \`text/event-stream\` 以启动 SSE 流；因此 SSE 是 Streamable HTTP 可选的响应流机制，不等同于 Streamable HTTP 本身。
-- 该传输方式面向 MCP 的客户端—服务器通信，并支持服务器向客户端发送流式消息、通知或请求。
-- 来源：[MCP Specification · Transports · Streamable HTTP](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports)（访问：2026-09-24）。
-- 面经中的对应考察题：[[20-Areas/实习与求职/面试题与经验/小红书-Agent服务端开发实习-一面面经#项目与 Agent 服务端]]。`},{id:"node:Tool Calling",name:"Tool Calling",category:"Agent",description:"Tool Calling 是模型选择并调用外部工具、再根据工具结果继续决定后续步骤的交互机制。",content:`# Tool Calling
+- 该传输方式面向 MCP 的客户端—服务器通信，并支持服务器向客户端发送流式消息、通知或请求。`},{id:"node:Tool Calling",name:"Tool Calling",category:"Agent",description:"Tool Calling 是模型选择并调用外部工具、再根据工具结果继续决定后续步骤的交互机制。",content:`# Tool Calling
 
 > Tool Calling 是模型选择并调用外部工具、再根据工具结果继续决定后续步骤的交互机制。
 
