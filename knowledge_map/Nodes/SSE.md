@@ -29,5 +29,4 @@ status: active
 - 服务器端响应使用 `text/event-stream` 媒体类型；事件由文本块组成，并以空行分隔。
 - SSE 适合服务器主动向客户端推送连续事件；它本身不提供客户端到服务器的双向消息通道。
 - 来源：[MDN · Using server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)（访问：2026-09-24）。
-- 面经中的对应考察题：[[20-Areas/实习与求职/面试题与经验/小红书-Agent服务端开发实习-一面面经#项目与 Agent 服务端]]。
 
