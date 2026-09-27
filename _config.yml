@@ -97,6 +97,9 @@ pagination_dir: page
 ## include:/exclude: options only apply to the 'source/' folder
 include:
 exclude:
+  # Banner masters. Keep the PNG originals in the repo but do not publish them;
+  # the site references the WebP versions produced by tools/optimize_bg_images.py.
+  - "img/bg/*.png"
 ignore:
 
 # Extensions

@@ -2,7 +2,7 @@
 title: 流光札记
 layout: page
 comments: false
-banner_img: /img/bg/winter.png
+banner_img: /img/bg/winter.webp
 banner_img_height: 60
 banner_mask_alpha: 0.35
 photography_gallery: true

@@ -2,7 +2,7 @@
 title: 动态
 layout: page
 comments: false
-banner_img: /img/bg/sky.png
+banner_img: /img/bg/sky.webp
 banner_img_height: 24
 banner_mask_alpha: 0.45
 ---

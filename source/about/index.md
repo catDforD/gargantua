@@ -2,7 +2,7 @@
 title: 关于
 layout: about
 comments: false
-banner_img: /img/bg/winter.png
+banner_img: /img/bg/winter.webp
 banner_img_height: 60
 banner_mask_alpha: 0.35
 ---
