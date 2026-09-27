@@ -1,24 +1,34 @@
-# Repository Guidelines
+# 仓库开发规范
 
-## Project Structure & Module Organization
-This repository contains the Hexo source for `catdfd.com`. Write posts in `source/_posts/`, page content in `source/about/` or other subdirectories under `source/`, and reusable templates in `scaffolds/`. Global site settings live in [`_config.yml`](/home/gargantua/projects/gargantua/_config.yml) and theme overrides in [`_config.fluid.yml`](/home/gargantua/projects/gargantua/_config.fluid.yml). Helper scripts belong in `scripts/`; `scripts/sync_photos.sh` syncs local albums from `photos/`. Generated output goes to `public/` and should stay uncommitted.
+## 项目结构与模块组织
+本仓库是 `catdfd.com` 的 Hexo 源码。文章写在 `source/_posts/`，页面内容写在 `source/about/` 或 `source/` 下的其他子目录，可复用模板放在 `scaffolds/`。站点全局配置在 [`_config.yml`](_config.yml)，主题覆盖配置在 [`_config.fluid.yml`](_config.fluid.yml)。构建产物输出到 `public/`，不要提交到仓库。
 
-## Build, Test, and Development Commands
-- `npm install`: install Hexo and theme dependencies.
-- `npm run server`: start the local dev server.
-- `npx hexo new "Post Title"`: create a new draft in `source/_posts/`.
-- `npm run clean`: remove cached/generated files.
-- `npm run build`: generate the static site into `public/`.
-- `bash scripts/sync_photos.sh --dry-run`: preview photo sync changes before uploading.
+脚本目录的分工如下，放错位置会导致构建失败：
 
-## Coding Style & Naming Conventions
-Use Markdown with YAML front matter for posts and pages. Every post should declare at least `title`, `date`, and `tags`; follow the existing style in `source/_posts/*.md`. Keep headings concise and prefer permanent, descriptive filenames because Hexo uses `:title.md` when creating new posts. Use 2-space indentation in YAML and JSON. Shell scripts should remain POSIX-friendly where practical and keep `set -euo pipefail`.
+- `scripts/`：**Hexo 插件脚本目录**，Hexo 在构建和启动服务时会自动加载其中每个 `.js` 文件。只放 Hexo 插件（如 `moments-feed.js`、`photography-gallery.js`），不要放非 JavaScript 文件。
+- `tools/`：通用辅助脚本，不属于 Hexo 插件（如 `build-knowledge-map.sh`、`generate-knowledge-map-data.js`、`optimize_bg_images.py`）。
+- `rsync_scripts/`：本地相册同步到服务器（`sync_photos.sh`）。
 
-## Testing Guidelines
-There is no separate automated test suite in this repository. The required validation step is a clean site build: run `npm run clean && npm run build` before opening a PR. When changing pages, posts, theme config, or assets, also run `npm run server` and spot-check the affected routes locally.
+## 构建、测试与开发命令
+- `npm install`：安装 Hexo 与主题依赖。
+- `npm run server`：启动本地开发服务器。
+- `npx hexo new "Post Title"`：在 `source/_posts/` 下创建新草稿。
+- `npm run clean`：清理缓存与构建产物。
+- `npm run build`：生成静态站点到 `public/`。
+- `bash rsync_scripts/sync_photos.sh --dry-run`：预览相册同步改动，确认后再上传。
 
-## Commit & Pull Request Guidelines
-Recent history mixes concise content commits with conventional prefixes such as `ci:` and `chore:`. Follow that pattern: use `ci:` or `chore:` for infrastructure/config work, and short imperative summaries for content updates. PRs should state what changed, list local validation commands, link any related issue, and include screenshots for visual/layout changes.
+## 代码风格与命名约定
+文章和页面使用带 YAML front matter 的 Markdown。每篇文章至少声明 `title`、`date` 和 `tags`，并遵循 `source/_posts/*.md` 中已有的写法。标题保持简短；文件名要有描述性且尽量固定，因为 Hexo 新建文章时按 `:title.md` 命名。YAML 和 JSON 使用 2 空格缩进。Shell 脚本尽量保持 POSIX 兼容，并保留 `set -euo pipefail`。
 
-## Security & Deployment Notes
-Deployment is handled by GitHub Actions on pushes to `main` via `.github/workflows/deploy.yml`. Do not commit secrets, server credentials, `public/`, `db.json`, or local album data. Prefer environment variables such as `REMOTE_HOST`, `REMOTE_DIR`, and the GitHub Actions secret `DEPLOY_SSH_KEY` for anything deployment-related.
+## 测试指南
+本仓库没有独立的自动化测试套件。必需的验证步骤是一次干净的站点构建：开 PR 前运行 `npm run clean && npm run build`。改动页面、文章、主题配置或资源时，还要运行 `npm run server` 并在本地抽查受影响的路径。
+
+## 提交与 Pull Request 规范
+近期历史中既有简洁的内容提交，也有 `ci:`、`chore:` 这类约定式前缀。沿用这个习惯：基础设施和配置类改动使用 `ci:` 或 `chore:`，内容更新使用简短的祈使句摘要。PR 需要说明改了什么、列出本地验证命令、关联相关 issue；涉及视觉或布局变更时附上截图。
+
+## 安全与部署说明
+站点部署由 GitHub Actions 完成：push 到 `main` 后由 [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) 构建并发布到 `gh-pages` 分支。不要提交密钥、服务器凭据、`public/`、`db.json` 或本地相册数据。相册同步脚本通过 `REMOTE_HOST` 和 `REMOTE_DIR` 环境变量指定目标服务器，涉及部署的配置优先使用环境变量而非硬编码。
+
+## 图片处理说明
+凡是要传上 github 仓库的图片都尽可能在不影响画质的情况下使用 webp 格式以压缩大小，原图留在本地即可。
+用户可能会直接放其它大格式图片在目录下，后续会被提交到远程，如果满足不影响画质的条件，则请自动帮用户将图片处理成 webp 格式并使用 webp 格式图片。
