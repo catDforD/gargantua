@@ -34,6 +34,6 @@ status: active
   - [[混合检索]]：并行多路互补召回（词法 + 语义）再融合，解决单一信号的召回盲区。
   - [[多阶段检索]]：串联多级、先廉价高召回再昂贵高精度精排，解决 recall 与 precision 的成本权衡。
 - 图式路线：[[GraphRAG]] 先用 LLM 抽取实体—关系图并做社区摘要，再据以组装上下文。
-- 面经中的对应考察：RAG 流程、分类、评估、分块、多模态与增量更新，见 [[20-Areas/实习与求职/面试题与经验/AI-Agent开发岗位面经汇总-2026年4月-01至07#多阶段 RAG 与文档处理]] 与 [[20-Areas/实习与求职/面试题与经验/AI-Agent与大模型岗位面经汇总-01至05-07-08#RAG 与编码模型]]。
+- 考察：RAG 流程、分类、评估、分块、多模态与增量更新？
 - 本节点的定位：作为 `domain: rag` 的上位概念存在，供上述方法节点挂 `broader_than`。RAG 评估体系、分块策略、多模态 RAG 等子主题尚未建节点，属待建目标。
 - 来源：[arXiv 2312.10997 · RAG for LLMs: A Survey](https://arxiv.org/abs/2312.10997)、[GraphRAG · Global Search](https://microsoft.github.io/graphrag/query/global_search/)、[arXiv 2404.16130](https://arxiv.org/abs/2404.16130)（访问：2026-09-25）。

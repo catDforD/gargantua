@@ -35,7 +35,4 @@ status: active
 - 局限：依赖离线偏好对数据，而非在线交互（由摘要语境的直接推论，论文未单列一节讨论）。
 - 工程支持：TRL 提供 `DPOTrainer`，并官方支持以 [[LoRA]] 作为参数高效底座（`LoraConfig`）。
 - 与 [[PPO]] 的关系：互为替代方案，DPO 论文以 PPO-based RLHF 为对照基线；对称关系按本体规则只在 DPO 一侧登记。
-- 引用注意：**不要引用 `dpo.github.io`**——该域名现指向无关的个人站点，已核实内容不符。
-- 未核验、不写入事实的内容：「Zephyr 等开源模型采用 DPO」本次未核验。
-- 面经中的对应考察：见 [[20-Areas/实习与求职/面试题与经验/AI-Agent开发岗位面经汇总-2026年4月-01至07#面经 01｜AI 应用开发工程师｜2026-04-28]]。
 - 来源：[arXiv 2305.18290](https://arxiv.org/abs/2305.18290)、[全文 v3](https://arxiv.org/html/2305.18290v3)、[TRL · DPO Trainer](https://huggingface.co/docs/trl/main/en/dpo_trainer)（访问：2026-09-25）。

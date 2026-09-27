@@ -35,6 +35,6 @@ status: active
 - 缺点：四模型的显存与工程开销大；DPO 论文摘要称 RLHF-PPO *复杂且常不稳定*，Hugging Face 博客也记录了大量实现陷阱。
 - 应用：原论文用于机器人运动与 Atari；作为 critic-based 算法被广泛用于 LLM 的 RL 微调阶段（DeepSeekMath 引 Ouyang et al. 2022，即 InstructGPT）。
 - 与同族方法的关系：[[GRPO]] 是论文自述的 PPO 变体（用组内相对优势替代价值模型）；[[DPO]] 则完全绕开显式奖励模型与在线采样。三者对比正是面经「RL 到底在优化什么」的落点。
-- 证据说明：PPO 2017 原论文无 arXiv HTML 版（ar5iv 亦不可达），截断目标的细节以两个独立二手来源交叉核验，可靠性等同。`broader_than: [[强化学习]]` 的目标节点尚未建立，属待建目标。
-- 面经中的对应考察：介绍 PPO、DPO、GRPO 以及 RL 到底在优化什么，见 [[20-Areas/实习与求职/面试题与经验/AI-Agent开发岗位面经汇总-2026年4月-01至07#面经 01｜AI 应用开发工程师｜2026-04-28]]。
+- 缺口提示：`broader_than: [[强化学习]]` 的目标节点尚未建立，属待建目标。
+- 考察：介绍 PPO、DPO、GRPO 以及 RL 到底在优化什么？
 - 来源：[arXiv 1707.06347](https://arxiv.org/abs/1707.06347)、[HF Blog · RLHF with PPO 实现细节](https://huggingface.co/blog/the_n_implementation_details_of_rlhf_with_ppo)、[arXiv 2402.03300](https://arxiv.org/abs/2402.03300)（访问：2026-09-25）。

@@ -41,5 +41,5 @@ status: active
 - 与 [[Tool Calling]] 的关系：MCP 解决的是工具与数据来源如何被标准化暴露和接入；模型选择并请求调用哪个工具仍属于 [[Tool Calling]] 机制。
 - 与 [[Streamable HTTP]] 的关系：Streamable HTTP 是 MCP 的两种标准传输之一，替代 2024-11-05 版本的 HTTP+SSE 传输。
 - 本库来源中的用法：应用可以向 harness 暴露自有的 MCP 服务（见 Codex 一文）；托管 Agent 中模型经代理调用 MCP 工具，OAuth token 存放在沙箱外的 vault 里，harness 不接触凭证。
-- 面试中的对应考察题：MCP 版本兼容（[[20-Areas/实习与求职/面试题与经验/小红书-Agent服务端开发实习-一面面经#项目与 Agent 服务端]]）。题目只证明它是考察主题，不构成协议事实。
+- 考察：MCP 版本兼容问题？
 - 来源：[MCP · What is the Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro)、[MCP · Architecture overview](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture)、[MCP Specification · Transports](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports)、[Anthropic · Introducing the Model Context Protocol](https://www.anthropic.com/news/model-context-protocol)（访问：2026-09-24）。

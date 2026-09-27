@@ -51,5 +51,5 @@ status: active
 
 重连差异经规范全文词频交叉验证：WHATWG `web-sockets.html` 中 `reconnect` / `reestablish` / `reconnection time` 均出现 0 次；`server-sent-events.html` 中分别为 12 / 11 / 3 次，并在 §9.2.3 定义了规范性的 *reestablish the connection* 算法。SSE 侧还可用 `retry:` 指定重连间隔、用 HTTP 204 No Content 告知客户端停止重连。
 
-- 面经中的对应考察：SSE 和 WebSocket 的区别，见 [[20-Areas/实习与求职/面试题与经验/AI-Agent开发岗位面经汇总-2026年4月-01至07#面经 05｜AI Agent 开发｜2026-04-15]]。
+- 考察：SSE 和 WebSocket 的区别？
 - 来源：[RFC 6455](https://www.rfc-editor.org/rfc/rfc6455.txt)、[MDN · WebSockets API](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)、[WHATWG · Web sockets](https://html.spec.whatwg.org/multipage/web-sockets.html)、[WHATWG · Server-sent events](https://html.spec.whatwg.org/multipage/server-sent-events.html)（访问：2026-09-25）。

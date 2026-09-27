@@ -35,5 +35,5 @@ status: active
 - 学术源头：该模式是工程实践综合出的名称，LangChain 官方引用 Plan-and-Solve Prompting（Wang et al. 2023，arXiv 2305.04091）、ReWOO、LLMCompiler 与 BabyAGI。「起源于单一论文」的说法不成立。
 - 权衡：初始计划基于不完整信息，环境剧变时依赖重规划；单步执行的反馈粒度粗于 ReAct。
 - 与 [[ReAct]] 的选择：步骤可预先分解、执行相对确定、对成本敏感的长链任务倾向 Plan-and-Execute；需要频繁环境反馈、步骤强依赖的交互任务倾向 ReAct。
-- 面经中的对应考察：两种模式的应用场景对比，见 [[20-Areas/实习与求职/面试题与经验/AI-Agent开发岗位面经汇总-2026年4月-01至07#面经 05｜AI Agent 开发｜2026-04-15]]。
+- 考察：两种模式的应用场景对比？
 - 来源：[LangChain Blog · Planning Agents](https://www.langchain.com/blog/planning-agents)、[arXiv 2305.04091](https://arxiv.org/abs/2305.04091)（访问：2026-09-25）。
