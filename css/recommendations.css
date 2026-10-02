@@ -1,0 +1,1146 @@
+/* ---------- Recommendations page: layout & tabs ---------- */
+
+.rec-layout {
+  --rec-books: #b4703c;
+  --rec-movies: #a71d2a;
+  --rec-anime: #2f9e8f;
+  --rec-music: #6b5bd2;
+  --rec-paper: #f6f1e7;
+  display: grid;
+  gap: 1.6rem;
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0.5rem 1rem 1.5rem;
+}
+
+.rec-header {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.rec-header__kicker {
+  margin: 0;
+  color: var(--sec-text-color);
+  font-size: 0.78rem;
+  letter-spacing: 0.28em;
+}
+
+.rec-header__intro {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.rec-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.rec-tab {
+  --accent: var(--rec-books);
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "en count"
+    "name count";
+  align-items: center;
+  padding: 0.85rem 1rem 0.9rem;
+  overflow: hidden;
+  color: var(--sec-text-color);
+  font: inherit;
+  text-align: left;
+  border: 1px solid var(--line-color);
+  border-radius: 14px;
+  background: transparent;
+  cursor: pointer;
+  transition: color 0.25s ease, border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+}
+
+.rec-tab--movies { --accent: var(--rec-movies); }
+.rec-tab--anime { --accent: var(--rec-anime); }
+.rec-tab--music { --accent: var(--rec-music); }
+
+.rec-tab::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.rec-tab:hover {
+  color: var(--text-color);
+  transform: translateY(-2px);
+}
+
+.rec-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.rec-tab[aria-selected="true"] {
+  color: var(--text-color);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+
+.rec-tab[aria-selected="true"]::after {
+  transform: scaleX(1);
+}
+
+.rec-tab__en {
+  grid-area: en;
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.rec-tab[aria-selected="true"] .rec-tab__en {
+  color: var(--accent);
+}
+
+.rec-tab__name {
+  grid-area: name;
+  font-size: 1.12rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.rec-tab__count {
+  grid-area: count;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.6rem;
+  opacity: 0.35;
+}
+
+.rec-panel {
+  animation: rec-fade-in 0.4s ease both;
+}
+
+.rec-panel[hidden] {
+  display: none;
+}
+
+@keyframes rec-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+.rec-panel__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 1rem;
+  margin-bottom: 1.6rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--line-color);
+}
+
+.rec-panel__head h2 {
+  margin: 0;
+  color: var(--text-color);
+  font-family: Georgia, "Times New Roman", "Songti SC", serif;
+  font-size: 1.6rem;
+  font-weight: 500;
+}
+
+.rec-panel__head p {
+  margin: 0;
+  color: var(--sec-text-color);
+  font-size: 0.9rem;
+}
+
+.rec-empty {
+  padding: 2rem 1rem;
+  color: var(--sec-text-color);
+  text-align: center;
+  border: 1px dashed var(--line-color);
+  border-radius: 16px;
+}
+
+/* ---------- Shared card pieces ---------- */
+
+.rec-grid {
+  display: grid;
+}
+
+.rec-card {
+  display: block;
+  min-width: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.rec-card:focus-visible {
+  outline: 2px solid var(--accent, #49b8a6);
+  outline-offset: 6px;
+  border-radius: 6px;
+}
+
+.rec-caption {
+  display: grid;
+  gap: 0.15rem;
+  padding-top: 0.75rem;
+}
+
+.rec-caption strong {
+  overflow: hidden;
+  color: var(--text-color);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rec-caption em {
+  overflow: hidden;
+  color: var(--sec-text-color);
+  font-size: 0.76rem;
+  font-style: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rec-stars {
+  display: inline-flex;
+  gap: 1px;
+  color: rgba(128, 128, 128, 0.35);
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.rec-stars i {
+  position: relative;
+  font-style: normal;
+}
+
+.rec-stars i.is-full {
+  color: #f0b429;
+}
+
+.rec-stars i.is-half {
+  background: linear-gradient(90deg, #f0b429 50%, rgba(128, 128, 128, 0.35) 50%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- Covers ---------- */
+
+.rec-cover {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #20252c;
+}
+
+.rec-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rec-cover--generated {
+  display: flex;
+  flex-direction: column;
+  padding: 12% 11%;
+  color: #fff;
+  line-height: 1.25;
+}
+
+.rec-cover__title {
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.rec-cover__original,
+.rec-cover__byline,
+.rec-cover__year {
+  font-size: 0.62em;
+  opacity: 0.78;
+}
+
+/* Long titles: shrink the title and drop the secondary original-name line */
+.rec-cover--generated.is-long .rec-cover__title {
+  font-size: 0.95em;
+  letter-spacing: 0.02em;
+}
+
+.rec-cover--generated.is-long .rec-cover__original {
+  display: none;
+}
+
+/* Book: cloth binding with a gold frame */
+.rec-cover--books.rec-cover--generated {
+  justify-content: center;
+  align-items: center;
+  gap: 0.5em;
+  text-align: center;
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.035) 0 2px, transparent 2px 4px),
+    linear-gradient(160deg, hsl(var(--hue) 38% 36%), hsl(var(--hue) 42% 22%));
+  color: #f4ead2;
+  font-family: Georgia, "Songti SC", "STSong", "Noto Serif CJK SC", serif;
+  font-size: 15px;
+}
+
+.rec-cover--books.rec-cover--generated::before {
+  content: "";
+  position: absolute;
+  inset: 7%;
+  border: 1px solid rgba(232, 205, 143, 0.55);
+  outline: 1px solid rgba(232, 205, 143, 0.25);
+  outline-offset: 3px;
+  pointer-events: none;
+}
+
+.rec-cover--books .rec-cover__year {
+  order: 9;
+  margin-top: 0.4em;
+  letter-spacing: 0.2em;
+}
+
+.rec-cover--books .rec-cover__title {
+  font-size: 1.15em;
+  letter-spacing: 0.12em;
+}
+
+.rec-cover--books .rec-cover__byline {
+  padding-top: 0.6em;
+  border-top: 1px solid rgba(232, 205, 143, 0.4);
+}
+
+/* Movie: dark one-sheet poster with a billing block */
+.rec-cover--movies.rec-cover--generated {
+  justify-content: flex-end;
+  gap: 0.3em;
+  background:
+    radial-gradient(120% 70% at 70% 20%, hsl(var(--hue) 70% 45% / 0.85), transparent 60%),
+    radial-gradient(90% 60% at 10% 90%, hsl(calc(var(--hue) + 40) 60% 30% / 0.7), transparent 70%),
+    #0b0d12;
+  font-size: 16px;
+}
+
+.rec-cover--movies .rec-cover__year {
+  position: absolute;
+  top: 8%;
+  left: 11%;
+  letter-spacing: 0.3em;
+}
+
+.rec-cover--movies .rec-cover__title {
+  font-size: 1.45em;
+  letter-spacing: 0.04em;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5);
+}
+
+.rec-cover--movies .rec-cover__original {
+  font-style: italic;
+}
+
+.rec-cover--movies .rec-cover__byline {
+  margin-top: 0.8em;
+  padding-top: 0.9em;
+  font-size: 0.55em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.28) 0 3px, transparent 3px 5px) top / 100% 2px no-repeat;
+}
+
+/* Anime: bright key-visual gradient with halftone dots */
+.rec-cover--anime.rec-cover--generated {
+  justify-content: flex-end;
+  gap: 0.3em;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.22) 1.2px, transparent 1.6px) 0 0 / 9px 9px,
+    linear-gradient(155deg, hsl(var(--hue) 78% 62%), hsl(calc(var(--hue) + 50) 72% 42%));
+  font-size: 14px;
+}
+
+.rec-cover--anime .rec-cover__title {
+  font-size: 1.3em;
+  font-weight: 800;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.18);
+}
+
+.rec-cover--anime .rec-cover__year,
+.rec-cover--anime .rec-cover__byline {
+  display: none;
+}
+
+/* Music: square sleeve with concentric rings */
+.rec-cover--music.rec-cover--generated {
+  justify-content: space-between;
+  background:
+    repeating-radial-gradient(circle at 85% 85%, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 12px),
+    linear-gradient(135deg, hsl(var(--hue) 55% 48%), hsl(calc(var(--hue) - 40) 60% 24%));
+  font-size: 15px;
+}
+
+.rec-cover--music .rec-cover__byline {
+  order: -1;
+  font-size: 0.6em;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.rec-cover--music .rec-cover__title {
+  font-size: 1.1em;
+}
+
+.rec-cover--music .rec-cover__year,
+.rec-cover--music .rec-cover__original {
+  display: none;
+}
+
+/* ---------- Books: 3D books on a shelf ---------- */
+
+.rec-grid--books {
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 2.6rem 1.75rem;
+  padding: 0 1.25rem;
+}
+
+.rec-card--books {
+  --accent: var(--rec-books);
+}
+
+.rec-book {
+  position: relative;
+  display: block;
+  padding: 0 10% 12px;
+  perspective: 900px;
+}
+
+/* the shelf plank: overlaps the column gap so neighbours form one board */
+.rec-book::after {
+  content: "";
+  position: absolute;
+  right: -0.9rem;
+  bottom: 0;
+  left: -0.9rem;
+  height: 12px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #d9c4a2, #b79670 70%, #9b7a55);
+  box-shadow: 0 10px 14px -8px rgba(60, 40, 20, 0.55);
+}
+
+.rec-book__object {
+  position: relative;
+  display: block;
+  aspect-ratio: 2 / 3;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.rec-book__object .rec-cover {
+  border-radius: 2px 5px 5px 2px;
+  box-shadow:
+    inset 6px 0 8px -4px rgba(0, 0, 0, 0.45),
+    inset 9px 0 0 -8px rgba(255, 255, 255, 0.35),
+    0 16px 20px -12px rgba(0, 0, 0, 0.55);
+}
+
+/* page edges peeking out on the right */
+.rec-book__object::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  right: -5px;
+  bottom: 3px;
+  z-index: -1;
+  width: 6px;
+  border-radius: 0 3px 3px 0;
+  background: repeating-linear-gradient(90deg, #fbf7ee 0 1px, #ddd3c0 1px 2px);
+}
+
+.rec-card--books:hover .rec-book__object,
+.rec-card--books:focus-visible .rec-book__object {
+  transform: translateY(-8px) rotateY(-16deg);
+}
+
+.rec-card--books .rec-caption {
+  text-align: center;
+}
+
+/* ---------- Movies: poster wall ---------- */
+
+.rec-grid--movies {
+  grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+  gap: 2rem 1.4rem;
+}
+
+.rec-card--movies {
+  --accent: var(--rec-movies);
+}
+
+.rec-poster {
+  position: relative;
+  display: block;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow:
+    0 18px 30px -16px rgba(10, 14, 22, 0.55),
+    0 2px 6px rgba(10, 14, 22, 0.12);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.rec-poster img {
+  transition: transform 0.6s cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.rec-poster__badge {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  padding: 0.25rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(8, 10, 14, 0.62);
+  backdrop-filter: blur(4px);
+}
+
+.rec-poster__badge .rec-stars {
+  font-size: 0.66rem;
+}
+
+.rec-poster__hover {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 2.5rem 0.9rem 0.9rem;
+  color: #f3efe7;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  background: linear-gradient(180deg, transparent, rgba(5, 6, 9, 0.88) 45%);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.rec-card--movies:hover .rec-poster,
+.rec-card--movies:focus-visible .rec-poster {
+  box-shadow:
+    0 28px 40px -18px rgba(10, 14, 22, 0.6),
+    0 0 0 1px color-mix(in srgb, var(--rec-movies) 60%, transparent);
+  transform: translateY(-6px);
+}
+
+.rec-card--movies:hover .rec-poster img {
+  transform: scale(1.05);
+}
+
+.rec-card--movies:hover .rec-poster__hover,
+.rec-card--movies:focus-visible .rec-poster__hover {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Anime: horizontal info cards ---------- */
+
+.rec-grid--anime {
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 1.1rem;
+}
+
+.rec-card--anime {
+  --accent: var(--rec-anime);
+  position: relative;
+  display: grid;
+  grid-template-columns: 108px minmax(0, 1fr);
+  gap: 1rem;
+  padding: 0.85rem;
+  overflow: hidden;
+  border: 1px solid var(--line-color);
+  border-radius: 16px;
+  background: var(--board-bg-color);
+  box-shadow: 0 10px 26px -18px rgba(20, 30, 45, 0.45);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.rec-card--anime::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 46%;
+  height: 100%;
+  background: radial-gradient(circle at 100% 0, hsl(var(--hue) 70% 60% / 0.14), transparent 70%);
+  pointer-events: none;
+}
+
+.rec-card--anime:hover,
+.rec-card--anime:focus-visible {
+  border-color: hsl(var(--hue) 55% 55% / 0.5);
+  box-shadow: 0 18px 34px -18px rgba(20, 30, 45, 0.5);
+  transform: translateY(-4px);
+}
+
+.rec-anime__cover {
+  display: block;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 8px 16px -10px rgba(0, 0, 0, 0.5);
+}
+
+.rec-anime__body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+  padding: 0.15rem 0.1rem 0;
+}
+
+.rec-anime__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.rec-anime__chips span {
+  padding: 0.08rem 0.5rem;
+  color: hsl(var(--hue) 55% 38%);
+  font-size: 0.7rem;
+  border-radius: 999px;
+  background: hsl(var(--hue) 70% 55% / 0.13);
+}
+
+.rec-anime__title {
+  color: var(--text-color);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.rec-anime__original {
+  overflow: hidden;
+  margin-top: -0.2rem;
+  color: var(--sec-text-color);
+  font-size: 0.76rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rec-anime__comment {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--text-color);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  opacity: 0.82;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.rec-anime__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.45rem;
+  color: var(--sec-text-color);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  border-top: 1px dashed var(--line-color);
+}
+
+/* ---------- Music: sleeves with a record sliding out ---------- */
+
+.rec-grid--music {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 2.2rem 3.2rem;
+  padding-right: 2rem;
+}
+
+.rec-card--music {
+  --accent: var(--rec-music);
+}
+
+.rec-album {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+}
+
+.rec-album__sleeve {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 4px;
+  box-shadow:
+    0 16px 26px -14px rgba(10, 10, 20, 0.6),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  transition: transform 0.4s ease;
+}
+
+.rec-album__disc {
+  position: absolute;
+  top: 4%;
+  left: 4%;
+  width: 92%;
+  height: 92%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #111 0 4%, hsl(var(--hue) 55% 52%) 4.5% 17%, #151515 17.5% 19%,
+      transparent 19.5%),
+    repeating-radial-gradient(circle, #161616 0 2px, #222 2px 3px),
+    #111;
+  box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.7);
+  transform: translateX(14%) rotate(0deg);
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.rec-album__disc::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 30deg, transparent 0 12%, rgba(255, 255, 255, 0.12) 16%, transparent 22% 62%, rgba(255, 255, 255, 0.08) 66%, transparent 72%);
+}
+
+.rec-card--music:hover .rec-album__disc,
+.rec-card--music:focus-visible .rec-album__disc {
+  transform: translateX(36%) rotate(160deg);
+}
+
+.rec-card--music:hover .rec-album__sleeve,
+.rec-card--music:focus-visible .rec-album__sleeve {
+  transform: translateX(-4px) rotate(-1.5deg);
+}
+
+/* ---------- Detail modal ---------- */
+
+.rec-modal-open {
+  overflow: hidden;
+}
+
+.rec-modal {
+  position: fixed;
+  z-index: 10000;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgba(8, 13, 20, 0.72);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.rec-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.rec-modal__dialog {
+  position: relative;
+  width: min(880px, 100%);
+  max-height: min(88vh, 760px);
+  overflow-y: auto;
+  color: var(--text-color);
+  border-radius: 20px;
+  background: var(--board-bg-color);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.4);
+  transform: translateY(16px) scale(0.98);
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.rec-modal.is-open .rec-modal__dialog {
+  transform: none;
+}
+
+.rec-modal__close,
+.rec-modal__nav {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  padding: 0;
+  color: var(--text-color);
+  font-size: 1.15rem;
+  line-height: 1;
+  border: 1px solid var(--line-color);
+  border-radius: 50%;
+  background: var(--board-bg-color);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.rec-modal__close {
+  top: 0.9rem;
+  right: 0.9rem;
+  font-size: 1.5rem;
+}
+
+.rec-modal__nav {
+  top: 50%;
+  position: fixed;
+  transform: translateY(-50%);
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+}
+
+.rec-modal__nav--prev { left: max(1rem, calc(50% - 440px - 4rem)); }
+.rec-modal__nav--next { right: max(1rem, calc(50% - 440px - 4rem)); }
+
+.rec-modal__close:hover,
+.rec-modal__close:focus-visible,
+.rec-modal__nav:hover,
+.rec-modal__nav:focus-visible {
+  border-color: var(--rec-accent, #49b8a6);
+  color: var(--rec-accent, #49b8a6);
+}
+
+.rec-modal__nav[disabled] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rec-detail {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 2rem;
+  padding: 2.2rem;
+}
+
+.rec-detail__cover {
+  align-self: start;
+  position: sticky;
+  top: 0;
+}
+
+.rec-detail__cover .rec-cover {
+  aspect-ratio: 2 / 3;
+  border-radius: 10px;
+  box-shadow: 0 22px 40px -20px rgba(0, 0, 0, 0.6);
+}
+
+.rec-detail--books .rec-detail__cover .rec-cover {
+  border-radius: 3px 8px 8px 3px;
+  box-shadow:
+    inset 7px 0 10px -5px rgba(0, 0, 0, 0.45),
+    0 22px 40px -20px rgba(0, 0, 0, 0.6);
+}
+
+.rec-detail--books .rec-cover--generated,
+.rec-detail--music .rec-cover--generated {
+  font-size: 20px;
+}
+
+.rec-detail--movies .rec-cover--generated {
+  font-size: 22px;
+}
+
+.rec-detail--anime .rec-cover--generated {
+  font-size: 19px;
+}
+
+.rec-detail--music .rec-detail__cover .rec-cover {
+  aspect-ratio: 1;
+  border-radius: 6px;
+}
+
+.rec-detail__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  min-width: 0;
+  padding-right: 1.5rem;
+}
+
+.rec-detail__kicker {
+  margin: 0;
+  color: var(--rec-accent);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+}
+
+.rec-detail__title {
+  margin: 0;
+  color: var(--text-color);
+  font-family: Georgia, "Times New Roman", "Songti SC", serif;
+  font-size: 1.9rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.rec-detail__original {
+  margin: -0.35rem 0 0;
+  color: var(--sec-text-color);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.rec-detail .rec-stars {
+  font-size: 1rem;
+}
+
+.rec-detail__meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.6rem 1.2rem;
+  width: 100%;
+  margin: 0.3rem 0 0;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--line-color);
+  border-bottom: 1px solid var(--line-color);
+}
+
+.rec-detail__meta div {
+  min-width: 0;
+}
+
+.rec-detail__meta dt {
+  color: var(--sec-text-color);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+}
+
+.rec-detail__meta dd {
+  margin: 0.1rem 0 0;
+  font-size: 0.9rem;
+}
+
+.rec-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rec-tags li {
+  padding: 0.12rem 0.6rem;
+  color: var(--rec-accent);
+  font-size: 0.74rem;
+  border: 1px solid color-mix(in srgb, var(--rec-accent) 35%, transparent);
+  border-radius: 999px;
+}
+
+.rec-detail__section {
+  width: 100%;
+}
+
+.rec-detail__section h4 {
+  margin: 0.4rem 0 0.35rem;
+  color: var(--sec-text-color);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+}
+
+.rec-detail__section p {
+  margin: 0 0 0.6rem;
+  font-size: 0.94rem;
+  line-height: 1.85;
+}
+
+.rec-tracks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: track;
+}
+
+.rec-tracks li {
+  display: flex;
+  gap: 0.9rem;
+  padding: 0.45rem 0;
+  font-size: 0.9rem;
+  border-bottom: 1px dashed var(--line-color);
+  counter-increment: track;
+}
+
+.rec-tracks li::before {
+  content: counter(track, decimal-leading-zero);
+  color: var(--rec-accent);
+  font-family: Georgia, serif;
+}
+
+.rec-detail__comment {
+  width: 100%;
+  margin: 0.4rem 0 0;
+  padding: 0.8rem 1rem;
+  border-left: 3px solid var(--rec-accent);
+  border-radius: 0 10px 10px 0;
+  background: color-mix(in srgb, var(--rec-accent) 8%, transparent);
+}
+
+.rec-detail__comment::before {
+  content: "推荐语";
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--rec-accent);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+}
+
+.rec-detail__comment p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.75;
+}
+
+.rec-detail__link {
+  margin-top: 0.4rem;
+  padding: 0.4rem 1rem;
+  color: #fff !important;
+  font-size: 0.85rem;
+  text-decoration: none !important;
+  border-radius: 999px;
+  background: var(--rec-accent);
+  transition: filter 0.2s ease;
+}
+
+.rec-detail__link:hover {
+  filter: brightness(1.1);
+}
+
+/* ---------- Dark mode ---------- */
+
+html[data-user-color-scheme="dark"] .rec-book::after {
+  background: linear-gradient(180deg, #5a4836, #45372a 70%, #382c21);
+  box-shadow: 0 10px 14px -8px rgba(0, 0, 0, 0.7);
+}
+
+html[data-user-color-scheme="dark"] .rec-anime__chips span {
+  color: hsl(var(--hue) 70% 72%);
+}
+
+html[data-user-color-scheme="dark"] .rec-card--anime {
+  box-shadow: 0 12px 28px -16px rgba(0, 0, 0, 0.6);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 767.98px) {
+  .rec-layout {
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+  }
+
+  .rec-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+
+  .rec-grid--books {
+    grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+    gap: 2rem 1.25rem;
+    padding: 0 0.75rem;
+  }
+
+  .rec-book::after {
+    right: -0.65rem;
+    left: -0.65rem;
+  }
+
+  .rec-grid--movies {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 1.5rem 1rem;
+  }
+
+  .rec-grid--anime {
+    grid-template-columns: 1fr;
+  }
+
+  .rec-grid--music {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1.8rem 2.4rem;
+    padding-right: 1.5rem;
+  }
+
+  .rec-cover--books.rec-cover--generated,
+  .rec-cover--music.rec-cover--generated {
+    font-size: 12px;
+  }
+
+  .rec-cover--movies.rec-cover--generated {
+    font-size: 13px;
+  }
+
+  .rec-modal {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .rec-modal__dialog {
+    max-height: 90vh;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .rec-modal__nav {
+    display: none;
+  }
+
+  .rec-detail {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+    padding: 1.6rem 1.25rem 2rem;
+  }
+
+  .rec-detail__cover {
+    position: static;
+    width: 150px;
+    margin: 0 auto;
+  }
+
+  .rec-detail--books .rec-cover--generated,
+  .rec-detail--music .rec-cover--generated,
+  .rec-detail--movies .rec-cover--generated,
+  .rec-detail--anime .rec-cover--generated {
+    font-size: 13px;
+  }
+
+  .rec-detail__body {
+    padding-right: 0;
+  }
+
+  .rec-detail__title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rec-panel,
+  .rec-book__object,
+  .rec-album__disc,
+  .rec-modal__dialog {
+    animation: none;
+    transition: none;
+  }
+}

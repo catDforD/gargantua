@@ -1,0 +1,126 @@
+document.addEventListener('DOMContentLoaded', function() {
+  var layout = document.querySelector('.rec-layout');
+  if (!layout) return;
+
+  var tabs = Array.prototype.slice.call(layout.querySelectorAll('[data-rec-tab]'));
+
+  var activateTab = function(key, options) {
+    var target = tabs.find(function(tab) { return tab.dataset.recTab === key; });
+    if (!target) return;
+
+    tabs.forEach(function(tab) {
+      var selected = tab === target;
+      tab.setAttribute('aria-selected', String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+      document.getElementById(tab.getAttribute('aria-controls')).hidden = !selected;
+    });
+
+    if (options && options.focus) target.focus();
+    if (options && options.updateHash && history.replaceState) {
+      history.replaceState(null, '', '#' + key);
+    }
+  };
+
+  tabs.forEach(function(tab, index) {
+    tab.addEventListener('click', function() {
+      activateTab(tab.dataset.recTab, { updateHash: true });
+    });
+
+    tab.addEventListener('keydown', function(event) {
+      var offset = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key];
+      if (!offset) return;
+      event.preventDefault();
+      var next = tabs[(index + offset + tabs.length) % tabs.length];
+      activateTab(next.dataset.recTab, { focus: true, updateHash: true });
+    });
+  });
+
+  var syncFromHash = function() {
+    var key = decodeURIComponent(location.hash.slice(1));
+    if (key) activateTab(key);
+  };
+
+  syncFromHash();
+  window.addEventListener('hashchange', syncFromHash);
+
+  // ---------- Detail modal ----------
+
+  var modal = document.createElement('div');
+  modal.className = 'rec-modal';
+  modal.setAttribute('aria-hidden', 'true');
+  modal.innerHTML = [
+    '<button class="rec-modal__nav rec-modal__nav--prev" type="button" aria-label="上一个">‹</button>',
+    '<div class="rec-modal__dialog" role="dialog" aria-modal="true" tabindex="-1">',
+    '<button class="rec-modal__close" type="button" aria-label="关闭详情">×</button>',
+    '<div class="rec-modal__content"></div>',
+    '</div>',
+    '<button class="rec-modal__nav rec-modal__nav--next" type="button" aria-label="下一个">›</button>'
+  ].join('');
+  document.body.appendChild(modal);
+
+  var dialog = modal.querySelector('.rec-modal__dialog');
+  var content = modal.querySelector('.rec-modal__content');
+  var prevButton = modal.querySelector('.rec-modal__nav--prev');
+  var nextButton = modal.querySelector('.rec-modal__nav--next');
+  var siblings = [];
+  var currentIndex = -1;
+  var returnFocus = null;
+
+  var showCard = function(index) {
+    var card = siblings[index];
+    var template = card && document.getElementById(card.dataset.recOpen);
+    if (!template) return;
+
+    currentIndex = index;
+    content.replaceChildren(template.content.cloneNode(true));
+    modal.style.setProperty('--rec-accent', getComputedStyle(card).getPropertyValue('--accent').trim());
+    dialog.setAttribute('aria-label', card.getAttribute('aria-label') || '详情');
+    dialog.scrollTop = 0;
+    prevButton.disabled = index <= 0;
+    nextButton.disabled = index >= siblings.length - 1;
+  };
+
+  var openModal = function(card) {
+    siblings = Array.prototype.slice.call(card.closest('.rec-grid').querySelectorAll('[data-rec-open]'));
+    returnFocus = card;
+    showCard(siblings.indexOf(card));
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('rec-modal-open');
+    dialog.focus();
+  };
+
+  var closeModal = function() {
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('rec-modal-open');
+    if (returnFocus) returnFocus.focus();
+  };
+
+  layout.addEventListener('click', function(event) {
+    var card = event.target.closest('[data-rec-open]');
+    if (card) openModal(card);
+  });
+
+  modal.addEventListener('click', function(event) {
+    if (event.target === modal || event.target.closest('.rec-modal__close')) {
+      closeModal();
+    } else if (event.target === prevButton) {
+      showCard(currentIndex - 1);
+    } else if (event.target === nextButton) {
+      showCard(currentIndex + 1);
+    }
+  });
+
+  document.addEventListener('keydown', function(event) {
+    if (!modal.classList.contains('is-open')) return;
+
+    if (event.key === 'Escape') {
+      closeModal();
+    } else if (event.key === 'ArrowLeft' && currentIndex > 0) {
+      showCard(currentIndex - 1);
+    } else if (event.key === 'ArrowRight' && currentIndex < siblings.length - 1) {
+      showCard(currentIndex + 1);
+    }
+  });
+});
