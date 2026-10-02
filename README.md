@@ -27,6 +27,66 @@ added manually. Banner PNG masters under `source/img/bg/` are intentionally
 excluded from the generated site; use their WebP counterparts in page
 configuration.
 
+## 维护推荐页
+
+推荐页的内容统一写在 [`source/_data/recommendations.yml`](source/_data/recommendations.yml)。页面文件只负责布局，不需要直接修改
+`source/recommendations/index.md`。
+
+### 添加条目
+
+在对应栏目的 `items` 下增加一项，保持 YAML 的两格缩进。例如添加一本书：
+
+```yaml
+- key: books
+  name: 书籍
+  title: 书架
+  items:
+    - title: 新书名称
+      author: 作者姓名
+      year: 2026
+```
+
+目前可用的栏目 key 是 `books`（书籍）、`movies`（电影）、`anime`（漫剧）和
+`music`（音乐）。每个条目必须有 `title`，其他信息按需要填写。常用字段包括：
+
+- `year`：年份
+- `original`：原名
+- `cover`：封面路径
+- `cover_position`：封面裁切位置，例如 `50% center`
+- `rating`：推荐指数，范围是 0 到 5
+- `intro`、`comment`：详情页中的简介和个人备注
+- `author`、`director`、`artist`：作者、导演、艺人等栏目专属信息
+
+### 添加封面
+
+把封面放到 `source/img/recommendations/`，建议使用 WebP 格式，然后在条目中填写从网站根路径开始的地址：
+
+```yaml
+- title: 星际穿越
+  year: 2014
+  cover: /img/recommendations/interstellar.webp
+  cover_position: 50% center
+```
+
+没有填写 `cover` 时，页面会自动生成文字封面。`cover_position` 只在使用图片封面时生效。
+
+### 预览和发布
+
+修改内容或图片后，可以先启动本地服务预览：
+
+```bash
+npm run server
+```
+
+浏览器打开 <http://localhost:4000/recommendations/>。确认无误后执行一次完整构建：
+
+```bash
+npm run clean && npm run build
+```
+
+提交 `source/_data/recommendations.yml` 和 `source/img/recommendations/` 中的图片，推送到
+`main` 后，GitHub Actions 会自动构建并发布。
+
 ## Write moments
 
 Keep each short update in its own Markdown file under `moments/`. The YAML

@@ -235,11 +235,13 @@ font:
 # Specify the path of your custom js file, support list. The path is relative to the source directory, such as `/js/custom.js` corresponding to the directory `source/js/custom.js`
 custom_js:
   - /js/custom.js
+  - /js/recommendations.js
 
 # 指定自定义 .css 文件路径，用法和 custom_js 相同
 # The usage is the same as custom_js
 custom_css:
   - /css/custom.css
+  - /css/recommendations.css
 
 # 网页访问统计
 # Analysis of website visitors
@@ -394,6 +396,7 @@ navbar:
       submenu:
         - { key: "about-profile", name: "个人简介", link: "/about/", icon: "iconfont icon-brush" }
         - { key: "about-photo", name: "流光札记", link: "/photography/", icon: "iconfont icon-images" }
+        - { key: "about-recommendations", name: "推荐", link: "/recommendations/", icon: "iconfont icon-books" }
     - { key: "links", link: "/links/", icon: "iconfont icon-link-fill" }
 
 # 搜索功能，基于 hexo-generator-search 插件，若已安装其他搜索插件请关闭此功能，以避免生成多余的索引文件

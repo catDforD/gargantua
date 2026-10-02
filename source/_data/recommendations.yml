@@ -1,0 +1,67 @@
+# 推荐内容统一在这里维护。
+# 封面放在 source/ 下，并填写生成后的站点路径，例如：/img/recommendations/interstellar.webp
+# 可选字段：original、year、cover、cover_position、rating、tags、intro、comment、link、link_text。
+# 书籍可补充 author / translator / publisher / pages；电影可补充 director / cast / region / duration；
+# 漫剧可补充 studio / director / episodes；音乐可补充 artist / type / genre / tracks。
+recommendations:
+  - key: books
+    name: 书籍
+    title: 书架
+    items:
+      - title: 明朝那些事儿
+      - title: 银河帝国
+      - title: 三体
+      - title: 我们生活在南京
+  - key: movies
+    name: 电影
+    title: 放映厅
+    items:
+      - title: 星际穿越
+      - title: 盗梦空间
+      - title: 古田军号
+      - title: 流浪地球
+      - title: 给阿嬷的情书
+      - title: 挽救计划
+      - title: 白日梦想家
+      - title: 你的名字
+      - title: 天气之子
+      - title: 哈尔的移动城堡
+      - title: Hello World
+      - title: 玉子爱情故事
+      - title: 紫罗兰永恒花园
+  - key: anime
+    name: 漫剧
+    title: 漫剧
+    items:
+      - title: 英雄联盟双城之战
+      - title: 暗黑
+      - title: 西部世界
+      - title: 爱，死亡与机器人
+      - title: 怪奇物语
+      - title: 我的世界三体系列
+      - title: 三体(剧版)
+      - title: 异人之下
+      - title: 凡人修仙传(动漫版)
+      - title: 灵笼
+      - title: 非自然死亡
+      - title: 机动搜查队
+      - title: 玉子爱情故事
+      - title: 紫罗兰永恒花园TV
+      - title: 赛马娘
+      - title: 葬送的芙莉莲
+      - title: 迷宫饭
+      - title: 比宇宙更遥远的地方
+      - title: 我心里危险的东西
+      - title: 夏日重现
+      - title: 碧蓝之海
+      - title: 鬼灭之刃系列
+  - key: music
+    name: 音乐
+    title: 曲目单
+    items:
+      - title: SEVENTH HEAVEN
+      - title: 希望有羽毛和翅膀
+      - title: 唯有追赶风的方向
+      - title: 沧海飞尘
+      - title: 妄语人间
+      - title: Cheekbones
