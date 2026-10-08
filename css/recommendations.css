@@ -869,6 +869,12 @@
   border-radius: 6px;
 }
 
+/* Music detail: cover and listening widget read as one block, so the widget
+   keeps a fixed distance to the cover no matter how long the text column is. */
+.rec-detail__cover > .rec-detail__section--audio {
+  margin-top: 2rem;
+}
+
 .rec-detail__body {
   display: flex;
   flex-direction: column;
@@ -968,6 +974,12 @@
   line-height: 1.85;
 }
 
+/* Keep the intro flush with the label above it, and let the browser rebalance
+   the lines so it does not end with a single stray character. */
+.rec-detail__section--intro p {
+  text-wrap: pretty;
+}
+
 .rec-tracks {
   margin: 0;
   padding: 0;
@@ -996,20 +1008,14 @@
   margin-top: 0.25rem;
 }
 
-/* The outchain player is a 66px widget with a 10px inset, so bleed the frame by
-   one inset to line the player card up with the text column. */
 .rec-embed__frame {
   display: block;
-  width: calc(100% + 20px);
-  margin-left: -10px;
-  height: 86px;
+  width: 100%;
   border: 0;
   background: transparent;
 }
 
 .rec-embed--bilibili .rec-embed__frame {
-  width: 100%;
-  margin-left: 0;
   height: auto;
   aspect-ratio: 16 / 9;
 }
@@ -1273,6 +1279,17 @@ html[data-user-color-scheme="dark"] .rec-audio__progress {
 
   .rec-detail__cover {
     position: static;
+    width: 150px;
+    margin: 0 auto;
+  }
+
+  /* The player keeps the full column width even though the cover shrinks. */
+  .rec-detail--music .rec-detail__cover {
+    width: 100%;
+    margin: 0;
+  }
+
+  .rec-detail--music .rec-detail__cover .rec-cover {
     width: 150px;
     margin: 0 auto;
   }
