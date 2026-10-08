@@ -5,7 +5,7 @@
 
 脚本目录的分工如下，放错位置会导致构建失败：
 
-- `scripts/`：**Hexo 插件脚本目录**，Hexo 在构建和启动服务时会自动加载其中每个 `.js` 文件。只放 Hexo 插件（如 `moments-feed.js`、`photography-gallery.js`），不要放非 JavaScript 文件。
+- `scripts/`：**Hexo 插件脚本目录**，Hexo 在构建和启动服务时会自动加载其中每个 `.js` 文件。只放 Hexo 插件（如 `moments-feed.js`、`recommendations.js`），不要放非 JavaScript 文件。
 - `tools/`：通用辅助脚本，不属于 Hexo 插件（如 `build-knowledge-map.sh`、`generate-knowledge-map-data.js`、`optimize_bg_images.py`）。
 - `rsync_scripts/`：本地相册同步到服务器（`sync_photos.sh`）。
 

@@ -6,7 +6,9 @@ images:
   - /img/moments/baoshuta.jpg
   - /img/moments/daoguan.jpg
   - /img/moments/huanglong.jpg
-  - /img/moments/qianjiang.webp
+  - src: /img/moments/qianjiang.webp
+    position: center 76%
+    height: 340px
 ---
 
 好样的，精神点，别丢份！

@@ -18,9 +18,14 @@ function parseImages(value) {
 
   return values
     .map((item) => {
-      if (typeof item === 'string') return { src: item, alt: '' };
+      if (typeof item === 'string') return { src: item, alt: '', position: '', height: '' };
       if (!item || typeof item !== 'object' || !item.src) return null;
-      return { src: String(item.src), alt: String(item.alt || '') };
+      return {
+        src: String(item.src),
+        alt: String(item.alt || ''),
+        position: item.position ? String(item.position) : '',
+        height: item.height ? String(item.height) : '',
+      };
     })
     .filter(Boolean);
 }

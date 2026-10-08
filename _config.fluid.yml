@@ -395,7 +395,6 @@ navbar:
       icon: "iconfont icon-user-fill"
       submenu:
         - { key: "about-profile", name: "个人简介", link: "/about/", icon: "iconfont icon-brush" }
-        - { key: "about-photo", name: "流光札记", link: "/photography/", icon: "iconfont icon-images" }
         - { key: "about-recommendations", name: "推荐", link: "/recommendations/", icon: "iconfont icon-books" }
     - { key: "links", link: "/links/", icon: "iconfont icon-link-fill" }
 
