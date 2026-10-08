@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var header = document.createElement('header');
     header.className = 'moment-card__header';
     header.innerHTML = [
-      '<img class="moment-card__avatar" src="/img/avatar.png" alt="Gargantua 的头像">',
+      '<img class="moment-card__avatar" src="/img/head/4862.webp" alt="Gargantua 的头像">',
       '<div class="moment-card__identity">',
       '<strong>Gargantua</strong>',
       '<div class="moment-card__meta">',
