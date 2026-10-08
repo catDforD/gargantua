@@ -3,6 +3,8 @@
 # 可选字段：original、year、cover、cover_position、rating、tags、intro、comment、link、link_text。
 # 书籍可补充 author / translator / publisher / pages；电影可补充 director / cast / region / duration；
 # 漫剧可补充 studio / director / episodes；音乐可补充 artist / type / genre / tracks。
+# 音乐试听统一走官方嵌入：embed 支持 { netease: 歌曲ID } 或 { bilibili: BV号 }，可选 embed_note 说明。
+# 如日后有自有版权/自由许可的音频，也可自托管：audio: /audio/recommendations/<slug>.m4a（tools/rec_work/audio.py 生成）。
 recommendations:
   - key: books
     name: 书籍
@@ -463,6 +465,8 @@ recommendations:
         type: 专辑曲目
         genre: 日系流行
         tags: [日系流行, J-Pop]
+        embed: {netease: '1902312404'}
+        embed_note: 该曲在网易云为会员曲目，匿名访客可看到条目，播放需登录账号。
         intro: >-
           milet 第二张专辑《visions》中的收录曲，英日双语切换的唱腔配上明亮跳跃的鼓点，是专辑里最具元气的一首。后被选为都市开放世界游戏《无限大》(ANANTA) 技术性测试预告片的 BGM，在玩家中广为流传。
       - title: 希望有羽毛和翅膀
@@ -474,6 +478,7 @@ recommendations:
         type: 专辑曲目
         genre: 游戏原声
         tags: [游戏原声, 角色曲]
+        embed: {netease: '2155423468'}
         intro: >-
           《崩坏：星穹铁道》银河歌者知更鸟的角色专辑《空气蛹 INSIDE》收录曲，英文名取自狄金森的诗句“Hope is the thing with feathers”。清澈的声线与弦乐铺陈出希望与飞翔的意象，是匹诺康尼篇章里最受欢迎的歌曲之一。
       - title: 唯有追赶风的方向
@@ -485,6 +490,7 @@ recommendations:
         type: 单曲
         genre: 游戏原声
         tags: [游戏原声, 角色曲]
+        embed: {netease: '3427211241'}
         intro: >-
           知更鸟与 HOYO-MiX 于 2026 年推出的单曲，延续《空气蛹 INSIDE》的温暖声线，以海风、浪花与引擎声为意象，旋律轻快自由，副歌有很强的开阔感。
       - title: 沧海飞尘
@@ -495,6 +501,7 @@ recommendations:
         type: 专辑曲目
         genre: 国风
         tags: [国风, 古风]
+        embed: {netease: '2094118217'}
         intro: >-
           银临第四张专辑《山色有无中》中的国风作品，旋律苍茫开阔、气韵悠长。后被《凡人修仙传》动画选为插曲，伴随紫灵相关剧情与“今日一别，紫灵后会有期”的名场面广为流传。
       - title: 妄语人间
@@ -505,6 +512,7 @@ recommendations:
         type: 单曲
         genre: 国风
         tags: [国风, 虚拟歌手]
+        embed: {netease: '2031144242'}
         intro: >-
           《忘川风华录》音乐企划为蒲松龄所作的曲目，由虚拟歌手星尘 Infinity 演绎。歌中化用《聊斋志异》的鬼狐意象——“夜雨还魂，纸笔兴波”，编曲清冷诡谲，是企划中极具辨识度的一首。
       - title: Cheekbones
@@ -515,5 +523,6 @@ recommendations:
         type: 单曲
         genre: 摇滚
         tags: [摇滚, 欧美]
+        embed: {netease: '2634311381'}
         intro: >-
           摇滚乐队 Arrows in Action（2013 年成军）于 2024 年发布的单曲，鼓点干脆、声线略带沙哑，副歌律动感极强，也常出现在各类“日推歌单”里。

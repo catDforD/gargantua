@@ -114,6 +114,8 @@ function renderDetail(section, item, cover) {
     metaRows.length ? `<dl class="rec-detail__meta">${metaRows.join('')}</dl>` : '',
     tags.length ? `<ul class="rec-tags">${tags.map((tag) => `<li>${escapeHtml(tag)}</li>`).join('')}</ul>` : '',
     item.intro ? `<section class="rec-detail__section"><h4>简介</h4>${renderMarkdown(item.intro)}</section>` : '',
+    item.audio ? renderPlayer(item) : '',
+    item.embed ? renderEmbed(item) : '',
     tracks.length
       ? `<section class="rec-detail__section"><h4>推荐曲目</h4><ol class="rec-tracks">${tracks.map((track) => `<li>${escapeHtml(track)}</li>`).join('')}</ol></section>`
       : '',
@@ -123,6 +125,52 @@ function renderDetail(section, item, cover) {
       : '',
     '</div>',
     '</div>'
+  ].join('');
+}
+
+// Official platform players: nothing is self-hosted, the visitor streams from the
+// platform CDN. Configure with `embed: { netease: <song id> }` (or bilibili: BV…).
+const EMBED_PROVIDERS = {
+  netease: (id) => ({
+    src: `https://music.163.com/outchain/player?type=2&id=${encodeURIComponent(id)}&auto=0&height=66`,
+    frameTitle: '网易云音乐播放器'
+  }),
+  bilibili: (id) => ({
+    src: `https://player.bilibili.com/player.html?bvid=${encodeURIComponent(id)}&autoplay=0&danmaku=0`,
+    frameTitle: '哔哩哔哩播放器'
+  })
+};
+
+function renderEmbed(item) {
+  const embed = item.embed || {};
+  const providerKey = Object.keys(EMBED_PROVIDERS).find((key) => embed[key]);
+  if (!providerKey) return '';
+
+  const provider = EMBED_PROVIDERS[providerKey](embed[providerKey]);
+  return [
+    `<section class="rec-detail__section rec-detail__section--embed rec-embed rec-embed--${providerKey}">`,
+    `<iframe class="rec-embed__frame" src="${escapeHtml(provider.src)}" title="${escapeHtml(provider.frameTitle)}：《${escapeHtml(item.title)}》" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allow="autoplay; encrypted-media" scrolling="no"></iframe>`,
+    item.embed_note ? `<p class="rec-embed__note">${escapeHtml(item.embed_note)}</p>` : '',
+    '</section>'
+  ].join('');
+}
+
+// Self-hosted preview for audio you own or that is freely licensed
+// (see tools/rec_work/audio.py); the official platforms above are the default.
+function renderPlayer(item) {
+  return [
+    '<section class="rec-detail__section rec-detail__section--audio">',
+    '<div class="rec-audio" data-rec-audio>',
+    `<audio class="rec-audio__el" preload="metadata" src="${escapeHtml(item.audio)}"></audio>`,
+    '<button class="rec-audio__toggle" type="button" aria-label="播放试听"><span aria-hidden="true"></span></button>',
+    '<div class="rec-audio__progress">',
+    '<span class="rec-audio__fill" style="width:0%"></span>',
+    '<input class="rec-audio__seek" type="range" min="0" max="1000" step="1" value="0" aria-label="播放进度">',
+    '</div>',
+    '<span class="rec-audio__clock"><span class="rec-audio__now">0:00</span><span class="rec-audio__slash" aria-hidden="true">/</span><span class="rec-audio__dur">--:--</span></span>',
+    '</div>',
+    item.audio_note ? `<p class="rec-audio__note">${escapeHtml(item.audio_note)}</p>` : '',
+    '</section>'
   ].join('');
 }
 
