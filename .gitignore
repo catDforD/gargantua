@@ -11,3 +11,15 @@ photos/
 .serena/
 knowledge_map/dist/
 knowledge_map/.tsbuildinfo
+
+# 图片原图（master）只在本地保留，不提交到仓库；站点引用同目录下的 .webp 版本。
+# 新增图片时请先转成 WebP（画质不变的前提下体积更小），只提交 .webp。
+source/img/bg/*.png
+source/img/head/*.png
+source/img/head/*.jpg
+source/img/moments/*.jpg
+source/img/photo/*.jpg
+source/works/dandandang/assets/images/*.png
+source/works/hailmary/images/stills/*.jpg
+source/graph/assets/pet-running.gif
+knowledge_map/pets/pet-running.gif

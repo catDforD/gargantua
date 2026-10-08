@@ -4,7 +4,7 @@ export default function Hero() {
       {/* 背景主视觉：电影剧照 */}
       <div className="absolute inset-0">
         <img
-          src="./images/stills/P_09.jpg"
+          src="./images/stills/P_09.webp"
           alt="The Hail Mary"
           className="hero-drift h-full w-full object-cover"
         />

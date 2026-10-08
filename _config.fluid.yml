@@ -1013,7 +1013,7 @@ about:
   banner_img: /img/bg/sea.webp
   banner_img_height: 60
   banner_mask_alpha: 0.3
-  avatar: /img/head/4866.jpg
+  avatar: /img/head/4866.webp
   name: "Gargantua"
   intro: "记录技术、研究与一些还没来得及整理成熟的想法。"
   # 更多图标可从 https://hexo.fluid-dev.com/docs/icon/ 查找，`class` 代表图标的 css class，添加 `qrcode` 后，图标不再是链接而是悬浮二维码
@@ -1068,31 +1068,31 @@ links:
       title: "Soulter's Blog",
       intro: "The world is your canvas!",
       link: "https://blog.soulter.top/",
-      avatar: "/img/head/soulter.png"
+      avatar: "/img/head/soulter.webp"
     }
     - {
       title: "Letr's Blog",
       intro: "练习时长两年半",
       link: "https://www.letr7.com/",
-      avatar: "/img/head/lectre.jpg"
+      avatar: "/img/head/lectre.webp"
     }
     - {
       title: "lishining 的博客",
       intro: "冲刺!",
       link: "https://app.lishining.top/",
-      avatar: "/img/head/lshiling.jpg"
+      avatar: "/img/head/lshiling.webp"
     }
     - {
       title: "whatevertogo'Blog",
       intro: "还没想好喵",
       link: "https://whatevertogo.github.io/",
-      avatar: "/img/head/blus.jpg"
+      avatar: "/img/head/blus.webp"
     }    
     - {
       title: "unitedpooh'Blog",
       intro: "凑企鹅是谁呀",
       link: "https://unitedpooh.top/",
-      avatar: "/img/head/horse.jpg"
+      avatar: "/img/head/horse.webp"
     }    
 
   # 当成员头像加载失败时，替换为指定图片

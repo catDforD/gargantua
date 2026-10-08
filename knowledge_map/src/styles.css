@@ -207,7 +207,7 @@
   left: 0;
   width: var(--pet-width);
   height: var(--pet-height);
-  /* pet-running.gif has 80 frames at 120ms each; keep movement and turns in sync. */
+  /* pet-running.webp has 80 frames at 120ms each; keep movement and turns in sync. */
   animation: knowledge-map-pet-cross 9.6s linear infinite;
   will-change: left;
 }

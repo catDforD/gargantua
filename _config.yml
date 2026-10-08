@@ -97,9 +97,13 @@ pagination_dir: page
 ## include:/exclude: options only apply to the 'source/' folder
 include:
 exclude:
-  # Banner masters. Keep the PNG originals in the repo but do not publish them;
-  # the site references the WebP versions produced by tools/optimize_bg_images.py.
-  - "img/bg/*.png"
+  # 图片原图（master）只保存在本地：既不提交到仓库，也不发布到站点。
+  # 站点统一引用同目录下的 WebP 版本；原图转 WebP 无收益的图片除外（见 .gitignore 说明）。
+  - "img/bg/*.png"                          # banner 原图，WebP 由 tools/optimize_bg_images.py 生成
+  - "img/head/*.png"                        # 头像原图
+  - "img/head/*.jpg"
+  - "works/dandandang/assets/images/*.png"  # DANDADAN 剧照原图
+  - "graph/assets/pet-running.gif"          # 知识图谱宠物图，站点用 pet-running.webp
 ignore:
 
 # Extensions

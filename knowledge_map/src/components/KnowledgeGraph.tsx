@@ -592,7 +592,7 @@ export function KnowledgeGraph() {
         <div className="mb-6 sm:mb-8">
           <div className="knowledge-map-pet-stage" role="img" aria-label="角色正在来回奔跑">
             <span className="knowledge-map-pet" aria-hidden="true">
-              <img className="knowledge-map-pet__gif" src="/graph/assets/pet-running.gif" alt="" draggable="false" />
+              <img className="knowledge-map-pet__gif" src="/graph/assets/pet-running.webp" alt="" draggable="false" />
             </span>
           </div>
         </div>

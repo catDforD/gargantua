@@ -2,7 +2,7 @@
 title: Works
 layout: page
 comments: false
-banner_img: /works/dandandang/assets/images/01.png
+banner_img: /works/dandandang/assets/images/01.webp
 banner_img_height: 42
 banner_mask_alpha: 0.45
 ---
@@ -20,7 +20,7 @@ banner_mask_alpha: 0.45
   <section class="works-list" aria-label="Works">
     <a class="work-card work-card--dandandang" href="/works/dandandang/">
       <span class="work-card__media">
-        <img src="/works/dandandang/assets/images/01.png" alt="DANDADAN Love Edit 封面" loading="lazy">
+        <img src="/works/dandandang/assets/images/01.webp" alt="DANDADAN Love Edit 封面" loading="lazy">
         <span class="work-card__sequence" aria-hidden="true">01 / 02</span>
         <span class="work-card__preview" aria-hidden="true">Open edit</span>
       </span>
@@ -36,7 +36,7 @@ banner_mask_alpha: 0.45
     </a>
     <a class="work-card work-card--hailmary" href="/works/hailmary/">
       <span class="work-card__media">
-        <img src="/works/hailmary/images/stills/hero_389.jpg" alt="《挽救计划》粉丝致敬页封面" loading="lazy">
+        <img src="/works/hailmary/images/stills/hero_389.webp" alt="《挽救计划》粉丝致敬页封面" loading="lazy">
         <span class="work-card__sequence" aria-hidden="true">02 / 02</span>
         <span class="work-card__preview" aria-hidden="true">Open tribute</span>
       </span>
