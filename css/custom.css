@@ -49,136 +49,6 @@ html[data-user-color-scheme="dark"] .profile-card {
   box-shadow: 0 18px 36px rgba(0, 0, 0, 0.25);
 }
 
-.photography-layout {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.25rem;
-  margin: 0 auto;
-  padding: 0.5rem 1rem 1rem;
-  max-width: none;
-}
-
-.photography-header {
-  display: grid;
-  gap: 0.35rem;
-  margin-bottom: 0.35rem;
-  width: min(100%, 980px);
-}
-
-.photography-kicker {
-  margin: 0;
-  font-size: 0.78rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--sec-text-color);
-}
-
-.photography-subtitle {
-  max-width: 760px;
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.75;
-  color: var(--text-color);
-}
-
-.photography-grid {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  column-width: 190px;
-  column-gap: 16px;
-  text-align: left;
-}
-
-.photography-item {
-  display: inline-block;
-  width: 100%;
-  margin: 0 0 18px;
-  break-inside: avoid;
-  -webkit-column-break-inside: avoid;
-  vertical-align: top;
-  transform: rotate(var(--tile-rotate, 0deg));
-  text-decoration: none !important;
-  transition: transform 0.35s ease, filter 0.35s ease;
-}
-
-.photography-item:hover {
-  transform: translateY(-6px) rotate(var(--tile-rotate, 0deg));
-  filter: saturate(1.04);
-}
-
-.photography-item.tilt-flat {
-  --tile-rotate: 0deg;
-}
-
-.photography-item.tilt-left {
-  --tile-rotate: -1.2deg;
-}
-
-.photography-item.tilt-right {
-  --tile-rotate: 1.2deg;
-}
-
-.photography-frame {
-  position: relative;
-  display: block;
-  width: 100%;
-  overflow: hidden;
-  padding: 10px;
-  border-radius: 18px;
-  background: rgba(240, 244, 248, 0.92);
-  box-shadow:
-    0 16px 30px rgba(32, 44, 58, 0.12),
-    0 3px 10px rgba(32, 44, 58, 0.08);
-}
-
-.photography-frame::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.08));
-  pointer-events: none;
-}
-
-.photography-frame img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 12px;
-  object-fit: contain;
-}
-
-.photography-meta {
-  display: grid;
-  gap: 0.16rem;
-  padding: 0.65rem 0.2rem 0;
-  color: var(--sec-text-color);
-}
-
-.photography-meta strong {
-  margin: 0;
-  color: var(--text-color);
-  font-size: 0.84rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-}
-
-.photography-meta em {
-  font-style: normal;
-  font-size: 0.76rem;
-  line-height: 1.45;
-  color: var(--sec-text-color);
-}
-
-html[data-user-color-scheme="dark"] .photography-frame {
-  background: rgba(37, 45, 56, 0.94);
-  box-shadow:
-    0 18px 36px rgba(0, 0, 0, 0.3),
-    0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
 .works-layout {
   display: grid;
   gap: 2.4rem;
@@ -431,26 +301,7 @@ body:has(.works-layout) #banner .banner-text {
   transform: translate(2px, -2px);
 }
 
-@media (max-width: 991.98px) {
-  .photography-grid {
-    column-width: 210px;
-  }
-}
-
 @media (max-width: 767.98px) {
-  .photography-layout {
-    gap: 1rem;
-  }
-
-  .photography-grid {
-    column-width: 160px;
-    column-gap: 12px;
-  }
-
-  .photography-item:hover {
-    transform: translateY(-4px);
-  }
-
   .works-layout {
     padding-right: 0.75rem;
     padding-left: 0.75rem;
@@ -649,7 +500,7 @@ body:has(.moments-layout) #banner .banner-text {
 .moment-card__images img {
   display: block;
   width: 100%;
-  height: 170px;
+  height: var(--moment-image-height, 170px);
   cursor: zoom-in;
   object-fit: cover;
   transition: transform 0.35s ease;
@@ -667,6 +518,11 @@ body:has(.moments-layout) #banner .banner-text {
   height: auto;
   max-height: 520px;
   object-fit: contain;
+}
+
+/* 最后一行只剩一张图时，让它横向铺满整行，避免留下缺口 */
+.moment-card__images > figure:last-child:nth-child(3n+1) {
+  grid-column: 1 / -1;
 }
 
 .moments-status {
@@ -788,7 +644,16 @@ html[data-user-color-scheme="dark"] .moment-card__mood {
   }
 
   .moment-card__images img {
-    height: 125px;
+    height: var(--moment-image-height, 125px);
+  }
+
+  /* 移动端是 2 列，末行单图铺满要按 2n+1 判断 */
+  .moment-card__images > figure:last-child:nth-child(3n+1) {
+    grid-column: auto;
+  }
+
+  .moment-card__images > figure:last-child:nth-child(2n+1) {
+    grid-column: 1 / -1;
   }
 }
 
