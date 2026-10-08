@@ -9,59 +9,511 @@ recommendations:
     title: 书架
     items:
       - title: 明朝那些事儿
+        year: 2006
+        # cover 来源: 豆瓣 https://book.douban.com/subject/1873231/ (600x845)
+        cover: /img/recommendations/book-mingchao.webp
+        author: 当年明月
+        publisher: 中国友谊出版公司
+        pages: 298
+        tags: [历史, 明朝, 通俗历史]
+        intro: >-
+          当年明月把三百年明史写成能一口气读完的故事：从朱元璋起兵到崇祯自缢，帝王心术、官场争斗与小人物命运彼此交织。语言口语化、段落短促，史实打底却不失趣味，是很多读者历史阅读的起点。
       - title: 银河帝国
+        original: Foundation
+        year: 2015
+        # cover 来源: 豆瓣 https://book.douban.com/subject/26389895/ (600x744)
+        cover: /img/recommendations/book-galactic-empire.webp
+        author: 艾萨克·阿西莫夫
+        translator: 叶李华
+        publisher: 江苏凤凰文艺出版社
+        pages: 2888
+        tags: [科幻, 太空歌剧, 心理史学]
+        intro: >-
+          哈里·谢顿用“心理史学”推算出银河帝国终将崩塌，于是在漫长黑暗期到来前布下基地，为文明保存火种。阿西莫夫把历史推演写成一场推理游戏，基地七部曲从头读到尾，会重新掂量“大势”二字的分量。
       - title: 三体
+        year: 2008
+        # cover 来源: 苏宁易购商品图 https://image1.suning.cn/b2c/catentries/000000000101635617_1_800x800.jpg (800x800)
+        cover: /img/recommendations/book-three-body.webp
+        author: 刘慈欣
+        publisher: 重庆出版社
+        pages: 302
+        tags: [科幻, 硬科幻, 中国科幻]
+        intro: >-
+          “地球往事”三部曲的开篇。一次秘密的星际通讯，把人类文明放进宇宙尺度重新打量：技术的鸿沟、道德的困境与生存的代价被逐一摊开。想象力密集到近乎奢侈，是中文科幻真正走向世界的那一部。
       - title: 我们生活在南京
+        year: 2022
+        # cover 来源: 豆瓣 https://book.douban.com/subject/36126737/ (476x680)
+        cover: /img/recommendations/book-nanjing.webp
+        author: 天瑞说符
+        publisher: 中信出版社
+        pages: 872
+        tags: [科幻, 末世, 时空通信]
+        intro: >-
+          末日之后的南京成了一座空城，而 2019 年的高三学生白杨，用一台业余电台联系上了那里。废墟与习题、生存与日常交替出现，硬核设定之下是相当温柔的笔触。银河奖得主天瑞说符的代表作。
   - key: movies
     name: 电影
     title: 放映厅
     items:
       - title: 星际穿越
+        original: Interstellar
+        year: 2014
+        # cover 来源: 豆瓣 https://movie.douban.com/subject/1889243/ (687x1000)
+        cover: /img/recommendations/movie-interstellar.webp
+        director: 克里斯托弗·诺兰
+        cast: [马修·麦康纳, 安妮·海瑟薇, 杰西卡·查斯坦, 麦肯吉·弗依]
+        region: 美国 / 英国 / 加拿大
+        duration: 169分钟
+        tags: [科幻, 冒险, 太空]
+        intro: >-
+          诺兰执导的硬科幻代表作：地球在枯萎病与沙尘暴中走向衰亡，前宇航员库珀穿越土星旁的虫洞，为人类寻找新的家园。影片把相对论与父女亲情拧成一股绳，汉斯·季默的管风琴配乐与“不要温和地走进那个良夜”一同成为经典。
       - title: 盗梦空间
+        original: Inception
+        year: 2010
+        # cover 来源: 豆瓣 https://movie.douban.com/subject/3541415/ (676x1000)
+        cover: /img/recommendations/movie-inception.webp
+        director: 克里斯托弗·诺兰
+        cast: [莱昂纳多·迪卡普里奥, 约瑟夫·高登-莱维特, 艾利奥特·佩吉]
+        region: 美国 / 英国
+        duration: 148分钟
+        tags: [科幻, 悬疑, 烧脑]
+        intro: >-
+          柯布带领团队潜入他人梦境窃取机密，这次的任务却是在目标的潜意识深处“植入”一个念头。层层嵌套的梦境、旋转走廊与零重力打斗，诺兰用一场精密到令人屏息的智力游戏追问：什么才是现实？
       - title: 古田军号
+        year: 2019
+        # cover 来源: 豆瓣 https://movie.douban.com/subject/30261964/ (675x1000)
+        cover: /img/recommendations/movie-gutian-junhao.webp
+        director: 陈力
+        cast: [王仁君, 王志飞, 刘智扬, 胡兵]
+        region: 中国大陆
+        duration: 120分钟
+        tags: [历史, 战争]
+        intro: >-
+          庆祝新中国成立 70 周年的重大革命历史题材影片，以一个红军小号手的视角，回望红军从井冈山突围到闽西、在绝境中摸索真理的岁月。陈力导演用年轻化的表达，让那段历史变得可感可近。
       - title: 流浪地球
+        original: The Wandering Earth
+        year: 2019
+        # cover 来源: 豆瓣 https://movie.douban.com/subject/26266893/ (715x1000)
+        cover: /img/recommendations/movie-wandering-earth.webp
+        director: 郭帆
+        cast: [吴京, 屈楚萧, 李光洁, 吴孟达]
+        region: 中国大陆
+        duration: 125分钟
+        tags: [科幻, 灾难, 国产科幻]
+        intro: >-
+          太阳即将吞没太阳系，人类为地球装上上万座行星发动机，踏上长达 2500 年的流浪之旅。郭帆把刘慈欣的设想搬上银幕，带着地球一起逃亡的浪漫与悲壮，让这部影片成为中国科幻电影的里程碑。
       - title: 给阿嬷的情书
+        year: 2026
+        # cover 来源: 豆瓣 https://movie.douban.com/subject/37116446/ (667x1000)
+        cover: /img/recommendations/movie-letter-to-grandma.webp
+        director: 蓝鸿春
+        cast: [李思潼, 王彦桐, 吴少卿]
+        region: 中国大陆
+        duration: 118分钟
+        tags: [家庭, 剧情, 温情]
+        intro: >-
+          潮汕阿嬷守着平淡的晚年，孙子却因债务远赴泰国寻找传闻中的富豪阿公，最后带回一个惊人的消息：与阿嬷书信传情半个世纪的，另有其人。导演蓝鸿春以一封封家书串起跨越半世纪的牵挂，细节朴素而动人。
       - title: 挽救计划
+        original: Project Hail Mary
+        year: 2026
+        # cover 来源: 豆瓣 https://movie.douban.com/subject/35010610/ (675x1000)
+        cover: /img/recommendations/movie-project-hail-mary.webp
+        director: 菲尔·罗德 / 克里斯托弗·米勒
+        cast: [瑞恩·高斯林, 桑德拉·惠勒, 詹姆斯·奥尔蒂斯]
+        region: 美国
+        duration: 156分钟
+        tags: [科幻, 太空, 小说改编]
+        intro: >-
+          改编自《火星救援》作者安迪·威尔的同名小说：太阳正在被“吃掉”，中学教师格雷斯背负全人类的希望踏上太空不归路，孤旅中与同样身处绝境的外星工程师相遇，两个文明只能靠这对“宇宙搭子”背水一战。
       - title: 白日梦想家
+        original: The Secret Life of Walter Mitty
+        year: 2013
+        # cover 来源: 豆瓣 https://movie.douban.com/subject/2133323/ (675x1000)
+        cover: /img/recommendations/movie-walter-mitty.webp
+        director: 本·斯蒂勒
+        cast: [本·斯蒂勒, 克里斯汀·韦格, 亚当·斯科特, 西恩·潘]
+        region: 美国 / 英国
+        duration: 114分钟
+        tags: [剧情, 冒险, 治愈]
+        intro: >-
+          《生活》杂志的胶片洗印经理沃特习惯在脑内上演英雄戏码，直到一卷失踪的底片推着他真的踏上旅途——冰原、大海、喜马拉雅。本·斯蒂勒自导自演，把“停止幻想、开始生活”拍得辽阔又温柔。
       - title: 你的名字
+        original: 君の名は。
+        year: 2016
+        # cover 来源: 豆瓣 https://movie.douban.com/subject/26683290/ (707x1000)
+        cover: /img/recommendations/movie-your-name.webp
+        director: 新海诚
+        cast: [神木隆之介, 上白石萌音, 长泽雅美]
+        region: 日本
+        duration: 106分钟
+        tags: [动画, 爱情, 新海诚]
+        intro: >-
+          深山小镇的少女三叶与东京少年泷在梦中交换了身体，彗星划过夜空的那一夜之后，一切开始失控。新海诚用极致的光影与 RADWIMPS 的配乐，把少年少女跨越时间与距离的寻找拍成了现象级作品。
       - title: 天气之子
+        original: 天気の子
+        year: 2019
+        # cover 来源: 豆瓣 https://movie.douban.com/subject/30402296/ (709x1000)
+        cover: /img/recommendations/movie-weathering-with-you.webp
+        director: 新海诚
+        cast: [醍醐虎汰朗, 森七菜, 小栗旬]
+        region: 日本
+        duration: 112分钟
+        tags: [动画, 爱情, 奇幻]
+        intro: >-
+          离家出走的少年帆高在雨中的东京遇见能让天空放晴的少女阳菜。阴雨连绵的城市、云上的祭祀世界与新海诚标志性的光影交织；在“天气”与“选择”之间，这部电影给出了比《你的名字》更倔强的答案。
       - title: 哈尔的移动城堡
+        original: ハウルの動く城
+        year: 2004
+        # cover 来源: 豆瓣 https://movie.douban.com/subject/1308807/ (714x1000)
+        cover: /img/recommendations/movie-howl.webp
+        director: 宫崎骏
+        cast: [倍赏千惠子, 木村拓哉, 美轮明宏]
+        region: 日本
+        duration: 119分钟
+        tags: [动画, 奇幻, 吉卜力]
+        intro: >-
+          被荒野女巫变成老太婆的苏菲闯进哈尔的移动城堡，与那位传说中吞食少女心脏的魔法师一同生活。宫崎骏把战火、诅咒与自我和解装进一座会走路的城堡，也写下他最温柔的一段爱情。
       - title: Hello World
+        original: HELLO WORLD
+        year: 2019
+        # cover 来源: 豆瓣 https://movie.douban.com/subject/30401194/ (707x1000)
+        cover: /img/recommendations/movie-hello-world.webp
+        director: 伊藤智彦
+        cast: [北村匠海, 松坂桃李, 滨边美波]
+        region: 日本
+        duration: 97分钟
+        tags: [动画, 科幻, 爱情]
+        intro: >-
+          十年后的自己突然出现在高中生直实面前，告知他心爱的女孩将死于烟花大会的事故。现实与虚拟世界层层翻转，伊藤智彦用一段不断被重写的“数据记忆”，讲了一个结构精巧、情感后劲十足的爱情故事。
       - title: 玉子爱情故事
+        original: たまこラブストーリー
+        year: 2014
+        # cover 来源: 豆瓣 https://movie.douban.com/subject/25796222/ (707x1000)
+        cover: /img/recommendations/movie-tamako-love-story.webp
+        director: 山田尚子
+        cast: [洲崎绫, 田丸笃志, 金子有希]
+        region: 日本
+        duration: 83分钟
+        tags: [动画, 青春, 京都动画]
+        intro: >-
+          《玉子市场》的剧场版：毕业临近，打糕店的长女玉子还在为未来犹豫，青梅竹马饼藏却突然说要搬去东京。山田尚子用细碎的光影与安静的镜头，把一段小镇青春心事讲得干净又透亮。
       - title: 紫罗兰永恒花园
+        original: 劇場版 ヴァイオレット・エヴァーガーデン
+        year: 2020
+        # cover 来源: 豆瓣 https://movie.douban.com/subject/30179560/ (709x1000)
+        cover: /img/recommendations/movie-violet-evergarden.webp
+        director: 石立太一
+        cast: [石川由依, 浪川大辅, 子安武人]
+        region: 日本
+        duration: 140分钟
+        tags: [动画, 剧情, 京都动画]
+        intro: >-
+          剧场版延续 TV 版主线：从战场归来的薇尔莉特继续替人写信，在一封封代为传递的心意中理解“爱”的含义。京都动画以近乎极致的光影与作画，为这个故事画上了一个温柔的句点。
   - key: anime
     name: 漫剧
     title: 漫剧
     items:
       - title: 英雄联盟双城之战
+        original: Arcane
+        year: 2021
+        # cover 来源: https://movie.douban.com/subject/34867871/ (667x1000)
+        cover: /img/recommendations/anime-arcane.webp
+        studio: Fortiche / Riot Games
+        director: 帕斯卡尔·沙吕 / 阿诺德·德洛德
+        episodes: 9
+        tags: [动画, 科幻, 英雄联盟]
+        intro: >-
+          改编自《英雄联盟》宇宙：上城皮尔特沃夫与底城祖安的裂痕日益加深，蔚与金克丝这对姐妹也被命运推向对立面。手绘与油画质感的画面配合扎实的人物塑造，让它成为游戏改编动画的标杆。
       - title: 暗黑
+        original: Dark
+        year: 2017
+        # cover 来源: https://movie.douban.com/subject/26992330/ (675x1000)
+        cover: /img/recommendations/anime-dark.webp
+        studio: Netflix / Wiedemann & Berg
+        director: 巴伦·博·欧达尔
+        episodes: 10
+        tags: [科幻, 悬疑, 时间循环]
+        intro: >-
+          德国小镇温登接连有孩子失踪，四个家族的秘密被逐一翻开，时间循环与代际宿命彼此缠绕。冷峻的色调、严密的因果结构，让它成为“烧脑”派科幻剧的代表。
       - title: 西部世界
+        original: Westworld
+        year: 2016
+        # cover 来源: https://movie.douban.com/subject/2338055/ (675x1000)
+        cover: /img/recommendations/anime-westworld.webp
+        studio: HBO
+        director: 乔纳森·诺兰
+        episodes: 10
+        tags: [科幻, 西部, 人工智能]
+        intro: >-
+          在以西部世界为主题的乐园里，游客可以尽情释放欲望，而接待员是开始萌发自我意识的人造人。剧集借“迷宫”追问意识与自由意志，第一季的反转至今仍被反复讨论。
       - title: 爱，死亡与机器人
+        original: Love, Death & Robots
+        year: 2019
+        # cover 来源: https://movie.douban.com/subject/30424374/ (675x1000)
+        cover: /img/recommendations/anime-ldr.webp
+        studio: Blur Studio / Netflix
+        director: 蒂姆·米勒
+        episodes: 18
+        tags: [动画, 科幻, 选集]
+        intro: >-
+          由蒂姆·米勒与大卫·芬奇监制的成人向动画选集，每集由全球不同工作室独立制作，画风从写实到漫画无所不包，故事围绕爱、死亡与机器人三个母题展开。篇幅短小、脑洞密集，适合一口气刷完。
       - title: 怪奇物语
-      - title: 我的世界三体系列
+        original: Stranger Things
+        year: 2016
+        # cover 来源: https://movie.douban.com/subject/26359270/ (675x1000)
+        cover: /img/recommendations/anime-stranger-things.webp
+        studio: 21 Laps / Monkey Massacre（Netflix）
+        director: 达菲兄弟
+        episodes: 8
+        tags: [科幻, 悬疑, 80年代]
+        intro: >-
+          1980 年代的美国小镇，男孩威尔神秘失踪，一群孩子在寻找他的过程中撞见了平行世界的怪物与秘密实验。复古合成器配乐、少年群像与浓厚的怀旧气息，让这部剧成为 Netflix 的现象级作品。
+      - title: 我的三体
+        year: 2014
+        # cover 来源: https://movie.douban.com/subject/36140964/ (714x1000)
+        cover: /img/recommendations/anime-my-three-body.webp
+        studio: 神游八方团队 / 哔哩哔哩
+        director: 神游八方
+        tags: [动画, 科幻, Minecraft]
+        intro: >-
+          由神游八方团队以 Minecraft 风格制作的《三体》同人动画：从 2014 年的粗糙起步，到《罗辑传》《章北海传》直到第四季，镜头、配音与叙事一路进化，把原著名场面逐一还原，是“用爱发电”的典范。
       - title: 三体(剧版)
+        original: Three-Body
+        year: 2023
+        # cover 来源: https://movie.douban.com/subject/26647087/ (667x1000)
+        cover: /img/recommendations/anime-three-body-tv.webp
+        studio: 企鹅影视 / 三体宇宙 / 灵河文化
+        director: 杨磊
+        episodes: 30
+        tags: [科幻, 剧情, 国产剧]
+        intro: >-
+          改编自刘慈欣同名小说：纳米科学家汪淼与刑警史强联手追查科学家接连离奇死亡之谜，一步步揭开“三体”世界的真相。对原著的还原度与年代质感获得观众普遍认可，是国产科幻剧的重要一步。
       - title: 异人之下
+        original: I Am Nobody
+        year: 2023
+        # cover 来源: https://movie.douban.com/subject/26853822/ (705x1000)
+        cover: /img/recommendations/anime-i-am-nobody.webp
+        studio: 优酷
+        director: 许宏宇
+        episodes: 27
+        tags: [都市, 奇幻, 漫改]
+        intro: >-
+          改编自米二漫画《一人之下》：平凡少年张楚岚在爷爷墓前被卷入异人世界的纷争，与不老少女冯宝宝一同踏上寻根之旅。剧集把漫画的江湖气与市井幽默搬上荧幕，打斗与特效也颇具诚意。
       - title: 凡人修仙传(动漫版)
+        original: A Record of a Mortal's Journey to Immortality
+        year: 2020
+        # cover 来源: https://movie.douban.com/subject/34925294/ (715x1000)
+        cover: /img/recommendations/anime-mortal-journey.webp
+        studio: 万维猫动画 / 原力动画
+        director: 王裕仁
+        tags: [玄幻, 国漫, 修仙]
+        intro: >-
+          改编自忘语同名小说：山村少年韩立以凡人之躯踏入修仙界，凭谨慎与机变一步步向上攀爬。年番式的持续更新与日益精进的打斗场面，让它成为国产三维动画里长跑型的代表。
       - title: 灵笼
+        original: Incarnation
+        year: 2019
+        # cover 来源: https://movie.douban.com/subject/27121260/ (750x1000)
+        cover: /img/recommendations/anime-incarnation.webp
+        studio: 艺画开天
+        director: 董相博
+        episodes: 16
+        tags: [科幻, 末世, 国漫]
+        intro: >-
+          末世之后，人类退居名为“灯塔”的空中堡垒，在等级森严的秩序与地面怪物之间艰难求生。冷峻的美术风格与扎实的动作设计，让这部原创动画成为国产科幻动画的高规格尝试。
       - title: 非自然死亡
+        original: アンナチュラル
+        year: 2018
+        # cover 来源: https://movie.douban.com/subject/27140017/ (667x1000)
+        cover: /img/recommendations/anime-unnatural.webp
+        studio: TBS
+        director: 冢原亚由子
+        episodes: 10
+        tags: [法医, 悬疑, 日剧]
+        intro: >-
+          在专门解剖“非自然死亡”遗体的 UDI 实验室，法医三澄美琴与同事们用解剖刀追寻死者最后的真相。单元案件映照社会切面，米津玄师的主题曲《Lemon》也随剧一起成为经典。
       - title: 机动搜查队
-      - title: 玉子爱情故事
+        original: MIU404
+        year: 2020
+        # cover 来源: 哔哩哔哩番剧封面 https://www.bilibili.com/bangumi/media/md28231992/ (960x1280)
+        cover: /img/recommendations/anime-miu404.webp
+        studio: TBS
+        director: 冢原亚由子
+        episodes: 11
+        tags: [刑侦, 日剧, 双男主]
+        intro: >-
+          机动搜查队 404 小队的两位搭档——直觉型的伊吹蓝与理性派的志摩一未，必须在案发后的黄金 24 小时内锁定线索。节奏明快、笑泪交织，是《非自然死亡》团队交出的又一部高分刑侦剧。
+      - title: 玉子市场
+        original: たまこまーけっと
+        year: 2013
+        # cover 来源: https://movie.douban.com/subject/20514713/ (602x867)
+        cover: /img/recommendations/anime-tamako-market.webp
+        studio: 京都动画
+        director: 山田尚子
+        episodes: 12
+        tags: [日常, 治愈, 京都动画]
+        intro: >-
+          在兔山商店街长大的少女北白川玉子，与家人、伙伴和一只会说话的“神鸟”一起度过吵吵闹闹的日常。京都动画用细腻的作画与温柔的节奏，把小镇生活拍得暖意十足。
       - title: 紫罗兰永恒花园TV
+        original: ヴァイオレット・エヴァーガーデン
+        year: 2018
+        # cover 来源: https://movie.douban.com/subject/26805209/ (640x940)
+        cover: /img/recommendations/anime-violet-evergarden-tv.webp
+        studio: 京都动画
+        director: 石立太一
+        episodes: 13
+        tags: [动画, 治愈, 京都动画]
+        intro: >-
+          战争结束，曾被视为“武器”的少女薇尔莉特成为代写书信的“自动手记人偶”，在一封封委托中寻找“爱”的含义。京都动画的作画与光影，让几乎每一帧都达到壁纸级别。
       - title: 赛马娘
+        original: ウマ娘 プリティーダービー Season 2
+        year: 2021
+        # cover 来源: https://movie.douban.com/subject/35213714/ (707x1000)
+        cover: /img/recommendations/anime-uma-musume.webp
+        studio: Studio KAI
+        director: 及川启
+        episodes: 13
+        tags: [运动, 热血, 偶像]
+        intro: >-
+          以赛马拟人化为主题的系列动画第二季，聚焦东海帝王与目白麦昆之间既是对手、又是挚友的羁绊。热血与泪水的密度极高，被普遍认为是系列完成度最高的一季。
       - title: 葬送的芙莉莲
+        original: 葬送のフリーレン
+        year: 2023
+        # cover 来源: https://movie.douban.com/subject/36093351/ (708x1000)
+        cover: /img/recommendations/anime-frieren.webp
+        studio: MADHOUSE
+        director: 斋藤圭一郎
+        episodes: 28
+        tags: [奇幻, 治愈, 冒险]
+        intro: >-
+          勇者一行讨伐魔王之后，长命的精灵魔法使芙莉莲才开始真正理解“人”与“时间”。以旅程串起回忆与告别，安静克制却处处动人，是近年评价最高的奇幻动画之一。
       - title: 迷宫饭
+        original: ダンジョン飯
+        year: 2024
+        # cover 来源: https://movie.douban.com/subject/35801594/ (708x1000)
+        cover: /img/recommendations/anime-dungeon-meshi.webp
+        studio: TRIGGER
+        director: 宫岛善博
+        episodes: 24
+        tags: [奇幻, 美食, 冒险]
+        intro: >-
+          为了救出被红龙吞下的妹妹，莱欧斯一行在迷宫里就地取材，把魔物做成料理。以“吃”为线索的奇幻冒险，脑洞与烟火气齐飞，TRIGGER 的作画让每道魔物料理都充满食欲。
       - title: 比宇宙更遥远的地方
+        original: 宇宙よりも遠い場所
+        year: 2018
+        # cover 来源: https://movie.douban.com/subject/27080661/ (715x1000)
+        cover: /img/recommendations/anime-yorimoi.webp
+        studio: MADHOUSE
+        director: 石冢敦子
+        episodes: 13
+        tags: [青春, 冒险, 治愈]
+        intro: >-
+          四个女孩为了一个近乎荒唐的目标——去南极，攒钱、训练、争吵又和好。青春的莽撞与友情的温度被写得分外真诚：比宇宙更遥远的地方，其实就是迈出第一步的自己。
       - title: 我心里危险的东西
+        original: 僕の心のヤバイやつ
+        year: 2023
+        # cover 来源: Bangumi https://bgm.tv/subject/394260 (724x1024)
+        cover: /img/recommendations/anime-bokuyaba.webp
+        studio: 新锐动画
+        director: 赤城博昭
+        episodes: 12
+        tags: [恋爱, 校园, 日常]
+        intro: >-
+          中二少年京太郎与元气少女山田之间小心翼翼的靠近，被拍成了近年最细腻的校园恋爱动画之一。牛尾宪辅的配乐与克制的演出，把“心里危险的东西”译成了脸红心跳的日常。
       - title: 夏日重现
+        original: サマータイムレンダ
+        year: 2022
+        # cover 来源: Bangumi https://bgm.tv/subject/326895 (725x1000)
+        cover: /img/recommendations/anime-summer-time-rendering.webp
+        studio: OLM
+        director: 渡边步
+        episodes: 25
+        tags: [悬疑, 轮回, 惊悚]
+        intro: >-
+          慎平回到故乡参加青梅竹马的葬礼，却发现岛上流传着“影子”的传说，而死亡会把他送回循环的起点。时间循环与推理严密咬合，节奏一路狂飙，是少见的硬核轮回悬疑番。
       - title: 碧蓝之海
+        original: ぐらんぶる
+        year: 2018
+        # cover 来源: https://movie.douban.com/subject/27666506/ (674x1000)
+        cover: /img/recommendations/anime-grand-blue.webp
+        studio: ZERO-G
+        director: 高松信司
+        episodes: 12
+        tags: [喜剧, 校园, 潜水]
+        intro: >-
+          大一新生伊织住进潜水社团的“宴会现场”，被一群前辈拖着喝酒、潜水、闯祸。笑点密集到失控的青春喜剧，热闹之余也能看到对潜水与大海的认真。
       - title: 鬼灭之刃系列
+        original: 鬼滅の刃
+        year: 2019
+        # cover 来源: https://movie.douban.com/subject/30210221/ (707x1000)
+        cover: /img/recommendations/anime-demon-slayer.webp
+        studio: ufotable
+        director: 外崎春雄
+        episodes: 26
+        tags: [战斗, 奇幻, 和风]
+        intro: >-
+          少年炭治郎为救变成鬼的妹妹而踏上斩鬼之路。ufotable 的华丽作画把剑技与和风美学推向极致，从立志篇、无限列车到后续各篇章，每一次战斗都被打磨成视觉盛宴。
   - key: music
     name: 音乐
     title: 曲目单
     items:
       - title: SEVENTH HEAVEN
+        year: 2022
+        # cover 来源: QQ音乐 专辑《visions》封面 https://y.qq.com/n/ryqq/albumDetail/0002xpVr36Glqa (800x800)
+        cover: /img/recommendations/music-seventh-heaven.webp
+        artist: milet
+        type: 专辑曲目
+        genre: 日系流行
+        tags: [日系流行, J-Pop]
+        intro: >-
+          milet 第二张专辑《visions》中的收录曲，英日双语切换的唱腔配上明亮跳跃的鼓点，是专辑里最具元气的一首。后被选为都市开放世界游戏《无限大》(ANANTA) 技术性测试预告片的 BGM，在玩家中广为流传。
       - title: 希望有羽毛和翅膀
+        original: Hope Is the Thing With Feathers
+        year: 2024
+        # cover 来源: QQ音乐 专辑《崩坏星穹铁道-空气蛹 INSIDE》封面 https://y.qq.com/n/ryqq/albumDetail/002HgJfp494Uax (800x800)
+        cover: /img/recommendations/music-hope-feathers.webp
+        artist: 知更鸟 / HOYO-MiX
+        type: 专辑曲目
+        genre: 游戏原声
+        tags: [游戏原声, 角色曲]
+        intro: >-
+          《崩坏：星穹铁道》银河歌者知更鸟的角色专辑《空气蛹 INSIDE》收录曲，英文名取自狄金森的诗句“Hope is the thing with feathers”。清澈的声线与弦乐铺陈出希望与飞翔的意象，是匹诺康尼篇章里最受欢迎的歌曲之一。
       - title: 唯有追赶风的方向
+        original: Only By Chasing the Wind
+        year: 2026
+        # cover 来源: QQ音乐 单曲《崩坏星穹铁道-唯有追赶风的方向》封面 https://y.qq.com/n/ryqq/albumDetail/0011AmNK31mn3Z (800x800)
+        cover: /img/recommendations/music-chasing-wind.webp
+        artist: 知更鸟 / HOYO-MiX
+        type: 单曲
+        genre: 游戏原声
+        tags: [游戏原声, 角色曲]
+        intro: >-
+          知更鸟与 HOYO-MiX 于 2026 年推出的单曲，延续《空气蛹 INSIDE》的温暖声线，以海风、浪花与引擎声为意象，旋律轻快自由，副歌有很强的开阔感。
       - title: 沧海飞尘
+        year: 2025
+        # cover 来源: QQ音乐 专辑《山色有无中》封面 https://y.qq.com/n/ryqq/albumDetail/002cpBSD4P2chZ (800x800)
+        cover: /img/recommendations/music-canghai-feichen.webp
+        artist: 银临
+        type: 专辑曲目
+        genre: 国风
+        tags: [国风, 古风]
+        intro: >-
+          银临第四张专辑《山色有无中》中的国风作品，旋律苍茫开阔、气韵悠长。后被《凡人修仙传》动画选为插曲，伴随紫灵相关剧情与“今日一别，紫灵后会有期”的名场面广为流传。
       - title: 妄语人间
+        year: 2023
+        # cover 来源: 网易云音乐 单曲《妄语人间》封面 (900x900)
+        cover: /img/recommendations/music-wangyu-renjian.webp
+        artist: 忘川风华录
+        type: 单曲
+        genre: 国风
+        tags: [国风, 虚拟歌手]
+        intro: >-
+          《忘川风华录》音乐企划为蒲松龄所作的曲目，由虚拟歌手星尘 Infinity 演绎。歌中化用《聊斋志异》的鬼狐意象——“夜雨还魂，纸笔兴波”，编曲清冷诡谲，是企划中极具辨识度的一首。
       - title: Cheekbones
+        year: 2024
+        # cover 来源: QQ音乐 单曲《Cheekbones》封面 https://y.qq.com/n/ryqq/albumDetail/000yu14Y1KrJqb (800x800)
+        cover: /img/recommendations/music-cheekbones.webp
+        artist: Arrows in Action
+        type: 单曲
+        genre: 摇滚
+        tags: [摇滚, 欧美]
+        intro: >-
+          摇滚乐队 Arrows in Action（2013 年成军）于 2024 年发布的单曲，鼓点干脆、声线略带沙哑，副歌律动感极强，也常出现在各类“日推歌单”里。

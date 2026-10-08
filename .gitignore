@@ -19,6 +19,9 @@ source/img/head/*.png
 source/img/head/*.jpg
 source/img/moments/*.jpg
 source/img/photo/*.jpg
+source/img/recommendations/*.jpg
+source/img/recommendations/*.jpeg
+source/img/recommendations/*.png
 source/works/dandandang/assets/images/*.png
 source/works/hailmary/images/stills/*.jpg
 source/graph/assets/pet-running.gif
