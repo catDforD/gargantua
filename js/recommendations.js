@@ -66,11 +66,113 @@ document.addEventListener('DOMContentLoaded', function() {
   var currentIndex = -1;
   var returnFocus = null;
 
+  // ---------- Audio preview ----------
+
+  var player = null;
+
+  var destroyPlayer = function() {
+    if (!player) return;
+    player.audio.pause();
+    player.audio.removeAttribute('src');
+    player.audio.load();
+    player = null;
+  };
+
+  var formatTime = function(seconds) {
+    if (!isFinite(seconds) || seconds < 0) return '--:--';
+    var minutes = Math.floor(seconds / 60);
+    var rest = Math.floor(seconds % 60);
+    return minutes + ':' + (rest < 10 ? '0' : '') + rest;
+  };
+
+  var initPlayer = function() {
+    var root = content.querySelector('[data-rec-audio]');
+    if (!root) return;
+
+    var audio = root.querySelector('.rec-audio__el');
+    var toggle = root.querySelector('.rec-audio__toggle');
+    var seek = root.querySelector('.rec-audio__seek');
+    var fill = root.querySelector('.rec-audio__fill');
+    var now = root.querySelector('.rec-audio__now');
+    var dur = root.querySelector('.rec-audio__dur');
+    var scrubbing = false;
+
+    var paint = function() {
+      var duration = audio.duration;
+      var ratio = duration ? (scrubbing ? seek.value / 1000 : audio.currentTime / duration) : 0;
+      var moment = scrubbing && duration ? ratio * duration : audio.currentTime;
+      fill.style.width = (ratio * 100).toFixed(2) + '%';
+      if (!scrubbing) seek.value = Math.round(ratio * 1000);
+      now.textContent = formatTime(moment);
+      seek.setAttribute('aria-valuetext', formatTime(moment) + ' / ' + formatTime(duration));
+    };
+
+    audio.addEventListener('loadedmetadata', function() {
+      dur.textContent = formatTime(audio.duration);
+      paint();
+    });
+    audio.addEventListener('durationchange', function() {
+      dur.textContent = formatTime(audio.duration);
+      paint();
+    });
+    audio.addEventListener('timeupdate', paint);
+    audio.addEventListener('play', function() {
+      root.classList.add('is-playing');
+      toggle.setAttribute('aria-label', '暂停试听');
+    });
+    audio.addEventListener('pause', function() {
+      root.classList.remove('is-playing');
+      toggle.setAttribute('aria-label', '播放试听');
+    });
+    audio.addEventListener('ended', function() {
+      audio.currentTime = 0;
+      paint();
+    });
+    audio.addEventListener('error', function() {
+      root.classList.add('is-error');
+      toggle.disabled = true;
+      dur.textContent = '无法播放';
+    });
+
+    toggle.addEventListener('click', function() {
+      if (audio.paused) {
+        audio.play()['catch'](function() {});
+      } else {
+        audio.pause();
+      }
+    });
+
+    seek.addEventListener('input', function() {
+      scrubbing = true;
+      paint();
+    });
+    var commitSeek = function() {
+      if (audio.duration) audio.currentTime = (seek.value / 1000) * audio.duration;
+      scrubbing = false;
+      paint();
+    };
+    seek.addEventListener('change', commitSeek);
+    seek.addEventListener('pointerup', commitSeek);
+
+    // ±5s jumps instead of the slider's fine-grained step.
+    seek.addEventListener('keydown', function(event) {
+      var delta = { ArrowLeft: -5, ArrowRight: 5, ArrowDown: -5, ArrowUp: 5 }[event.key];
+      if (delta === undefined || !audio.duration) return;
+      event.preventDefault();
+      audio.currentTime = Math.min(audio.duration, Math.max(0, audio.currentTime + delta));
+      paint();
+    });
+
+    player = { audio: audio };
+    paint();
+  };
+
   var showCard = function(index) {
     var card = siblings[index];
     var template = card && document.getElementById(card.dataset.recOpen);
     if (!template) return;
 
+    destroyPlayer();
     currentIndex = index;
     content.replaceChildren(template.content.cloneNode(true));
     modal.style.setProperty('--rec-accent', getComputedStyle(card).getPropertyValue('--accent').trim());
@@ -78,6 +180,7 @@ document.addEventListener('DOMContentLoaded', function() {
     dialog.scrollTop = 0;
     prevButton.disabled = index <= 0;
     nextButton.disabled = index >= siblings.length - 1;
+    initPlayer();
   };
 
   var openModal = function(card) {
@@ -91,6 +194,9 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   var closeModal = function() {
+    destroyPlayer();
+    // Drop the cloned detail (platform embeds keep playing while they stay in the DOM).
+    content.replaceChildren();
     modal.classList.remove('is-open');
     modal.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('rec-modal-open');
@@ -114,6 +220,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   document.addEventListener('keydown', function(event) {
     if (!modal.classList.contains('is-open')) return;
+    // Let the audio player handle arrow keys while its slider has focus.
+    if (event.key !== 'Escape' && event.target.closest && event.target.closest('[data-rec-audio]')) return;
 
     if (event.key === 'Escape') {
       closeModal();
