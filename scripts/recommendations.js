@@ -1,6 +1,8 @@
 // Renders the recommendation shelf page (books / movies / anime / music)
 // from front matter. Enable with `recommendations_page: true`.
 
+const crypto = require('crypto');
+
 const SECTION_DEFAULTS = {
   books: { name: '书籍', en: 'Books', title: '书架' },
   movies: { name: '电影', en: 'Films', title: '放映厅' },
@@ -102,10 +104,14 @@ function renderDetail(section, item, cover) {
   const tags = toList(item.tags);
   const tracks = toList(item.tracks);
   const kicker = [section.name, item.year].filter(Boolean).join(' · ');
+  // Music keeps its listening widget in the left rail, right under the cover,
+  // instead of breaking up the text column.
+  const stream = resolveStream(item);
+  const streamInRail = Boolean(stream && type === 'music');
 
   return [
     `<div class="rec-detail rec-detail--${type}">`,
-    `<div class="rec-detail__cover">${cover}</div>`,
+    `<div class="rec-detail__cover">${cover}${streamInRail ? renderPlayer(stream) : ''}</div>`,
     '<div class="rec-detail__body">',
     `<p class="rec-detail__kicker">${escapeHtml(kicker)}</p>`,
     `<h3 class="rec-detail__title">${escapeHtml(item.title)}</h3>`,
@@ -113,9 +119,9 @@ function renderDetail(section, item, cover) {
     renderStars(item.rating),
     metaRows.length ? `<dl class="rec-detail__meta">${metaRows.join('')}</dl>` : '',
     tags.length ? `<ul class="rec-tags">${tags.map((tag) => `<li>${escapeHtml(tag)}</li>`).join('')}</ul>` : '',
-    item.intro ? `<section class="rec-detail__section"><h4>简介</h4>${renderMarkdown(item.intro)}</section>` : '',
-    item.audio ? renderPlayer(item) : '',
-    item.embed ? renderEmbed(item) : '',
+    item.intro ? `<section class="rec-detail__section rec-detail__section--intro"><h4>简介</h4>${renderMarkdown(item.intro)}</section>` : '',
+    stream && !streamInRail ? renderPlayer(stream) : '',
+    item.embed && !stream ? renderEmbed(item) : '',
     tracks.length
       ? `<section class="rec-detail__section"><h4>推荐曲目</h4><ol class="rec-tracks">${tracks.map((track) => `<li>${escapeHtml(track)}</li>`).join('')}</ol></section>`
       : '',
@@ -128,18 +134,36 @@ function renderDetail(section, item, cover) {
   ].join('');
 }
 
-// Official platform players: nothing is self-hosted, the visitor streams from the
-// platform CDN. Configure with `embed: { netease: <song id> }` (or bilibili: BV…).
+// The netease outer url redirects straight to their CDN and answers range
+// requests, so seeking works and the site can drive the stream with its own
+// player controls instead of the unscalable outchain iframe. Tracks that need
+// a login or a VIP account answer with a 404: the player then shows 无法播放,
+// which the item can explain through `embed_note`.
+function neteaseStream(id) {
+  return `https://music.163.com/song/media/outer/url?id=${encodeURIComponent(id)}.mp3`;
+}
+
+// Official video embeds stay as platform iframes in the detail body.
 const EMBED_PROVIDERS = {
-  netease: (id) => ({
-    src: `https://music.163.com/outchain/player?type=2&id=${encodeURIComponent(id)}&auto=0&height=66`,
-    frameTitle: '网易云音乐播放器'
-  }),
   bilibili: (id) => ({
     src: `https://player.bilibili.com/player.html?bvid=${encodeURIComponent(id)}&autoplay=0&danmaku=0`,
     frameTitle: '哔哩哔哩播放器'
   })
 };
+
+// What the detail page plays, and where the audio comes from.
+function resolveStream(item) {
+  if (item.audio) {
+    return { src: item.audio, note: item.audio_note };
+  }
+
+  const netease = item.embed && item.embed.netease;
+  if (netease) {
+    return { src: neteaseStream(netease), note: item.embed_note };
+  }
+
+  return null;
+}
 
 function renderEmbed(item) {
   const embed = item.embed || {};
@@ -155,13 +179,13 @@ function renderEmbed(item) {
   ].join('');
 }
 
-// Self-hosted preview for audio you own or that is freely licensed
-// (see tools/rec_work/audio.py); the official platforms above are the default.
-function renderPlayer(item) {
+// Player widgets share one markup shape: a self-hosted file (tools/rec_work/audio.py)
+// or a platform stream handed over by resolveStream().
+function renderPlayer(stream) {
   return [
     '<section class="rec-detail__section rec-detail__section--audio">',
     '<div class="rec-audio" data-rec-audio>',
-    `<audio class="rec-audio__el" preload="metadata" src="${escapeHtml(item.audio)}"></audio>`,
+    `<audio class="rec-audio__el" preload="metadata" src="${escapeHtml(stream.src)}"></audio>`,
     '<button class="rec-audio__toggle" type="button" aria-label="播放试听"><span aria-hidden="true"></span></button>',
     '<div class="rec-audio__progress">',
     '<span class="rec-audio__fill" style="width:0%"></span>',
@@ -169,7 +193,7 @@ function renderPlayer(item) {
     '</div>',
     '<span class="rec-audio__clock"><span class="rec-audio__now">0:00</span><span class="rec-audio__slash" aria-hidden="true">/</span><span class="rec-audio__dur">--:--</span></span>',
     '</div>',
-    item.audio_note ? `<p class="rec-audio__note">${escapeHtml(item.audio_note)}</p>` : '',
+    stream.note ? `<p class="rec-audio__note">${escapeHtml(stream.note)}</p>` : '',
     '</section>'
   ].join('');
 }
@@ -249,8 +273,20 @@ function resolvePageData(data) {
   return { ...data, ...external };
 }
 
+// Fingerprint of the data a page is rendered from. It is embedded into the
+// generated HTML so the cache invalidation hook at the bottom can tell whether
+// the copy cached in db.json is still up to date.
+function recommendationsFingerprint(name) {
+  const dataFiles = hexo.locals && hexo.locals.get ? hexo.locals.get('data') : {};
+  const external = dataFiles && dataFiles[name];
+  if (!external) return '';
+
+  return crypto.createHash('sha1').update(JSON.stringify(external)).digest('hex').slice(0, 16);
+}
+
 function renderPage(data) {
   const pageData = resolvePageData(data);
+  const fingerprint = recommendationsFingerprint(pageData.recommendations_data || 'recommendations');
   const sections = toList(pageData.recommendations)
     .filter((section) => section && SECTION_DEFAULTS[section.key])
     .map(normalizeSection);
@@ -285,7 +321,7 @@ function renderPage(data) {
   ].join(''));
 
   return [
-    '<div class="rec-layout">',
+    `<div class="rec-layout"${fingerprint ? ` data-rec-data="${fingerprint}"` : ''}>`,
     header,
     `<nav class="rec-tabs" role="tablist" aria-label="推荐分类">${tabs.join('')}</nav>`,
     panels.join(''),
@@ -302,3 +338,23 @@ hexo.extend.filter.register('before_post_render', function beforePostRender(data
   data.content = `{% raw %}${renderPage(data)}{% endraw %}`;
   return data;
 });
+
+// Hexo caches a page's rendered HTML in db.json keyed on the page file alone,
+// so edits under `source/_data` keep serving the previous shelf until a
+// `hexo clean` - in `hexo server` as well as in `hexo generate`. The rendered
+// page carries a fingerprint of the data it was built from; when that no
+// longer matches, drop the cached content so the page renders again.
+hexo.extend.filter.register('before_generate', function invalidateRecommendationsCache() {
+  const page = this.model('Page').findOne({ source: 'recommendations/index.md' });
+  if (!page || page.content == null) return;
+
+  const fingerprint = recommendationsFingerprint(page.recommendations_data || 'recommendations');
+  if (!fingerprint || page.content.includes(`data-rec-data="${fingerprint}"`)) return;
+
+  this.log.debug('Recommendations data changed, re-rendering %s', page.source);
+  // Drop the rendered HTML the way Hexo's own processors do: `replace` stores
+  // the document without `content`, which marks it as needing a render again.
+  const data = page.toObject();
+  delete data.content;
+  return page.replace(data);
+}, 5);
