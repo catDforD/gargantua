@@ -17,6 +17,8 @@ const relationWeights = {
 
 const categoryLabels = {
   agent: "Agent",
+  llm: "大模型",
+  rag: "RAG",
   engineering: "工程实践",
   frontend: "前端",
   backend: "后端",

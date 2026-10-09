@@ -27,14 +27,42 @@ status: active
 
 # GRPO
 
-> GRPO（Group Relative Policy Optimization）是 DeepSeek 提出的 PPO 变体：对同一提示从旧策略采样 G 个输出，用组内奖励的均值与标准差归一化后的相对优势替代价值（critic）模型估计的基线，在保留奖励模型与 KL 约束的同时省去与策略同规模的价值模型。
+> DeepSeek 提出的 PPO 变体：用同一提示下一组输出的相对奖励作基线，省去价值模型。
 
-## 展开
+## 要解决的问题
 
-- 目标函数：与 PPO 同款的截断代理目标，但优势改为 `Â_i = (r_i − mean(r)) / std(r)`，奖励来自奖励模型或可验证的奖励函数（论文全文与 TRL 文档核验）。
-- 所需模型：策略模型 + 参考模型 + 奖励模型 / 奖励函数；**不需要价值（critic）模型**——论文原文 *foregoes the critic model, instead estimating the baseline from group scores*。
-- 优点：价值模型通常与策略模型同规模，去掉后显著降低显存与计算开销（摘要原文：*optimizing the memory usage of PPO*）；组内对比也贴合奖励模型的相对比较性质（TRL 文档）。
-- 应用：DeepSeekMath-Instruct 的结果监督 RL、过程监督 RL 与迭代 RL（论文 §4.1）；DeepSeek-R1 论文明确以 GRPO 为 RL 框架；TRL 提供 `GRPOTrainer`，官方支持 `--use_peft` 与 [[LoRA]] 组合。官方代码见 DeepSeek-Math 仓库（论文正文所载）。
-- 实现差异提示：TRL 版本额外含对参考策略的 KL 惩罚项，且其归一化方式与原文存在细微差别，照搬论文公式时需注意。
-- 关系说明：`broader_than: [[PPO]]` 依据论文原文自述 *a variant of Proximal Policy Optimization (PPO)*，GRPO 是更具体的主题。不再写 `broader_than: [[强化学习]]`——经 PPO 传递可达，本体禁止手写传递闭包。
-- 来源：[arXiv 2402.03300 (DeepSeekMath)](https://arxiv.org/abs/2402.03300)、[全文 v3](https://arxiv.org/html/2402.03300v3)、[TRL · GRPO Trainer](https://huggingface.co/docs/trl/main/en/grpo_trainer)、[DeepSeek-R1](https://arxiv.org/html/2501.12948v1)（访问：2026-09-25）。
+[[PPO]] 需要一个价值（critic）模型来估计基线，它通常和策略模型一样大，显存和计算开销都很重。GRPO 想去掉它。
+
+## 怎么做
+
+- **组采样**：对同一个提示，从旧策略采样 G 个输出
+- **组内相对优势**：用组内奖励的均值和标准差归一化，`Â_i = (r_i − mean(r)) / std(r)`，以此替代价值模型估计的基线
+- **其余照旧**：沿用 PPO 的截断代理目标，保留 KL 约束；奖励来自奖励模型或可验证的奖励函数
+- **三个模型**：策略、参考、奖励模型或奖励函数，不需要价值模型
+
+## 优势与代价
+
+- **优势**：去掉与策略同规模的价值模型，显著降低显存和计算开销；组内对比也贴合奖励模型「相对比较」的性质
+- **注意**：TRL 的实现额外加了对参考策略的 KL 惩罚项，归一化方式也和论文略有差别，照搬论文公式时要留意
+
+## 适用场景
+
+- **数学与推理 RL**：DeepSeekMath-Instruct 的结果监督 RL、过程监督 RL 和迭代 RL 都用它；DeepSeek-R1 也以 GRPO 为 RL 框架
+- **工程实现**：TRL 提供 `GRPOTrainer`，支持 `--use_peft` 和 [[LoRA]] 组合；官方代码在 DeepSeek-Math 仓库
+
+## 关联
+
+- [[PPO]]：GRPO 是它的变体，论文原文称 *a variant of Proximal Policy Optimization*
+- [[DPO]]：另一种简化 PPO 的思路，但连奖励模型和在线采样都去掉了
+- [[LoRA]]：GRPOTrainer 支持的参数高效底座
+
+## 扩展思考
+
+- **GRPO 为什么不需要价值模型？** 基线不再由价值模型估计，而是取同一提示下多个输出的平均奖励，再按组内标准差归一化得到优势。
+
+## 参考
+
+- [arXiv 2402.03300 · DeepSeekMath](https://arxiv.org/abs/2402.03300)
+- [TRL · GRPO Trainer](https://huggingface.co/docs/trl/main/en/grpo_trainer)
+- [arXiv 2501.12948 · DeepSeek-R1](https://arxiv.org/html/2501.12948v1)
+- 核验日期：2026-09-25

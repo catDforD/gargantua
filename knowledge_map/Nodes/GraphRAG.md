@@ -32,23 +32,48 @@ status: active
 
 # GraphRAG
 
-> GraphRAG 是微软提出的图式 RAG 方法：先用 LLM 从语料抽取实体—关系知识图谱，再对图做层级社区发现并为每个社区预生成摘要，查询时用社区摘要（全局）或实体邻域（局部）而非单纯向量相似度来组装上下文。
+> 微软提出的图式 RAG：先用 LLM 抽取实体—关系图并做社区摘要，查询时据此组装上下文。
 
-## 展开
+## 要解决的问题
 
-- **它解决的不是「找得更准」，而是「答不了全局题」**。论文摘要指出 RAG fails on global questions directed at an entire text corpus（如「数据集的主要主题是什么」），因为这本质是 query-focused summarization 而非检索任务；官方 Global Search 文档更直白：baseline RAG *relies on a vector search of semantically similar text content… there is nothing in the query to direct it to the correct information*。
-- **索引六阶段**（官方 Dataflow）：Phase 1 Compose TextUnits（切块）→ Phase 2 Document Processing → Phase 3 Graph Extraction（实体 / 关系抽取 → 实体 / 关系摘要 → 可选 claim 抽取）→ Phase 4 Graph Augmentation（社区发现）→ Phase 5 Community Summarization → Phase 6 Text Embedding。社区发现使用 Louvain / Leiden（论文 §2.2 引 Traag et al. 2019）。
-- **全局搜索是 map-reduce**：社区摘要分批 → 各自产出 rated intermediate response → ranking + filtering → 聚合成最终答案。论文实验条件为 C0–C3（根层到低层社区摘要）、TS（对原文直接 map-reduce）、SS（向量 RAG），结论是根层社区摘要 *at a fraction of the token cost* 达到与其他全局方法相当的效果。
-- **局部搜索混合结构化与非结构化上下文**：先用实体描述向量召回实体，再沿 entity → text unit / community report / relationship / covariate 展开候选，各自 ranking + filtering 后拼装。
-- **DRIFT Search**（Dynamic Reasoning and Inference with Flexible Traversal）：Primer 阶段用 query 与 top-K 语义相关社区报告比对，给出初步答案与追问；Follow-Up 阶段用 local search 细化，是全局与局部的折中。
-- **成本痛点有官方数字**：Methods 文档「Choosing a Method」称 *we estimate graph extraction to constitute roughly 75% of indexing cost*；FastGraphRAG 用 NLTK / spaCy 的名词短语加共现关系替代 LLM 抽取，更便宜但图更噪。这是回答「GraphRAG 的难点」最可靠的一手依据。
+它要解决的不是「找得更准」，而是「全局问题答不了」。基线 [[RAG]] 靠向量相似度检索，遇到「这个数据集的主要主题是什么」这类指向整个语料的问题，问题里没有能引向正确信息的线索。这类问题本质上是 query-focused summarization，而不是检索。
+
+## 怎么做
+
+- **建索引**：切块成 TextUnits → 文档处理 → 用 LLM 抽取实体和关系并生成摘要（可选抽取 claim）→ 用 Louvain / Leiden 做层级社区发现 → 为每个社区生成摘要 → 文本向量化
+- **全局搜索**：map-reduce。社区摘要分批，各自生成带评分的中间回答，排序过滤后聚合成最终答案。论文实验中，用根层社区摘要只花一小部分 token 就能达到其他全局方法的效果
+- **局部搜索**：先用实体描述的向量召回实体，再沿实体展开到相关的文本块、社区报告、关系和协变量，各自排序过滤后拼成上下文
+- **DRIFT Search**：介于两者之间。Primer 阶段把查询和 top-K 相关社区报告比对，给出初步答案和追问；Follow-Up 阶段用局部搜索细化
+
+## 优势与代价
+
+- **优势**：能回答面向整个语料的全局问题；局部搜索同时利用结构化和非结构化上下文
+- **代价**：建索引很贵，官方估计图抽取约占索引成本的 75%。FastGraphRAG 用 NLTK / spaCy 的名词短语加共现关系替代 LLM 抽取，更便宜，但图更噪
 
 ## 增量更新
 
-- **支持，且早于 1.0**。GitHub Releases 时间线核实：`v0.3.3`（2024-09-10）加入 incremental indexing 的 entrypoints（仅 API）→ `v0.4.0`（2024-11-06）加入增量索引、增量更新配置、按时间段的朴素社区合并、关系合并、更新时计算新增与删除输入 → `v0.4.1`（2024-11-09）加入 update CLI 入口。而 1.0 里程碑博客发布于 2024-12-16。**常见说法「增量更新随 1.0 而来」是错的。**
-- 当前接口（官方 CLI Reference）：`graphrag update` 更新已有知识图谱索引并把新索引写入 `update_output` 目录；另有 `graphrag index --method <standard|fast|standard-update|fast-update>`。核验时最新版为 `v3.2.0`（2026-09-24）。
-- 合并语义（读 main 分支源码得出，**版本敏感**，核实日期 2026-09-25）：`index/update/incremental_index.py::get_delta_docs` 用文档 `title` 与旧 `documents` 表做差集得到 new / deleted；`update/entities.py::_group_and_resolve_entities` 按实体 `title` 合并、重排 `human_readable_id`、把 description 聚成列表，且 `degree` 取 `"first"`，源码内留有 TODO 称可用整图重算。可写入的结论：**只按标题识别新增与删除，已入库文档的内容修改不会被重新抽取；图 degree 不重算。** 这两条来自源码而非官方文档声明。
-- 官方文档没有增量专页：仓库 `docs/` 下 33 个 md 无一讲 update，增量能力只体现在 CLI Reference 与 `index/outputs.md`（communities 表的 `period`、`size` 字段注明用于增量合并）。
-- 别名边界：`FastGraphRAG` **不作为本节点别名**——它既指微软的 `--method fast`，也是第三方独立开源项目，会触发别名冲突。`nano-graphrag`、`LightRAG`、`LazyGraphRAG` 的能力细节未核验，不写入。
-- 考察：GraphRAG 的难点与增量场景？
-- 来源：[arXiv 2404.16130](https://arxiv.org/abs/2404.16130)、[全文 v2](https://arxiv.org/html/2404.16130v2)、[Dataflow](https://microsoft.github.io/graphrag/index/default_dataflow/)、[Methods](https://microsoft.github.io/graphrag/index/methods/)、[Global Search](https://microsoft.github.io/graphrag/query/global_search/)、[Local Search](https://microsoft.github.io/graphrag/query/local_search/)、[CLI](https://microsoft.github.io/graphrag/cli/)、[Releases](https://github.com/microsoft/graphrag/releases)（访问：2026-09-25）。注：`microsoft.com/en-us/research/blog/*` 原文在本环境地域受限，标题与日期经官方镜像核实、正文未读，引用以 microsoft.github.io 为准。
+- **早于 1.0 就支持**：v0.3.3（2024-09-10）加入 incremental indexing 的 API 入口，v0.4.0（2024-11-06）加入增量索引和社区、关系合并，v0.4.1（2024-11-09）加入 update CLI；1.0 发布于 2024-12-16。「增量更新随 1.0 而来」的说法不对
+- **用法**：`graphrag update` 更新已有索引，新索引写到 `update_output` 目录；也可以用 `graphrag index --method standard-update` 或 `fast-update`。核验时最新版为 v3.2.0
+- **限制**：只按文档 `title` 判断新增和删除，已入库文档的内容修改不会被重新抽取；实体按 `title` 合并，图的 degree 不重算
+- **注意**：上面的限制来自 main 分支源码（2026-09-25），不是官方文档承诺，版本升级后可能变化；官方文档也没有增量专页
+
+## 容易混淆
+
+- **FastGraphRAG**：它既指微软的 `--method fast`，也是一个独立的第三方开源项目，所以不作为本节点的别名
+
+## 关联
+
+- [[RAG]]：上位概念，GraphRAG 针对的正是基线 RAG 答不了的全局问题
+
+## 扩展思考
+
+- **GraphRAG 的难点在哪？** 索引成本高，图抽取约占 75%；增量更新只认标题、不认内容修改，degree 也不重算。
+- **GraphRAG 和普通 RAG 的区别？** 普通 RAG 找相似片段；GraphRAG 预先构建实体图和社区摘要，能回答需要概括整个语料的问题。
+
+## 参考
+
+- [arXiv 2404.16130 · From Local to Global](https://arxiv.org/abs/2404.16130)
+- [GraphRAG · Dataflow](https://microsoft.github.io/graphrag/index/default_dataflow/)
+- [GraphRAG · Methods](https://microsoft.github.io/graphrag/index/methods/)
+- [GraphRAG · Releases](https://github.com/microsoft/graphrag/releases)
+- 核验日期：2026-09-25
