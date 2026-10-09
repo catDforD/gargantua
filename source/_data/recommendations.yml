@@ -526,3 +526,14 @@ recommendations:
         embed: {netease: '2634311381'}
         intro: >-
           摇滚乐队 Arrows in Action（2013 年成军）于 2024 年发布的单曲，鼓点干脆、声线略带沙哑，副歌律动感极强，也常出现在各类“日推歌单”里。
+      - title: A Long Way
+        year: 2015
+        # cover 来源: 网易云音乐 专辑《Home》封面 https://music.163.com/album?id=3120013 (800x800)
+        cover: /img/recommendations/music-a-long-way.webp
+        artist: Josh Garrels
+        type: 专辑曲目
+        genre: 民谣
+        tags: [民谣, 欧美]
+        embed: {netease: '31460059'}
+        intro: >-
+          美国民谣唱作人 Josh Garrels 2015 年专辑《Home》的第三轨。木吉他与弦乐缓缓铺开，副歌反复念着“I came a long long way back home / to see you one more time”，像一封写给父亲和旧居的归乡信。专辑发行首周即登上 Billboard 200 第 83 位，这首慢歌是其中情绪最沉的一首。
