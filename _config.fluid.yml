@@ -236,12 +236,14 @@ font:
 custom_js:
   - /js/custom.js
   - /js/recommendations.js
+  - /js/leetcode.js
 
 # 指定自定义 .css 文件路径，用法和 custom_js 相同
 # The usage is the same as custom_js
 custom_css:
   - /css/custom.css
   - /css/recommendations.css
+  - /css/leetcode.css
 
 # 网页访问统计
 # Analysis of website visitors
@@ -396,6 +398,7 @@ navbar:
       submenu:
         - { key: "about-profile", name: "个人简介", link: "/about/", icon: "iconfont icon-brush" }
         - { key: "about-recommendations", name: "推荐", link: "/recommendations/", icon: "iconfont icon-books" }
+        - { key: "about-leetcode", name: "刷题", link: "/leetcode/", icon: "iconfont icon-list" }
     - { key: "links", link: "/links/", icon: "iconfont icon-link-fill" }
 
 # 搜索功能，基于 hexo-generator-search 插件，若已安装其他搜索插件请关闭此功能，以避免生成多余的索引文件

@@ -1,0 +1,52 @@
+# 刷题记录。页面由 scripts/leetcode.js 从本文件渲染，页面壳在 source/leetcode/index.md。
+# 字段：id(题号) / title / slug / difficulty(简单|中等|困难) / tags / date(最近一次提交) /
+# submissions(总提交数) / status(可选，默认 passed) / link / note(一句话心得，可选)。
+# 图谱写节点的题，note 里可以直接写 [[节点名]]，和知识图谱互相呼应。
+leetcode:
+  deck: LeetCode
+  problems:
+    - id: 27
+      title: 移除元素
+      slug: remove-element
+      difficulty: 简单
+      tags: [数组, 双指针]
+      date: 2026-10-09
+      submissions: 2
+      link: https://leetcode.cn/problems/remove-element/
+      note: 快慢指针，慢指针指向下一个待写入的位置，等于 val 的元素直接跳过。
+    - id: 26
+      title: 删除有序数组中的重复项
+      slug: remove-duplicates-from-sorted-array
+      difficulty: 简单
+      tags: [数组, 双指针]
+      date: 2026-10-08
+      submissions: 1
+      link: https://leetcode.cn/problems/remove-duplicates-from-sorted-array/
+      note: 数组有序，所以只用比较 nums[fast] 和 nums[slow - 1]，重复就后移快指针。
+    - id: 88
+      title: 合并两个有序数组
+      slug: merge-sorted-array
+      difficulty: 简单
+      tags: [数组, 双指针, 排序]
+      date: 2026-10-08
+      submissions: 1
+      link: https://leetcode.cn/problems/merge-sorted-array/
+      note: 从后往前放，三个指针倒着走，避免覆盖 nums1 里还没处理的元素。
+    - id: 1502
+      title: 判断能否形成等差数列
+      slug: can-make-arithmetic-progression-from-sequence
+      difficulty: 简单
+      tags: [数组, 排序]
+      date: 2026-10-07
+      submissions: 1
+      link: https://leetcode.cn/problems/can-make-arithmetic-progression-from-sequence/
+      note: 排序后检查相邻差分是否全部相等；也可以用 min/max 算出公差后 O(n) 校验。
+    - id: 1929
+      title: 数组串联
+      slug: concatenation-of-array
+      difficulty: 简单
+      tags: [数组, 模拟]
+      date: 2026-10-07
+      submissions: 1
+      link: https://leetcode.cn/problems/concatenation-of-array/
+      note: 新建长度 2n 的数组，ans[i] 与 ans[i + n] 各填一遍。

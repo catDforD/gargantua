@@ -33,6 +33,7 @@ npm run server   # 本地预览：http://localhost:4000
 | `moments/` | 动态内容，每条一个 Markdown 文件 |
 | `source/moments/` | 动态页面，内容由 `scripts/moments-feed.js` 注入 |
 | `source/_data/recommendations.yml` | 推荐页数据，页面壳在 `source/recommendations/` |
+| `source/_data/leetcode.yml` | 刷题记录，页面壳在 `source/leetcode/`，由 `scripts/leetcode.js` 渲染 |
 | `knowledge_map/` | 知识图谱前端源码（Vite + React + d3），节点笔记在 `knowledge_map/Nodes/` |
 | `source/graph/` | 知识图谱页面与构建产物 `source/graph/assets/` |
 | `projects/` | 独立作品工程源码 |
@@ -69,9 +70,20 @@ npm run server   # 本地预览：http://localhost:4000
 
 节点笔记写在 `knowledge_map/Nodes/*.md` 的 YAML front matter 里，`tools/generate-knowledge-map-data.js` 把它们生成 `knowledge_map/src/data/graph-data.ts`，再由 `npm run build:knowledge-map` 构建到 `source/graph/assets/`。调试前端：
 
+算法题用 `domain: algorithm` 归到「算法」分类，主题节点（如 `数组`、`双指针`）当枢纽，题目节点用 `instantiates` 挂上去。
+
 ```bash
 pnpm --dir knowledge_map dev   # http://localhost:3015
 ```
+
+### 刷题
+
+刷题记录统一写在 `source/_data/leetcode.yml`，`source/leetcode/index.md` 只负责页面外壳（front matter 的 `leetcode_page`、`leetcode_data`），由 `scripts/leetcode.js` 渲染成带统计、难度/标签筛选和搜索的列表。
+
+- 每题字段：`id`（题号）、`title`、`slug`（英文题名）、`difficulty`（`简单` / `中等` / `困难`）、`tags`、`date`（最近一次提交）、`submissions`（总提交数）、`link`、`note`（一句话心得，可选）；文件顶部的 `deck` / `intro` 是页面标题与导语。
+- 数据改动会被插件自动识别并重新渲染（比对页面里的 `data-lc-data` 指纹），改完直接 `npm run build`，不必先 `hexo clean`。
+- 更新方式：把力扣「我的题目」截图交给 Codex，由 skill `leetcode-journal`（`~/.codex/skills/leetcode-journal/`）补全题号 / 标题 / 难度 / 标签、换算提交日期并跑构建校验。
+- 想在图谱里展开的题目，在 `knowledge_map/Nodes/` 下写一个 `domain: algorithm` 的节点，用 `instantiates: [[数组]]`、`[[双指针]]` 之类挂到算法主题上。
 
 ### 作品
 
