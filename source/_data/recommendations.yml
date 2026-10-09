@@ -537,3 +537,14 @@ recommendations:
         embed: {netease: '31460059'}
         intro: >-
           美国民谣唱作人 Josh Garrels 2015 年专辑《Home》的第三轨。木吉他与弦乐缓缓铺开，副歌反复念着“I came a long long way back home / to see you one more time”，像一封写给父亲和旧居的归乡信。专辑发行首周即登上 Billboard 200 第 83 位，这首慢歌是其中情绪最沉的一首。
+      - title: 回夏
+        year: 2022
+        # cover 来源: 网易云音乐 单曲《回夏》封面 https://music.163.com/album?id=143669831 (700x700)
+        cover: /img/recommendations/music-hui-xia.webp
+        artist: cadode
+        type: 单曲
+        genre: 日系摇滚
+        tags: [日系摇滚, 动画歌曲]
+        embed: {netease: '1939401645'}
+        intro: >-
+          日本“废墟系流行”组合 cadode 的出道单曲，也是 TV 动画《夏日重现》前半段的片尾曲，作词为 koshi、作曲与编曲为 eba。吉他音墙与合成器铺出水面般摇晃的底色，koshi 略带沙哑的嗓音把“回不去的夏天”唱成一种闷痛，与动画每集收尾的定格画面相当契合。
