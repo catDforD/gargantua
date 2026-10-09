@@ -22,9 +22,21 @@ const categoryLabels = {
   backend: "后端",
   data: "数据",
   computer_science: "计算机科学",
+  algorithm: "算法",
 };
 
-const palette = ["#666666", "#808080", "#999999", "#b0b0b0", "#c4c4c4", "#d6d6d6"];
+const palette = [
+  "#666666",
+  "#7f7f7f",
+  "#959595",
+  "#a8a8a8",
+  "#b8b8b8",
+  "#c6c6c6",
+  "#d2d2d2",
+  "#dedede",
+  "#e8e8e8",
+  "#f0f0f0",
+];
 
 function parseNodeFile(fileName) {
   const filePath = path.join(nodesDir, fileName);

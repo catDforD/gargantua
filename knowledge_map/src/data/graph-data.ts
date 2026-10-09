@@ -26,15 +26,19 @@ export const CATEGORIES = [
   },
   {
     "name": "rag",
-    "color": "#808080"
+    "color": "#7f7f7f"
   },
   {
     "name": "Agent",
-    "color": "#999999"
+    "color": "#959595"
   },
   {
     "name": "工程实践",
-    "color": "#b0b0b0"
+    "color": "#a8a8a8"
+  },
+  {
+    "name": "算法",
+    "color": "#b8b8b8"
   }
 ] as const;
 
@@ -167,6 +171,20 @@ export const graphData: GraphData = {
       "content": "# WebSocket\n\n> WebSocket 是基于 TCP、经 HTTP Upgrade 握手建立的全双工双向通信协议（RFC 6455），浏览器通过 `WebSocket` API 在同一条长连接上同时收发文本或二进制消息，无需轮询。\n\n## 展开\n\n- RFC 6455 摘要原文：*enables two-way communication*，由 *an opening handshake followed by basic message framing, layered over TCP* 组成；设计目标是取代依赖多开 HTTP 连接的轮询方案（XMLHttpRequest、iframe、long polling）。\n- 握手：客户端发 `GET` 并带 `Upgrade: websocket`、`Connection: Upgrade`、`Sec-WebSocket-Key`、`Sec-WebSocket-Version: 13`；服务器回 `101 Switching Protocols` 与 `Sec-WebSocket-Accept`（把 Key 拼接固定 GUID `258EAFA5-E914-47DA-95CA-C5AB0DC85B11` 后做 SHA-1 再 base64）。非 101 即握手失败。\n- 协议边界：RFC §1.7 称其为 *an independent TCP-based protocol. Its only relationship to HTTP is that its handshake is interpreted by HTTP servers as an Upgrade request.* URI 方案 `ws://` 默认端口 80，`wss://`（TLS）默认 443。\n- 帧规则：客户端发往服务器的帧**必须**掩码（无论是否使用 TLS），服务器帧**必须不**掩码；支持分片与 Close / Ping / Pong 控制帧。\n- API：MDN 称其打开 *a two-way interactive communication session*；WHATWG 定义 `readyState` 为 CONNECTING 0 / OPEN 1 / CLOSING 2 / CLOSED 3，`send()` 接受字符串、Blob 或 BufferSource 且为异步（仅写入缓冲），`binaryType` 取 `\"blob\"` 或 `\"arraybuffer\"`。\n- 典型场景（RFC §1.1 列举）：游戏、股票行情、多人协同编辑、实时服务端界面、即时通讯。\n\n## 与 SSE 的对照\n\n| 维度 | WebSocket | [[SSE]] |\n| --- | --- | --- |\n| 方向 | 双向全双工 | 单向，MDN 原文 *you can't send events from a client to a server* |\n| 底层 | 独立 TCP 协议，仅借 HTTP 做 Upgrade | 普通 HTTP 响应，`Content-Type: text/event-stream`，强制 UTF-8 |\n| 自动重连 | 规范未定义任何自动重连 | 规范强制自动重连 |\n| 断点续传 | 无 | `id:` 字段 + `Last-Event-ID` 请求头 |\n| 二进制 | 支持 | 不支持 |\n\n重连差异经规范全文词频交叉验证：WHATWG `web-sockets.html` 中 `reconnect` / `reestablish` / `reconnection time` 均出现 0 次；`server-sent-events.html` 中分别为 12 / 11 / 3 次，并在 §9.2.3 定义了规范性的 *reestablish the connection* 算法。SSE 侧还可用 `retry:` 指定重连间隔、用 HTTP 204 No Content 告知客户端停止重连。\n\n- 考察：SSE 和 WebSocket 的区别？\n- 来源：[RFC 6455](https://www.rfc-editor.org/rfc/rfc6455.txt)、[MDN · WebSockets API](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)、[WHATWG · Web sockets](https://html.spec.whatwg.org/multipage/web-sockets.html)、[WHATWG · Server-sent events](https://html.spec.whatwg.org/multipage/server-sent-events.html)（访问：2026-09-25）。"
     },
     {
+      "id": "node:删除有序数组中的重复项",
+      "name": "删除有序数组中的重复项",
+      "category": "算法",
+      "description": "删除有序数组中的重复项（LeetCode 26，简单）指给定非递减数组 `nums`，原地删除重复出现的元素使每个元素只出现一次，返回新长度：必须 O(1) 额外空间，且结果保持非递减。",
+      "content": "# 删除有序数组中的重复项\n\n> 删除有序数组中的重复项（LeetCode 26，简单）指给定非递减数组 `nums`，原地删除重复出现的元素使每个元素只出现一次，返回新长度：必须 O(1) 额外空间，且结果保持非递减。\n\n## 展开\n\n- 题面与约束（LeetCode 官方页）：`nums=[1,1,2]` → 2（`[1,2]`）；`nums=[0,0,1,1,1,2,2,3,3,4]` → 5。`1 <= nums.length <= 3 * 10^4`。\n- 官方 topic tags：Array、Two Pointers。\n- **为什么要用「有序」这个条件**：重复元素必然相邻，所以只比较 `nums[fast]` 与已写区间的最后一个元素 `nums[slow - 1]` 即可判定，不需要哈希表。\n- 慢指针指向下一个可写位置，初值取 1（第一个元素一定保留）；`nums[fast] != nums[slow - 1]` 时写入并让 `slow++`，最后返回 `slow`。时间 O(n)、空间 O(1)。\n- 与 [[移除元素]] 的区别：那道题比较的是函数参数 `val`，这道题比较的是「自己刚写进去的最后一个元素」。\n- 易错点：直接用 `nums[slow]` 做比较会错位；空数组需单独返回 0；删除后长度之外的内容不作要求，不必清零。\n- 考察：有序去重的快慢指针，以及同族变体「每个元素最多出现两次」（LeetCode 80）。\n- 来源：[LeetCode 26](https://leetcode.cn/problems/remove-duplicates-from-sorted-array/)（访问：2026-10-09）。"
+    },
+    {
+      "id": "node:判断能否形成等差数列",
+      "name": "判断能否形成等差数列",
+      "category": "算法",
+      "description": "判断能否形成等差数列（LeetCode 1502，简单）指给定整数数组 `arr`，判断能否通过重新排列使任意相邻两项之差都相等；因为允许重排，问题等价于「排序之后相邻差分是否恒定」。",
+      "content": "# 判断能否形成等差数列\n\n> 判断能否形成等差数列（LeetCode 1502，简单）指给定整数数组 `arr`，判断能否通过重新排列使任意相邻两项之差都相等；因为允许重排，问题等价于「排序之后相邻差分是否恒定」。\n\n## 展开\n\n- 题面与约束（LeetCode 官方页）：`arr=[3,5,1]` → true（`[1,3,5]`）；`arr=[1,2,4]` → false。`2 <= arr.length <= 1000`，`-10^6 <= arr[i] <= 10^6`。\n- 官方 topic tags：Array、Sorting。\n- **排序后比较差分 O(n log n)**：排序后取 `d = arr[1] - arr[0]`，检查所有 `arr[i] - arr[i-1] == d`；`n <= 2` 时恒为真。\n- **O(n) 校验**：先求 `min` / `max`，公差只能是 `d = (max - min) / (n - 1)`；要求该除法整除，否则直接 false。再用哈希集合（或值域数组）把每个元素映射到 `min + k * d`，确认每个位置恰好被覆盖一次。\n- 易错点：`(max - min)` 不能被 `n - 1` 整除时必须提前返回，否则浮点公差比较会出错；相等元素会造成重复映射，也需要在这里判 false。\n- 考察：把「能否重排成等差数列」翻译成「排序后差分恒定」；是否愿意写 O(n) 的哈希版本。\n- 来源：[LeetCode 1502](https://leetcode.cn/problems/can-make-arithmetic-progression-from-sequence/)（访问：2026-10-09）。"
+    },
+    {
       "id": "node:动态规划",
       "name": "动态规划",
       "category": "工程实践",
@@ -174,11 +192,39 @@ export const graphData: GraphData = {
       "content": "# 动态规划\n\n> 动态规划是把问题拆成相互重叠的子问题、保存子问题解以避免重复计算的方法；它要求问题具备最优子结构，实现上表现为记忆化搜索（自顶向下）或递推填表（自底向上），与只解一次子问题的分治不同。\n\n## 展开\n\n- 两种实现形态在来源中都有对应：LeetCode 494 官方题解的 Approach 2 用 `memo[index][currentSum]` 做记忆化搜索，Approach 3 / 4 用 `dp[index][sum]` 递推填表，并说明记忆化把复杂度 *from exponential to polynomial*。\n- 状态定义可以重写以降低复杂度：[[最长递增子序列]] 的 O(n²) 解法定义 `d[i]` 为以 `a[i]` 结尾的最长长度；O(n log n) 解法把定义改成 `d[l]` 为长度 `l` 的递增子序列的最小可能结尾元素，从而让数组恒有序、可用二分定位。同一问题换状态定义即换复杂度，是 DP 的核心技巧。\n- 空间压缩（滚动数组）：当每一行只依赖上一行时，可压成一维。LeetCode 494 官方题解 Approach 4 即把 `dp[index][sum]` 压成一维、每轮生成 `next` 替换，空间由 O(n·totalSum) 降为 O(totalSum)。\n- 一维压缩的遍历方向是有约束的：cp-algorithms 背包页给出 0-1 背包一维递推 `f_j = max(f_j, f_{j-w_i}+v_i)`，并说明 `j` 必须倒序枚举，否则会用本轮已更新的值，等价于允许重复选取（变成完全背包）。计数型递推 `f[j] += f[j-w_i]` 同理。\n- 边界初始化的陷阱：当状态空间存在重合取值时必须累加而非赋值。LeetCode 494 中 `nums[0]==0` 时 `+0` 与 `-0` 落到同一格，官方题解的第二处初始化写作 `+= 1`。\n- 本库中的 DP 实例节点：[[最长递增子序列]]、[[目标和]]。\n- 来源：[cp-algorithms · LIS](https://cp-algorithms.com/dynamic_programming/longest_increasing_subsequence.html)、[cp-algorithms · Knapsack](https://cp-algorithms.com/dynamic_programming/knapsack.html)、[LeetCode 494 官方题解](https://leetcode.com/problems/target-sum/solutions/)（访问：2026-09-25）。"
     },
     {
+      "id": "node:双指针",
+      "name": "双指针",
+      "category": "算法",
+      "description": "双指针是在同一个序列上用两个下标同向或相向移动，把暴力枚举的 O(n²) 降到 O(n) 的技巧：同向快慢指针负责原地过滤与去重，相向左右指针负责在有序区间上收缩搜索范围。",
+      "content": "# 双指针\n\n> 双指针是在同一个序列上用两个下标同向或相向移动，把暴力枚举的 O(n²) 降到 O(n) 的技巧：同向快慢指针负责原地过滤与去重，相向左右指针负责在有序区间上收缩搜索范围。\n\n## 展开\n\n- 同向快慢指针：慢指针指向「已写区间的下一个位置」，快指针遍历整个数组。删除类题目的骨架就是 `if (nums[fast] != val) nums[slow++] = nums[fast]`，返回 `slow`。参见 [[移除元素]]、[[删除有序数组中的重复项]]。\n- 反向写指针：当目标数组尾部是空的（或可以覆盖）时从后往前填，避免覆盖尚未处理的元素。[[合并两个有序数组]] 的三指针就是从 `m + n - 1` 往前写。\n- 相向左右指针：一般要求序列有序，靠「两数之和偏大就右指针左移、偏小就左指针右移」的单调性剪枝。\n- 易错点：循环条件是快指针是否越界（`fast < n`），不是慢指针；函数的返回值是新长度而不是原长度；语言内置的 `erase` / `filter` 都会额外分配或搬移，不算 O(1) 原地解法。\n- 本库中的双指针实例节点：[[移除元素]]、[[删除有序数组中的重复项]]、[[合并两个有序数组]]。\n- 来源：[LeetCode 27](https://leetcode.cn/problems/remove-element/)、[LeetCode 26](https://leetcode.cn/problems/remove-duplicates-from-sorted-array/)、[LeetCode 88](https://leetcode.cn/problems/merge-sorted-array/)（访问：2026-10-09）。"
+    },
+    {
+      "id": "node:合并两个有序数组",
+      "name": "合并两个有序数组",
+      "category": "算法",
+      "description": "合并两个有序数组（LeetCode 88，简单）指给定非递减数组 `nums1`（前 `m` 个是有效元素，后 `n` 个是占位）和 `nums2`（`n` 个元素），把 `nums2` 合并进 `nums1` 使整体仍非递减，要求原地修改 `nums1`。",
+      "content": "# 合并两个有序数组\n\n> 合并两个有序数组（LeetCode 88，简单）指给定非递减数组 `nums1`（前 `m` 个是有效元素，后 `n` 个是占位）和 `nums2`（`n` 个元素），把 `nums2` 合并进 `nums1` 使整体仍非递减，要求原地修改 `nums1`。\n\n## 展开\n\n- 题面与约束（LeetCode 官方页）：`nums1=[1,2,3,0,0,0], m=3, nums2=[2,5,6], n=3` → `[1,2,2,3,5,6]`；`m=0` 时结果就是 `nums2`。`nums1.length == m + n`。\n- 官方 topic tags：Array、Two Pointers、Sorting。\n- **从后往前三指针**：`p1 = m - 1`、`p2 = n - 1`、`write = m + n - 1`，每轮把较大的那个写到 `nums1[write]` 再左移；`nums2` 先耗尽时结束，剩下的 `nums1` 前缀本来就在正确位置。\n- **为什么不能正着写**：正序写入会覆盖 `nums1` 中尚未参与比较的有效元素，想正序就得额外开 O(m + n) 的临时数组。指针方向取决于「哪一侧留有空位」，这是本题的设计点。\n- 易错点：循环条件是 `p1 >= 0 && p2 >= 0`；循环结束后不需要再处理 `nums1` 的剩余前缀，但 `nums2` 的剩余元素需要整体复制。\n- 考察：三指针方向选择，属于「原地数组搬运」家族（同族见 [[删除有序数组中的重复项]]）。\n- 来源：[LeetCode 88](https://leetcode.cn/problems/merge-sorted-array/)（访问：2026-10-09）。"
+    },
+    {
       "id": "node:多阶段检索",
       "name": "多阶段检索",
       "category": "rag",
       "description": "多阶段检索指把检索拆成目标不同的若干**串联**阶段——先用廉价高召回的方式取大候选集，再用昂贵高精度的模型对小 top-k 精排，最后交给生成——以在延迟预算内同时逼近 recall 与 precision；它是串联多级，不同于并行多路的 [[混合检索]]。",
       "content": "# 多阶段检索\n\n> 多阶段检索指把检索拆成目标不同的若干**串联**阶段——先用廉价高召回的方式取大候选集，再用昂贵高精度的模型对小 top-k 精排，最后交给生成——以在延迟预算内同时逼近 recall 与 precision；它是串联多级，不同于并行多路的 [[混合检索]]。\n\n## 展开\n\n- **为什么单次召回不够**（官方一手依据）：Elasticsearch《Semantic reranking》开篇即 *Re-rankers improve the relevance of results from earlier-stage retrieval mechanisms*，并给出成本—位置约束：*semantic re-ranking requires relatively large and complex machine learning models and operates in real-time… this technique makes sense on a small top-k result set, as one of the final steps in a pipeline.* 这句话同时解释了「为什么必须分阶段」与「为什么重排只能放在尾部」。\n- **机制根源：bi-encoder 与 cross-encoder**（同一页）：cross-encoder *takes the query and document texts as a single, concatenated input*，生成 query-aware 表示，精度高但 *generally larger and more computationally intensive, resulting in higher latencies and increased computational costs*；bi-encoder 的文档与查询 embedding *computed separately, so they aren't aware of each other*，可离线预计算、可建 ANN 索引，但精度较低。这就是漏斗结构的物理原因：能预计算的只能做粗排，不能预计算的只能做尾部精排。\n- **额外红利**（同页）：cross-encoder 输出的分数 *consistent across queries*，可设全局统一阈值；而 bi-encoder 的相似度是 query-dependent，*you cannot set universal cut-offs*。做 RAG 空结果兜底时这条很实用。\n- **阶段接口如何落地**：Elasticsearch `text_similarity_reranker` retriever 的必填参数 `retriever` 定义为 *the child retriever that generates the initial set of top documents to be re-ranked*，即「第一阶段输出 = 第二阶段输入」；Qdrant 用可嵌套的 `prefetch` 表达同一件事——*perform the prefetch query (or queries), apply the main query over the results of its prefetch(es)*，该页标题即 **Hybrid and Multi-Stage Queries**。\n- **阶段数可扩展**：三段常见形态为查询改写 → 混合召回 → 精排。Qdrant 官方教程给出三路表征版本：dense（语义召回）+ sparse（关键词召回）→ late interaction（精排），*the resulting sets of documents are then reranked using late interaction embeddings*。\n- **中间形态 late interaction**：ColBERT（SIGIR 2020）指出 cross-encoder 类排序模型 *increase computational cost by orders of magnitude… they must feed each query-document pair through a massive neural network*，于是采用「独立编码 + 廉价细粒度交互」，既能 *reducing the cost of re-ranking the documents retrieved by a traditional model*，又能靠向量索引端到端检索——它是召回与重排之间的第三档。\n- **历史锚点**：monoBERT（Nogueira & Cho，arXiv 1901.04085）是 query-based passage re-ranking 的起点，在 MS MARCO passage 上 MRR@10 相对提升 27%。\n- **验收指标分阶段**：召回阶段看 recall@k，重排阶段看 nDCG / MRR。\n- 与 [[混合检索]] 的正交性：ES 原话称重排 *works equally well with keyword, semantic, or hybrid retrieval algorithms*，即重排是叠加在混合检索之上的一层，不是其子集。反例双向成立：纯 dense 召回 → cross-encoder 精排是「有多阶段无混合」；BM25 + 向量 RRF 融合后直送 LLM 是「有混合无重排」。生产标准链路「多路召回 → RRF 融合 → cross-encoder 精排 → 生成」会同时覆盖两者，因此按本体规则登记一条 `related`（只在 [[混合检索]] 一侧写）。\n- 考察：为什么不能只做一次召回、二段三段检索分别解决什么问题？\n- 来源：[Elasticsearch · Semantic reranking](https://www.elastic.co/docs/solutions/search/ranking/semantic-reranking)、[text_similarity_reranker retriever](https://www.elastic.co/docs/reference/elasticsearch/rest-apis/retrievers/text-similarity-reranker-retriever)、[Qdrant · Hybrid Queries](https://qdrant.tech/documentation/search/hybrid-queries/)、[Qdrant · Reranking Hybrid Search](https://qdrant.tech/documentation/tutorials-basics/reranking-hybrid-search/)、[Cohere · Rerank](https://docs.cohere.com/docs/rerank-overview)、[monoBERT](https://arxiv.org/abs/1901.04085)、[ColBERT](https://arxiv.org/abs/2004.12832)（访问：2026-09-25）。"
+    },
+    {
+      "id": "node:数组",
+      "name": "数组",
+      "category": "算法",
+      "description": "数组是在连续内存上按下标随机访问的线性结构：读写下标 O(1)，中间插入或删除要搬移 O(n) 个元素；LeetCode 的「原地修改」类题目因此通常用双指针在 O(1) 额外空间内一次遍历完成。",
+      "content": "# 数组\n\n> 数组是在连续内存上按下标随机访问的线性结构：读写下标 O(1)，中间插入或删除要搬移 O(n) 个元素；LeetCode 的「原地修改」类题目因此通常用双指针在 O(1) 额外空间内一次遍历完成。\n\n## 展开\n\n- 关键性质：随机访问 O(1)；在头部/中间插入删除需要整体搬移，O(n)；长度固定（C++ / Java），Python 的 list、JS 的 Array 是动态数组，扩容是摊还 O(1)。\n- 「原地删除 / 合并」的共同模式是把区间拆成两段：用慢指针维护已经写好的有效前缀，快指针扫描待处理区间。参见 [[移除元素]]、[[删除有序数组中的重复项]]、[[合并两个有序数组]]。\n- 原地操作题要先问三个边界：空数组、单元素、以及「相对顺序是否必须保持」——顺序可以变时通常能用相向双指针少移动元素。\n- 数组有序时会带来额外结构：可以二分定位、可以用差分或前后缀极值做 O(n) 一次扫描。\n- 本库中的数组实例节点：[[移除元素]]、[[删除有序数组中的重复项]]、[[合并两个有序数组]]、[[判断能否形成等差数列]]、[[数组串联]]。\n- 来源：[LeetCode 27](https://leetcode.cn/problems/remove-element/)、[LeetCode 88](https://leetcode.cn/problems/merge-sorted-array/)（访问：2026-10-09）。"
+    },
+    {
+      "id": "node:数组串联",
+      "name": "数组串联",
+      "category": "算法",
+      "description": "数组串联（LeetCode 1929，简单）指给定长度 `n` 的整数数组 `nums`，构造长度 `2n` 的数组 `ans`，满足 `ans[i] == nums[i]` 且 `ans[i + n] == nums[i]`（`0 <= i < n`）。",
+      "content": "# 数组串联\n\n> 数组串联（LeetCode 1929，简单）指给定长度 `n` 的整数数组 `nums`，构造长度 `2n` 的数组 `ans`，满足 `ans[i] == nums[i]` 且 `ans[i + n] == nums[i]`（`0 <= i < n`）。\n\n## 展开\n\n- 题面与约束（LeetCode 官方页）：`nums=[1,2,1]` → `[1,2,1,1,2,1]`。`1 <= n <= 1000`。\n- 官方 topic tags：Array、Simulation。\n- **按下标映射填两遍**：新建长度 `2n` 的数组，`ans[i] = nums[i]`、`ans[i + n] = nums[i]`，一次遍历完成。时间 O(n)、空间 O(n)（输出本身占 O(n)，无法避免）。\n- 语言便利写法：Python `nums * 2`、JS `nums.concat(nums)`，语义等价；面试时能说清底层仍是一次 O(n) 拷贝即可。\n- 考察：读题与下标映射，属于热身的模拟题。\n- 来源：[LeetCode 1929](https://leetcode.cn/problems/concatenation-of-array/)（访问：2026-10-09）。"
     },
     {
       "id": "node:最长递增子序列",
@@ -200,6 +246,13 @@ export const graphData: GraphData = {
       "category": "工程实践",
       "description": "目标和（Target Sum，LeetCode 494，Medium）指给定非负整数数组 `nums` 与整数 `target`，为每个元素前各添加一个 `+` 或 `-` 并串联（必须用到全部元素），求运算结果恰为 `target` 的不同表达式数目。",
       "content": "# 目标和\n\n> 目标和（Target Sum，LeetCode 494，Medium）指给定非负整数数组 `nums` 与整数 `target`，为每个元素前各添加一个 `+` 或 `-` 并串联（必须用到全部元素），求运算结果恰为 `target` 的不同表达式数目。\n\n## 展开\n\n- 题面与约束（LeetCode 官方页）：`nums=[1,1,1,1,1], target=3` → 5；`nums=[1], target=1` → 1。`1 <= nums.length <= 20`，`0 <= nums[i] <= 1000`，`0 <= sum(nums[i]) <= 1000`，`-1000 <= target <= 1000`。\n- 官方 topic tags：Array、Dynamic Programming、Backtracking、Knapsack Problem、0-1 Knapsack——官方明确以 0-1 背包标注此题。\n- **解法一 暴力 DFS / 回溯**（官方题解 Approach 1）：按 index 递归，每个元素两个分支（`±nums[i]`），`i == n` 时判断 `sum == target` 并计数。时间 O(2ⁿ)、空间 O(n)（递归栈深度）。官方注明 Python3 版本会 TLE。\n- **解法二 记忆化搜索**（Approach 2）：以 `memo[index][currentSum]` 缓存；因和可为负，下标整体偏移 `totalSum`，表尺寸 `n × (2·totalSum+1)`。官方原话 *reduces the time complexity from exponential to polynomial*。时间 O(n·totalSum)、空间 O(n·totalSum)。\n- **解法三 二维 DP → 解法四 滚动数组**（Approach 3 / 4）：`dp[index][sum]` 表示用前 `index` 个数凑出 `sum` 的方案数；初始化 `dp[0][nums[0]+totalSum]=1` 且 `dp[0][-nums[0]+totalSum] += 1`（**易错点**：`nums[0]==0` 时两处重合，第二处必须累加而非赋值）；转移 `dp[i][sum±nums[i]] += dp[i-1][sum]`；答案 `dp[n-1][target+totalSum]`，若 `|target| > totalSum` 直接返回 0。因每行只依赖上一行，可压成一维并每轮生成 `next` 替换。时间均 O(n·totalSum)，空间由 O(n·totalSum) 降为 O(totalSum)。\n- **0-1 背包计数转化**：设取 `+` 的子集和为 P、取 `-` 的为 N，则 `P-N=target`、`P+N=totalSum`，故 `P=(target+totalSum)/2`，问题化为「选子集使其和恰为 `(target+totalSum)/2` 的方案数」。前置条件：`(target+totalSum)` 须为非负偶数，否则答案为 0。计数型 0-1 背包一维递推 `f[j] += f[j-w_i]`，且 `j` **必须倒序**枚举，以保证取到 `f_{i-1, j-w_i}`（倒序不变式经 cp-algorithms 背包页原文核对）。时间 O(n·P)、空间 O(P)，通常优于扫整个和域的解法三 / 四。\n- 考察：DFS 回溯与 0-1 背包计数两种思路？\n- 来源：[LeetCode 494](https://leetcode.com/problems/target-sum/)、[LeetCode 494 官方题解](https://leetcode.com/problems/target-sum/solutions/)、[cp-algorithms · Knapsack Problem](https://cp-algorithms.com/dynamic_programming/knapsack.html)（访问：2026-09-25）。"
+    },
+    {
+      "id": "node:移除元素",
+      "name": "移除元素",
+      "category": "算法",
+      "description": "移除元素（LeetCode 27，简单）指给定数组 `nums` 与值 `val`，原地移除所有等于 `val` 的元素并返回新长度：必须原地修改且只用 O(1) 额外空间，剩下的元素相对顺序可以改变，新长度之外的内容不作要求。",
+      "content": "# 移除元素\n\n> 移除元素（LeetCode 27，简单）指给定数组 `nums` 与值 `val`，原地移除所有等于 `val` 的元素并返回新长度：必须原地修改且只用 O(1) 额外空间，剩下的元素相对顺序可以改变，新长度之外的内容不作要求。\n\n## 展开\n\n- 题面与约束（LeetCode 官方页）：`nums=[3,2,2,3], val=3` → 2（`[2,2]`）；`nums=[0,1,2,2,3,0,4,2], val=2` → 5。`0 <= nums.length <= 100`，`0 <= nums[i] <= 50`，`0 <= val <= 100`。\n- 官方 topic tags：Array、Two Pointers。\n- **快慢指针 O(n)**：`slow` 指向下一个待写入位置，`fast` 全数组扫描，遇到 `nums[fast] != val` 就 `nums[slow++] = nums[fast]`，返回 `slow`。空间 O(1)，且保持相对顺序。\n- **相向双指针 O(n)**：左指针停在等于 `val` 的位置，右指针从末尾找一个不等于 `val` 的值覆盖过来，两指针相遇即结束。题面允许打乱顺序，所以这个版本赋值次数更少。\n- 易错点：返回的是新长度 `slow`，不是 `n`；不要用 `erase` / `remove` / `filter` 这类会搬移或额外分配的实现冒充原地解法。\n- 考察：手撕快慢指针后追问「顺序可以变时能否减少元素移动」，对应上面第二种解法。\n- 来源：[LeetCode 27](https://leetcode.cn/problems/remove-element/)（访问：2026-10-09）。"
     }
   ],
   "links": [
@@ -304,6 +357,41 @@ export const graphData: GraphData = {
       "weight": 2
     },
     {
+      "source": "node:删除有序数组中的重复项",
+      "target": "node:双指针",
+      "weight": 4
+    },
+    {
+      "source": "node:删除有序数组中的重复项",
+      "target": "node:合并两个有序数组",
+      "weight": 2
+    },
+    {
+      "source": "node:删除有序数组中的重复项",
+      "target": "node:数组",
+      "weight": 4
+    },
+    {
+      "source": "node:删除有序数组中的重复项",
+      "target": "node:移除元素",
+      "weight": 2
+    },
+    {
+      "source": "node:判断能否形成等差数列",
+      "target": "node:合并两个有序数组",
+      "weight": 2
+    },
+    {
+      "source": "node:判断能否形成等差数列",
+      "target": "node:数组",
+      "weight": 4
+    },
+    {
+      "source": "node:判断能否形成等差数列",
+      "target": "node:数组串联",
+      "weight": 2
+    },
+    {
       "source": "node:动态规划",
       "target": "node:最长递增子序列",
       "weight": 4
@@ -314,9 +402,44 @@ export const graphData: GraphData = {
       "weight": 4
     },
     {
+      "source": "node:双指针",
+      "target": "node:合并两个有序数组",
+      "weight": 4
+    },
+    {
+      "source": "node:双指针",
+      "target": "node:数组",
+      "weight": 2
+    },
+    {
+      "source": "node:双指针",
+      "target": "node:移除元素",
+      "weight": 4
+    },
+    {
+      "source": "node:合并两个有序数组",
+      "target": "node:数组",
+      "weight": 4
+    },
+    {
+      "source": "node:合并两个有序数组",
+      "target": "node:移除元素",
+      "weight": 2
+    },
+    {
       "source": "node:多阶段检索",
       "target": "node:混合检索",
       "weight": 2
+    },
+    {
+      "source": "node:数组",
+      "target": "node:数组串联",
+      "weight": 4
+    },
+    {
+      "source": "node:数组",
+      "target": "node:移除元素",
+      "weight": 4
     }
   ]
 };
