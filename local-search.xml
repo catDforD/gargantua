@@ -4,6 +4,27 @@
   
   
   <entry>
+    <title>AI 未能解决的最后一道 IMO 真题</title>
+    <link href="/2026/10/12/the-last-imo-problem-ai-could-not-solve/"/>
+    <url>/2026/10/12/the-last-imo-problem-ai-could-not-solve/</url>
+    
+    <content type="html"><![CDATA[<ul><li>视频（B 站，官方双语）：<a href="https://www.bilibili.com/video/BV1znaf61EnS/">https://www.bilibili.com/video/BV1znaf61EnS/</a></li><li>原视频（3Blue1Brown）：<a href="https://youtu.be/Nbwv5wHQoj0">https://youtu.be/Nbwv5wHQoj0</a></li><li>发布：2026-10-01</li></ul><h2 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h2><p>IMO 2025 第 6 题，命题人 Zhao Yu Ma 和 David Lin Kewei（新加坡）。</p><blockquote><p>Consider a 2025 × 2025 grid of unit squares. Matilda wishes to place on the grid some rectangular tiles, possibly of different sizes, such that each side of every tile lies on a grid line and every unit square is covered by at most one tile.</p><p>Determine the minimum number of tiles Matilda needs to place so that each row and each column of the grid has exactly one unit square that is not covered by any tile.</p></blockquote><p>中文：</p><p>在 2025 × 2025 的单位方格网格里，Matilda 要放入若干矩形瓷砖（大小可以不同），要求每块瓷砖的每条边都落在网格线上，并且每个单位格至多被一块瓷砖覆盖。请确定：当每一行、每一列都恰好有一个单位格没被任何瓷砖覆盖时，她最少需要放多少块瓷砖。</p><p><img src="/../img/doc/imo-2025-p6-construction.webp" alt="满足条件的一种铺法（网格边长 25 &#x3D; k²，瓷砖边长 k &#x3D; 5，红线为瓷砖边界，黑色小方块为每行每列各一个的空格）。图源：Evan Chen《IMO 2025 Solution Notes》"></p><p>题目最终要求两个东西：这个数，以及如何证明这就是最小的值。</p><h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>这一节按视频的顺序记一下每一步为什么这么想。成品证明读完一般只能确认它是对的，但是看不出是如何想到的。借用视频作者结尾的话说，可能证明都不是很重要，得到证明的这个过程对我们人类反而更有价值。</p><p>下面把网格边长写成 k²（本题 k &#x3D; 45），这么写的原因到第三步就清楚了。</p><h3 id="一、引入：切立方体"><a href="#一、引入：切立方体" class="headerlink" title="一、引入：切立方体"></a>一、引入：切立方体</h3><p>视频没有直接讲题，先出了一个看着不相干的问题：把 3×3×3 的立方体切成 27 个单位小立方体，每刀是一个平面，每切完一刀可以把碎块随意重新摆放，最少几刀？想自己试的话可以先停在这里。</p><p>答案是 6 刀，每个方向切两刀就行。有意思的是怎么证明不能更少：看正中间那个小立方体，它的 6 个面原本都在大立方体内部，每个面都得靠一刀切出来，而一刀只是一个平面，最多切出它的一个面。所以不管怎么重新摆放，至少要 6 刀。</p><p>这个例子演示的是找下界的办法：找一个对象，它的每条边界都必须有人负责，再看每一步最多能负责几条。放到这道题里，这个对象就是空格的边。</p><h3 id="二、空格像一组互不攻击的车"><a href="#二、空格像一组互不攻击的车" class="headerlink" title="二、空格像一组互不攻击的车"></a>二、空格像一组互不攻击的车</h3><p>给每个空格画个 X。每行每列各有一个空格，所以这些 X 就像棋盘上互不攻击的车，位置构成一个置换。</p><p>把每个 X 的四条边标亮。X 之间不会左右或上下相邻，所以一条标亮的边，只要不贴着网格外框，另一侧就是被瓷砖盖住的格子，也就是说它一定碰到某块瓷砖。贴着外框的只有 4 条：最上一行那个 X 的上边、最下一行的下边、最左一列的左边、最右一列的右边。</p><p>反过来看一块瓷砖。它上边的外侧是同一行的一排格子，这一行只有一个 X，所以上边最多碰到一个 X；下边同理，左右两边则因为每列只有一个 X，也各最多碰到一个。合起来，一块瓷砖最多碰到 4 条标亮的边。</p><p>标亮的边一共 4k² 条，去掉外框上的 4 条还剩 4k² − 4 条，每块瓷砖最多碰 4 条，所以至少要 k² − 1 块。</p><p>这个下界虽然成立，但离最终答案还差一个和 k 成正比的项。</p><h3 id="三、构造：让-X-落在瓷砖的角上"><a href="#三、构造：让-X-落在瓷砖的角上" class="headerlink" title="三、构造：让 X 落在瓷砖的角上"></a>三、构造：让 X 落在瓷砖的角上</h3><p>想接近这个下界，大部分瓷砖得四条边各贴一个 X。贴在哪个位置也有讲究。假设某个 X 贴在一块瓷砖右边的中段，那么 X 正上方和正下方的格子要由别的瓷砖来盖，这两块瓷砖的左边都会顶在原来那块瓷砖上，碰不到任何 X，各浪费一条边。所以 X 最好贴在瓷砖的角上，四个 X 绕着一块瓷砖排成风车形。</p><p>照这个思路，最自然的是用正方形瓷砖：四个方向对称，而且周长相同的矩形里正方形面积最大。取边长为 k 的正方形去铺边长为 k² 的网格，而 2025 正好是 45²。</p><p>开头那张图就是 k &#x3D; 5 的情形。数一下块数：中间是 (k−1)² 块边长为 k 的正方形，四周再补 4(k−1) 块，合计</p><p>(k−1)² + 4(k−1) &#x3D; k² + 2k − 3</p><p>k &#x3D; 45 时是 2025 + 90 − 3 &#x3D; 2112。目前这还只是猜测的最小值，接下来要做的就是证明这是最小值。</p><h3 id="四、只数一个方向"><a href="#四、只数一个方向" class="headerlink" title="四、只数一个方向"></a>四、只数一个方向</h3><p>换个数法：只标亮每个 X 的右边。一块瓷砖左边的外侧是同一列的格子，这一列只有一个 X，所以每块瓷砖最多碰到一条标亮的边。k² 条右边去掉贴外框的 1 条，同样得到至少 k² − 1 块。</p><p>结果没有变好，但能看出毛病在哪：这个数法只看瓷砖的左边，对网格一侧的瓷砖数得很准，另一侧却漏掉一大片。题目在四个方向上是对称的，数法只用了一个方向，自然会偏。这就是下一步的提示。</p><h3 id="五、分区域，四个方向一起数"><a href="#五、分区域，四个方向一起数" class="headerlink" title="五、分区域，四个方向一起数"></a>五、分区域，四个方向一起数</h3><p>那就四个方向都用上：把网格分成四个区域，每个区域里的 X 只标亮朝某一个方向的边。剩下的问题是区域怎么分。</p><p>视频里的分法是从 X 里挑两条路径：一条从左下走到右上（最长递增子序列，LIS），一条从左上走到右下（最长递减子序列，LDS）。两条路径把网格分成上下左右四块，每块里的 X 标亮朝外的那条边，路径上的 X 标亮两条。这样每条标亮的边都会碰到瓷砖，而每块瓷砖最多碰到其中一条，不会重复计数。数下来，瓷砖至少有</p><p>k² + LIS + LDS − 3</p><p>块。每个 X 至少贡献一条边，路径上的 X 多贡献一条，再扣掉贴外框的边、修正两条路径交点处的重复，最后剩下 −3。这里的细节我没有逐一核对。</p><p>要达到猜测的 k² + 2k − 3，只需要再证明</p><p>LIS + LDS ≥ 2k</p><p><img src="/../img/doc/imo-2025-p6-proof.webp" alt="两条路径把网格切成四个区域，各区域只点亮朝外的边（图上的 N&#x2F;W&#x2F;S&#x2F;E），绿色折线是一条 LIS 和一条 LDS。图源：Evan Chen《IMO 2025 Solution Notes》"></p><h3 id="六、Erdos–Szekeres-收尾"><a href="#六、Erdos–Szekeres-收尾" class="headerlink" title="六、Erdős–Szekeres 收尾"></a>六、Erdős–Szekeres 收尾</h3><p>到这一步已经和网格没有关系了，只剩置换本身的性质，可以直接用两个经典结论：</p><ul><li>Erdős–Szekeres 定理：长度为 n 的置换满足 LIS · LDS ≥ n，这里 n &#x3D; k²；</li><li>均值不等式：(LIS + LDS) &#x2F; 2 ≥ √(LIS · LDS)。</li></ul><p>合起来得到 LIS + LDS ≥ 2√(k²) &#x3D; 2k，下界和构造对上了。最少需要 k² + 2k − 3 块，k &#x3D; 45 时是 2112 块。</p><p><img src="/../img/doc/monotone-subsequence.webp" alt="把置换画成散点，问题就变成了问「最长单调子序列有多长」，粉线是一条长单调子序列。图源：David Eppstein（公有领域）"></p><p>回过头来看整个过程分三段：利用对称性猜出构造；用「每条边都要碰到瓷砖」数出下界；把下界归结为置换的单调子序列问题。Erdős–Szekeres 定理的证明和计数的细节留到下一篇。</p><h2 id="证明"><a href="#证明" class="headerlink" title="证明"></a>证明</h2><p>待补充…</p><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul><li>Evan Chen, <em>IMO 2025 Solution Notes</em>：<a href="https://web.evanchen.cc/exams/IMO-2025-notes.pdf">https://web.evanchen.cc/exams/IMO-2025-notes.pdf</a>（文中配图出自此，版权归原作者，此处仅用于说明题目）</li><li>David Eppstein, <em>Monotone-subseq-17-5.svg</em>, Wikimedia Commons（公有领域）</li></ul>]]></content>
+    
+    
+    
+    <tags>
+      
+      <tag>数学</tag>
+      
+      <tag>学习笔记</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>阿里千文办公面试凉经（疑似）</title>
     <link href="/2026/09/30/%E9%98%BF%E9%87%8C%E5%8D%83%E6%96%87%E5%8A%9E%E5%85%AC%E9%9D%A2%E8%AF%95%E5%87%89%E7%BB%8F/"/>
     <url>/2026/09/30/%E9%98%BF%E9%87%8C%E5%8D%83%E6%96%87%E5%8A%9E%E5%85%AC%E9%9D%A2%E8%AF%95%E5%87%89%E7%BB%8F/</url>
