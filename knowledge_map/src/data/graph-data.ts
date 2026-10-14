@@ -73,6 +73,13 @@ export const graphData: GraphData = {
       "content": "# Harness\n\n> 模型之外负责执行的那层系统：维持上下文、调用工具、约束边界、处理审批与失败。\n\n## 为什么需要\n\n模型只在一个循环里做推理。理解任务、维护上下文、检查信息、调用工具、暴露进度、处理失败、请求人工审批、返回结果，这些都要有一层系统来承担。可复用的那部分叫 agent loop，包围它的整套执行系统就是 harness。\n\n## 核心要点\n\n- **设计直接影响能力**：在 ARC-AGI-3 上，保留推理并压缩上下文后，分数从 13.3% 升到 38.3%，输出 token 降到约六分之一\n- **上下文管理是基本功**：Claude Agent SDK 作为通用 harness 自带 compaction，可以跨多个上下文窗口持续工作；但只靠压缩撑不起复杂工程任务\n- **补偿机制会过时**：harness 里编码了「模型做不到什么」的假设，模型升级后这些补偿可能变成负担，需要持续审查\n- **对外暴露多个集成面**：Codex 除了 App、CLI 和 IDE 扩展，还提供 `codex exec`、SDK 和 app-server；app-server 让应用自己保留会话、事件流与审批处理\n\n## 容易混淆\n\n- **Harness vs 模型**：harness 不包含模型本身，也不包含模型服务的托管部分\n- **Harness vs Tool Calling**：[[Tool Calling]] 只是模型发起调用的机制，上下文管理、运行边界和审批都属于 harness\n\n## 关联\n\n- [[Tool Calling]]：harness 把模型提出的调用路由到实际执行体并处理结果\n- [[Sandbox]]：harness 通过工具调用按需创建和驱动沙箱\n- [[LangGraph]]：在 LangChain 的 framework / runtime / harness 三层划分里属于 runtime，harness 构建在其上\n\n## 扩展思考\n\n- **为什么说 harness 会影响 Agent 能力？** 同一个模型，上下文怎么压缩、推理是否保留，结果差别很大，ARC-AGI-3 上分数从 13.3% 到 38.3% 就是例子。"
     },
     {
+      "id": "node:KL 散度",
+      "name": "KL 散度",
+      "category": "大模型",
+      "description": "衡量用分布 `q` 近似分布 `p` 要多花多少信息量，非负且不对称，常用来做损失或正则项。",
+      "content": "# KL 散度\n\n> 衡量用分布 `q` 近似分布 `p` 要多花多少信息量，非负且不对称，常用来做损失或正则项。\n\n## 为什么需要\n\n很多任务要「让两个分布靠近」，但分布不是向量，不能直接相减，也不能照搬距离的直觉。KL 散度给出一个可优化的量：用 `q` 去编码来自 `p` 的样本，比用最优编码 `p` 多花的平均比特数，它只在两个分布完全相同时取 0，因此既是差距的代理指标，也能直接当训练目标。\n\n## 核心要点\n\n- **定义**：`D_KL(p‖q) = Σ p(x)·log(p(x)/q(x))`，等价写法是 `D_KL(p‖q) = H(p, q) − H(p)`\n- **非负性**：由 Jensen 不等式或吉布斯不等式保证 `D_KL ≥ 0`，等号当且仅当 `p = q`；它不满足对称性和三角不等式，所以不是距离\n- **不对称的含义**：在 `p(x) = 0` 而 `q(x) > 0` 的位置不产生代价，反过来 `q` 漏掉 `p` 的支撑集时代价趋于无穷，所以 `q` 必须覆盖 `p` 的所有可能取值\n- **前向与反向**：前向 `D_KL(p‖q)` 逼着 `q` 覆盖 `p` 的每个模态，倾向于摊开（mode-covering），对应最大似然；反向 `D_KL(q‖p)` 让 `q` 塌缩到 `p` 的单个高概率区（mode-seeking），变分推断和变分自编码器常用\n- **RLHF 里的 KL 惩罚**：PPO 类算法在奖励里减去 `β·D_KL(π_new‖π_ref)`，因为奖励模型只是真实偏好的代理，不加约束的策略会去钻奖励模型的空子，`β` 控制偏离参考模型的代价\n- **变分推断里的 KL 项**：变分自编码器的证据下界由重建项减去 `D_KL(q(z|x)‖p(z))` 组成，KL 项把近似后验拉向先验，起正则作用\n\n## 容易混淆\n\n- **KL 散度 vs 交叉熵**：`p` 固定时二者只差常数 `H(p)`，优化上完全等价；差别是 KL 在分布相同时为 0，交叉熵的绝对值还包含数据本身的不确定性\n- **KL 散度 vs JS 散度**：JS 散度把两个方向对称化并做了平滑，取值总是有限，适合需要对称性的场合；KL 不对称，且可能取到无穷\n- **前向 KL vs 反向 KL**：这不是实现细节，优化哪个方向直接决定学出来的分布是盖住全部模态还是收缩到个别模态\n\n## 关联\n\n- [[信息熵]]：`D_KL = H(p, q) − H(p)` 里的基准项，衡量最优编码本身要多少比特\n- [[交叉熵]]：减去熵就是 KL，监督训练里两者作为目标函数可以互换\n- [[PPO]]：用 KL 惩罚限制策略更新后的偏离幅度，是 RLHF 稳定性的关键机制\n- [[DPO]]：从带 KL 约束的奖励最大化目标出发可以推出闭式最优策略，再改写成偏好对上的分类损失\n\n## 扩展思考\n\n- **为什么 RLHF 宁可加 KL 惩罚，也不直接约束参数大小？** 奖励模型只是偏好的代理，过优化必然偏离真实目标；对参考模型的 KL 惩罚把「别把原始语言能力丢掉」写成了可优化的软约束。\n- **为什么说 KL 散度不是距离？** 它不满足对称性，也满足不了三角不等式；需要对称时可以改用 JS 散度，需要几何意义时可以改用 Wasserstein 距离。\n\n## 参考\n\n- [Kullback & Leibler · On Information and Sufficiency (1951)](https://projecteuclid.org/journals/annals-of-mathematical-statistics/volume-22/issue-1/On-Information-and-Sufficiency/10.1214/aoms/1177729694.full)\n- [Kingma & Welling · Auto-Encoding Variational Bayes](https://arxiv.org/abs/1312.6114)\n- [Ouyang et al. · Training language models to follow instructions](https://arxiv.org/abs/2203.02155)\n- 核验日期：2026-10-14"
+    },
+    {
       "id": "node:KV Cache",
       "name": "KV Cache",
       "category": "大模型",
@@ -171,6 +178,20 @@ export const graphData: GraphData = {
       "content": "# WebSocket\n\n> 经 HTTP Upgrade 握手建立、基于 TCP 的全双工通信协议，一条长连接上双向收发消息。\n\n## 为什么需要\n\n在 WebSocket 之前，浏览器要实现实时通信只能轮询：XMLHttpRequest、iframe、long polling，靠多开 HTTP 连接来模拟双向。WebSocket（RFC 6455）用一条连接替代这些方案。\n\n## 核心要点\n\n- **握手**：客户端发 `GET`，带 `Upgrade: websocket`、`Connection: Upgrade`、`Sec-WebSocket-Key` 和 `Sec-WebSocket-Version: 13`；服务器回 `101 Switching Protocols`，非 101 即握手失败\n- **Accept 计算**：服务器把 Key 拼接固定 GUID 后做 SHA-1，再 base64 编码，放进 `Sec-WebSocket-Accept`\n- **独立协议**：它和 HTTP 唯一的关系是握手被 HTTP 服务器当作 Upgrade 请求处理；`ws://` 默认端口 80，`wss://`（TLS）默认 443\n- **帧规则**：客户端发往服务器的帧必须掩码，无论是否使用 TLS；服务器帧不能掩码。支持分片和 Close / Ping / Pong 控制帧\n- **浏览器 API**：`readyState` 有 CONNECTING / OPEN / CLOSING / CLOSED 四个状态；`send()` 接受字符串、Blob 或 BufferSource，是异步的，只写入缓冲；`binaryType` 取 `\"blob\"` 或 `\"arraybuffer\"`\n- **典型场景**：游戏、股票行情、多人协同编辑、实时服务端界面、即时通讯\n\n## 容易混淆\n\n- **方向**：WebSocket 双向全双工；[[SSE]] 只能服务器推给客户端\n- **底层**：WebSocket 是独立的 TCP 协议，只借 HTTP 握手；SSE 就是普通 HTTP 响应，类型为 `text/event-stream`\n- **重连**：WebSocket 规范没有定义任何自动重连，要自己实现；SSE 规范强制自动重连\n- **断点续传**：WebSocket 没有；SSE 用 `id:` 字段配合 `Last-Event-ID` 请求头\n- **二进制**：WebSocket 支持；SSE 只传文本\n\n## 关联\n\n- [[SSE]]：单向推送的替代方案，面试最常见的对比对象\n\n## 扩展思考\n\n- **SSE 和 WebSocket 怎么选？** 只需要服务器推送文本（如流式输出）用 SSE，简单且自带重连；需要客户端频繁上行或传二进制时用 WebSocket，重连逻辑自己写。\n\n## 参考\n\n- [RFC 6455](https://www.rfc-editor.org/rfc/rfc6455.txt)\n- [MDN · WebSockets API](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)\n- [WHATWG · Web sockets](https://html.spec.whatwg.org/multipage/web-sockets.html)\n- 核验日期：2026-09-25"
     },
     {
+      "id": "node:交叉熵",
+      "name": "交叉熵",
+      "category": "大模型",
+      "description": "用模型分布编码真实数据的平均比特数，等于熵加分布差距，是最常用的分类与语言建模损失。",
+      "content": "# 交叉熵\n\n> 用模型分布编码真实数据的平均比特数，等于熵加分布差距，是最常用的分类与语言建模损失。\n\n## 为什么需要\n\n最大似然估计要求最大化数据在模型下的似然，但连乘会数值下溢，取对数后又只剩一个缺乏直觉的表达式。交叉熵把两件事统一起来：它既是负对数似然的平均，也是「用模型分布编码真实数据需要多少比特」，形式简单、梯度干净，成为分类和语言建模的默认损失。\n\n## 核心要点\n\n- **定义**：`H(p, q) = -Σ p(x)·log q(x)`，`p` 是真实分布，`q` 是模型预测\n- **分类损失的来历**：标签 one-hot 时只有真实类别那一项非零，`H(p, q) = -log q(y_true)`，退化为负对数似然；PyTorch 的 `CrossEntropyLoss` 等价于 `LogSoftmax` 加 `NLLLoss`\n- **下界**：`H(p, q) ≥ H(p)`，当且仅当 `q = p` 时取等，多出来的部分就是 [[KL 散度]]\n- **梯度形式**：softmax 输出配交叉熵，对 logits 的梯度是 `q − p`，不会像 MSE 配 sigmoid 那样在饱和区梯度消失\n- **与困惑度**：语言模型逐 token 交叉熵的指数就是困惑度，可以读成「模型在每一步平均在多少个候选之间犹豫」\n- **软标签也能用**：知识蒸馏里 `p` 是教师的完整分布，交叉熵让学生对齐教师的概率分布而不只是对齐那个正确答案，教师分布里的暗知识也一并传递\n\n## 容易混淆\n\n- **交叉熵 vs KL 散度**：`H(p, q) = H(p) + D_KL(p‖q)`；`p` 固定时 `H(p)` 是常数，所以最小化交叉熵与最小化 KL 是同一件事，只是前者数值里含数据本身的不确定性\n- **交叉熵 vs 负对数似然**：one-hot 标签下数值相同，但交叉熵允许 `p` 是任意软分布，负对数似然一般特指真实标签那一项\n- **交叉熵 vs MSE**：分类任务用 MSE 会在输出饱和时梯度消失，交叉熵的梯度与误差 `q − p` 成正比，这也是二者收敛速度差异的来源\n\n## 关联\n\n- [[信息熵]]：`H(p)` 是交叉熵在 `q = p` 时取到的下界，也是交叉熵减去分布差距后的剩余部分\n- [[KL 散度]]：交叉熵与熵之差，单独衡量模型分布偏离真实分布多少\n\n## 扩展思考\n\n- **为什么最小化交叉熵等价于最大似然？** 样本上的平均负对数似然就是交叉熵的经验估计，最小化它对参数做优化，与极大化似然完全同解。\n- **标签平滑为什么有效？** 把 one-hot 换成 `(1−ε)` 与 `ε/(K−1)` 的混合，等价于给交叉熵加了一项分布熵约束，抑制模型对训练标签过度自信。\n\n## 参考\n\n- [PyTorch · CrossEntropyLoss](https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html)\n- [Deep Learning · 3.13 Information Theory](https://www.deeplearningbook.org/contents/prob.html)\n- [Hinton et al. · Distilling the Knowledge in a Neural Network](https://arxiv.org/abs/1503.02531)\n- 核验日期：2026-10-14"
+    },
+    {
+      "id": "node:信息熵",
+      "name": "信息熵",
+      "category": "大模型",
+      "description": "衡量随机变量不确定性的量，等于用最优编码表示它的样本所需的平均比特数。",
+      "content": "# 信息熵\n\n> 衡量随机变量不确定性的量，等于用最优编码表示它的样本所需的平均比特数。\n\n## 为什么需要\n\n「取值有多不确定」需要一个可计算的度量：它应该随不确定性单调增加，并且在独立事件上可加，最好还能对应「描述这些数据要花多少信息」这个物理直觉。香农熵是同时满足这些要求的唯一形式，之后所有分布之间的比较（[[交叉熵]]、[[KL 散度]]）都以它为基准。\n\n## 核心要点\n\n- **定义**：`H(p) = -Σ p(x)·log p(x)`，约定 `0·log 0 = 0`；log 取 2 时单位是比特，取 e 时是 nat\n- **取值范围**：`p` 越接近均匀分布熵越大，均匀分布取到最大值 `log n`；取值完全确定（one-hot）时熵为 0\n- **信源编码定理**：平均码长不可能低于熵，霍夫曼编码这类最优编码可以任意逼近该下界，这是「熵 = 描述数据所需最少比特」的出处\n- **可加性**：独立随机变量满足 `H(X, Y) = H(X) + H(Y)`\n- **条件熵与互信息**：`H(Y|X)` 是已知 `X` 后 `Y` 剩余的不确定性；`I(X; Y) = H(Y) − H(Y|X)` 是 `X` 提供的关于 `Y` 的信息量\n\n## 容易混淆\n\n- **信息熵 vs 交叉熵**：两者都以 `p` 加权，区别在 log 里放的分布，熵用 `p` 自己，交叉熵用模型的 `q`\n- **信息熵 vs 困惑度**：语言模型的困惑度是交叉熵的指数形式（底为 2 时 `PPL = 2^H`），量纲回到「等效分支数」而不是比特\n- **自信息 vs 熵**：`-log p(x)` 只是单个事件的信息量，熵是它在 `p` 下的期望，一个看点、一个看平均\n\n## 关联\n\n- [[交叉熵]]：把最优编码换成模型分布 `q` 之后的平均码长，等于熵加上分布差距\n- [[KL 散度]]：用错误分布编码时多花的那部分比特，正好是交叉熵减熵\n\n## 扩展思考\n\n- **为什么 one-hot 标签的熵是 0？** 结果已经确定，不需要任何比特来描述，所以用 one-hot 标签算交叉熵时，交叉熵与 KL 散度在数值上完全相等。\n- **熵能不能为负？** 不能，`p(x) ≤ 1` 保证每一项 `-p(x)·log p(x) ≥ 0`；离散分布的熵下界是 0，上界是 `log n`。\n\n## 参考\n\n- [Shannon · A Mathematical Theory of Communication (1948)](https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf)\n- [Deep Learning · 3.13 Information Theory](https://www.deeplearningbook.org/contents/prob.html)\n- [Cover & Thomas · Elements of Information Theory](https://onlinelibrary.wiley.com/doi/book/10.1002/047174882X)\n- 核验日期：2026-10-14"
+    },
+    {
       "id": "node:删除有序数组中的重复项",
       "name": "删除有序数组中的重复项",
       "category": "算法",
@@ -258,6 +279,11 @@ export const graphData: GraphData = {
   "links": [
     {
       "source": "node:DPO",
+      "target": "node:KL 散度",
+      "weight": 2
+    },
+    {
+      "source": "node:DPO",
       "target": "node:LoRA",
       "weight": 2
     },
@@ -295,6 +321,21 @@ export const graphData: GraphData = {
       "source": "node:Harness",
       "target": "node:Tool Calling",
       "weight": 2
+    },
+    {
+      "source": "node:KL 散度",
+      "target": "node:PPO",
+      "weight": 2
+    },
+    {
+      "source": "node:KL 散度",
+      "target": "node:交叉熵",
+      "weight": 2
+    },
+    {
+      "source": "node:KL 散度",
+      "target": "node:信息熵",
+      "weight": 5
     },
     {
       "source": "node:KV Cache",
@@ -355,6 +396,11 @@ export const graphData: GraphData = {
       "source": "node:SSE",
       "target": "node:WebSocket",
       "weight": 2
+    },
+    {
+      "source": "node:交叉熵",
+      "target": "node:信息熵",
+      "weight": 5
     },
     {
       "source": "node:删除有序数组中的重复项",
