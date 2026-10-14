@@ -35,6 +35,7 @@ i18n_dir: :lang
 skip_render:
   - works/dandandang/**
   - works/hailmary/**
+  - works/neural-network/**
 
 # Writing
 new_post_name: :title.md # File name of new posts

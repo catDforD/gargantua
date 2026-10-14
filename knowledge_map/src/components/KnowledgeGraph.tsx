@@ -499,6 +499,7 @@ export function KnowledgeGraph() {
           category: d.category,
           description: d.description,
           content: d.content,
+          demo: d.demo,
         });
       });
 
@@ -663,6 +664,25 @@ export function KnowledgeGraph() {
               >
                 {selectedNode.description}
               </p>
+              {selectedNode.demo && (
+                <a
+                  className="knowledge-map-demo-link"
+                  href={selectedNode.demo}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span>打开交互 demo</span>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                    <path
+                      d="M3.5 8.5 8.5 3.5M4.75 3.5h3.75v3.75"
+                      stroke="currentColor"
+                      strokeWidth="1.4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </a>
+              )}
               <button
                 type="button"
                 aria-expanded={isExpanded}

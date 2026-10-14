@@ -239,6 +239,42 @@
   transition: box-shadow 240ms ease, background-color 240ms ease;
 }
 
+.knowledge-map-demo-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0 0.9rem 0.6rem 0;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid #d4d4d4;
+  border-radius: 999px;
+  background: #fafafa;
+  color: #262626;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  text-decoration: none;
+  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+.knowledge-map-demo-link:hover {
+  border-color: #a3a3a3;
+  background: #f0f0f0;
+  color: #0a0a0a;
+}
+
+.knowledge-map-demo-link:focus-visible {
+  outline: 2px solid #a3a3a3;
+  outline-offset: 2px;
+}
+
+.knowledge-map-demo-link svg {
+  transition: transform 180ms ease;
+}
+
+.knowledge-map-demo-link:hover svg {
+  transform: translate(1px, -1px);
+}
+
 .knowledge-map-expand-button {
   display: inline-flex;
   align-items: center;

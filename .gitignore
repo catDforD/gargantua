@@ -11,6 +11,9 @@ _multiconfig.yml
 /.playwright-mcp/
 photos/
 .serena/
+
+# 知识点实验只留本地，不进仓库；需要单独发布某个实验时用 git add -f。
+knowledge_lab/
 knowledge_map/dist/
 knowledge_map/.tsbuildinfo
 

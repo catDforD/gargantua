@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>神经网络的结构</title>
+<link rel="icon" href="/img/fluid.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>神经网络的结构</h1>
+  <p class="meta">784 &middot; 16 &middot; 16 &middot; 10</p>
+  <p class="meta dim">13,002 个参数</p>
+</header>
+<main>
+  <section class="stage">
+    <div class="digit">
+      <canvas id="input" width="28" height="28"></canvas>
+    </div>
+    <svg id="net" viewBox="0 0 580 620" preserveAspectRatio="xMidYMid meet"></svg>
+  </section>
+  <aside class="panel">
+    <canvas id="grid" class="inspector" width="28" height="28"></canvas>
+    <canvas id="bars" class="inspector bars" width="160" height="160"></canvas>
+    <div class="formulas">
+      <p class="chain">
+        <span class="frac"><span class="num c">&#8706;C<sub>0</sub></span><span class="den a">&#8706;a<span class="idx"><span>k</span><span>(L&#8722;1)</span></span></span></span>
+        <span class="op">=</span>
+        <span class="sum"><span>n<sub>L</sub>&#8722;1</span>&#8721;<span>j=0</span></span>
+        <span class="frac"><span class="num z">&#8706;z<span class="idx"><span>j</span><span>(L)</span></span></span><span class="den a">&#8706;a<span class="idx"><span>k</span><span>(L&#8722;1)</span></span></span></span>
+        <span class="frac"><span class="num a">&#8706;a<span class="idx"><span>j</span><span>(L)</span></span></span><span class="den z">&#8706;z<span class="idx"><span>j</span><span>(L)</span></span></span></span>
+        <span class="frac"><span class="num c">&#8706;C<sub>0</sub></span><span class="den a">&#8706;a<span class="idx"><span>j</span><span>(L)</span></span></span></span>
+      </p>
+      <p><span class="z">z<span class="idx"><span>j</span><span>(L)</span></span></span> = &#8943; + <span class="w">w<span class="idx"><span>jk</span><span>(L)</span></span></span><span class="a">a<span class="idx"><span>k</span><span>(L&#8722;1)</span></span></span> + &#8943;</p>
+      <p><span class="a">a<span class="idx"><span>j</span><span>(L)</span></span></span> = &#963;(<span class="z">z<span class="idx"><span>j</span><span>(L)</span></span></span>)</p>
+      <p><span class="c">C<sub>0</sub></span> = <span class="sum"><span>n<sub>L</sub>&#8722;1</span>&#8721;<span>j=0</span></span>(<span class="a">a<span class="idx"><span>j</span><span>(L)</span></span></span> &#8722; <span class="y">y<sub>j</sub></span>)<sup>2</sup></p>
+    </div>
+    <dl class="readout">
+      <dt>z</dt><dd id="zval">0.00</dd>
+      <dt id="actlabel">&sigma;(z)</dt><dd id="aval">0.50</dd>
+    </dl>
+    <input id="bias" type="range" min="-3" max="3" step="0.05" value="0">
+    <p class="hint">拖动画数字 · 点神经元看权重</p>
+  </aside>
+</main>
+<nav class="presets" id="presets"></nav>
+<script src="digits.js"></script>
+<script src="network.js"></script>
+<script src="weights.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

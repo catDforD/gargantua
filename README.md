@@ -37,6 +37,7 @@ npm run server   # 本地预览：http://localhost:4000
 | `knowledge_map/` | 知识图谱前端源码（Vite + React + d3），节点笔记在 `knowledge_map/Nodes/` |
 | `source/graph/` | 知识图谱页面与构建产物 `source/graph/assets/` |
 | `projects/` | 独立作品工程源码 |
+| `knowledge_lab/` | 知识点实验工程，按图谱 `domain` 分类，只留本地（已在 `.gitignore` 中忽略），约定见 [`knowledge_lab/TEMPLATES.md`](knowledge_lab/TEMPLATES.md) |
 | `source/works/` | 作品页面与静态产物，按 `_config.yml` 的 `skip_render` 原样发布 |
 | `source/img/` | 站点图片（`bg` / `doc` / `head` / `moments` / `photo` / `recommendations`） |
 | `source/css/`、`source/js/` | 自定义样式与脚本，在 `_config.fluid.yml` 的 `custom_css` / `custom_js` 中注册 |
