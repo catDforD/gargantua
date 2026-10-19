@@ -1,7 +1,8 @@
 ---
 title: Deepseek-4.1-flash-1017 实测
 date: 2026-10-19 12:19:34
-tags:
+tags: 
+    - 模型测试
 ---
 
 这个月突然发现 deepseek-4.1-flash 模型更新了，我手里恰好有 command code goat 套餐，它的 fast 模型是直接接官方 deepseek 渠道，所以会直接用起来会很快，索性我就尝试了一下两个例子，在下面简单展示一下。
