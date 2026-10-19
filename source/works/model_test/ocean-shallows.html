@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#04202f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2388f4dd'/%3E%3Cstop offset='1' stop-color='%2304214a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Cpath d='M5 25c8-7 15 4 24-2s20-6 30 2' fill='none' stroke='%23ffffff' stroke-opacity='.72' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M5 38c8-7 15 4 24-2s20-6 30 2' fill='none' stroke='%23ffffff' stroke-opacity='.4' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<title>Ocean Shallows</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: #031725;
+  }
+  body {
+    touch-action: none;
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+  canvas {
+    position: fixed;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    outline: none;
+  }
+  .grain {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    opacity: .12;
+    mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+  }
+  .fallback {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: #d4ece6;
+    text-align: center;
+    background: radial-gradient(circle at 30% 20%, #0d5560, #031725 70%);
+    line-height: 1.55;
+  }
+  .fallback strong {
+    display: block;
+    margin-bottom: .4rem;
+    font-weight: 400;
+    font-size: clamp(1.4rem, 4vw, 2.4rem);
+    letter-spacing: .08em;
+  }
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<div class="fallback" id="fallback">
+  <div><strong>Ocean Shallows</strong>This scene needs WebGL and a connection to load Three.js.</div>
+</div>
+<h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0">Ocean Shallows</h1>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  if (!window.THREE) {
+    document.getElementById('fallback').style.display = 'flex';
+    return;
+  }
+
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({
+      antialias: false,
+      alpha: false,
+      depth: false,
+      stencil: false,
+      powerPreference: 'high-performance'
+    });
+  } catch (error) {
+    document.getElementById('fallback').style.display = 'flex';
+    return;
+  }
+
+  const canvas = renderer.domElement;
+  canvas.setAttribute('aria-label', 'Aerial view of turquoise tropical shallows with a palm-fringed beach');
+  canvas.setAttribute('role', 'img');
+  const pixelRatioCap = 1.75;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, pixelRatioCap));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.autoClear = false;
+  document.body.insertBefore(canvas, document.querySelector('.grain'));
+
+  const isWebGL2 = renderer.capabilities.isWebGL2;
+  const supportsHalfFloatRender =
+    renderer.extensions.has('EXT_color_buffer_float') ||
+    renderer.extensions.has('EXT_color_buffer_half_float') ||
+    (!isWebGL2 &&
+      renderer.extensions.has('OES_texture_half_float') &&
+      renderer.extensions.has('OES_texture_half_float_linear'));
+
+  // If float render targets are unavailable the analytic swell, caustics and
+  // glitter still render; only the GPU feedback ripple layer is omitted.
+  const fallbackSimTexture = new THREE.DataTexture(
+    new Uint8Array([0, 0, 0, 255]), 1, 1, THREE.RGBAFormat
+  );
+  fallbackSimTexture.minFilter = THREE.NearestFilter;
+  fallbackSimTexture.magFilter = THREE.NearestFilter;
+  fallbackSimTexture.needsUpdate = true;
+
+  // ---------------------------------------------------------------------------
+  // Fullscreen geometry and cameras
+  // ---------------------------------------------------------------------------
+  const quadGeometry = new THREE.PlaneBufferGeometry(2, 2);
+  const orthoCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  const simScene = new THREE.Scene();
+  const simCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  const scene = new THREE.Scene();
+
+  // ---------------------------------------------------------------------------
+  // GPU wave height field: height in R, vertical velocity in G.
+  // The scheme is a damped 2D wave equation integrated in a ping-pong pass.
+  // ---------------------------------------------------------------------------
+  const simVertexShader = `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = vec4(position.xy, 0.0, 1.0);
+    }
+  `;
+
+  const simFragmentShader = `
+    uniform sampler2D uPrev;
+    uniform vec2 uTexel;
+    uniform float uTime;
+    uniform float uSeed;
+    varying vec2 vUv;
+
+    float hash(vec2 p) {
+      p = fract(p * vec2(123.34, 456.21));
+      p += dot(p, p + 45.32);
+      return fract(p.x * p.y);
+    }
+
+    float noise(vec2 p) {
+      vec2 i = floor(p);
+      vec2 f = fract(p);
+      f = f * f * (3.0 - 2.0 * f);
+      return mix(
+        mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+        mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x),
+        f.y
+      );
+    }
+
+    void main() {
+      vec2 uv = vUv;
+
+      if (uSeed > 0.5) {
+        // A gently disturbed initial surface gives the simulation something
+        // to organise immediately, before the wind forcing takes over.
+        float h = (noise(uv * vec2(64.0, 41.0)) - 0.5) * 0.0035;
+        h += (noise(uv * vec2(151.0, 109.0) + 7.3) - 0.5) * 0.0016;
+        gl_FragColor = vec4(h, 0.0, 0.0, 1.0);
+        return;
+      }
+
+      vec2 tx = uTexel;
+      float hC = texture2D(uPrev, uv).r;
+      float vC = texture2D(uPrev, uv).g;
+
+      float hL = texture2D(uPrev, uv - vec2(tx.x, 0.0)).r;
+      float hR = texture2D(uPrev, uv + vec2(tx.x, 0.0)).r;
+      float hD = texture2D(uPrev, uv - vec2(0.0, tx.y)).r;
+      float hU = texture2D(uPrev, uv + vec2(0.0, tx.y)).r;
+
+      float hDL = texture2D(uPrev, uv + vec2(-tx.x, -tx.y) * 1.4142).r;
+      float hDR = texture2D(uPrev, uv + vec2( tx.x, -tx.y) * 1.4142).r;
+      float hUL = texture2D(uPrev, uv + vec2(-tx.x,  tx.y) * 1.4142).r;
+      float hUR = texture2D(uPrev, uv + vec2( tx.x,  tx.y) * 1.4142).r;
+
+      float laplacian5 = hL + hR + hD + hU - 4.0 * hC;
+      float laplacian9 = hDL + hDR + hUL + hUR - 4.0 * hC;
+
+      // Explicit damped wave equation. The coefficients keep this comfortably
+      // stable at two substeps per 60 Hz frame.
+      float acceleration = laplacian5 * 0.118 + laplacian9 * 0.018;
+      float velocity = vC + acceleration;
+
+      // Moving pressure fields, like little cat's paws of wind crossing the
+      // water. High spatial frequencies are favoured so the feedback settles
+      // into small wind ripples instead of one enormous pumped-up swell.
+      vec2 q1 = uv * vec2(34.0, 21.0) + vec2(uTime * 0.32, -uTime * 0.21);
+      vec2 q2 = uv * vec2(83.0, 57.0) - vec2(uTime * 0.27,  uTime * 0.35);
+      float gustA = noise(q1 + noise(q2) * 1.35);
+      float gustB = noise(q2 * 1.22 - uTime * 0.19);
+      velocity += ((gustA - 0.50) * 0.000030 + (gustB - 0.50) * 0.000018);
+
+      // Very small granular chatter keeps the surface from becoming merely
+      // large-scale; this is what catches the sun as glitter on the GPU pass.
+      velocity += (noise(uv * vec2(173.0, 123.0) + uTime * 0.65) - 0.5) * 0.000010;
+
+      velocity *= 0.9925;
+      float height = (hC + velocity) * 0.9994;
+
+      // Sponge layer: disturbances fade out before reaching a screen edge, so
+      // the four borders behave like open water rather than four walls.
+      vec2 edgeUV = min(uv, vec2(1.0) - uv);
+      float edgeDistance = min(edgeUV.x, edgeUV.y);
+      float sponge = smoothstep(0.0, 0.075, edgeDistance);
+      height *= mix(0.925, 1.0, sponge);
+      velocity *= mix(0.62, 0.9965, sponge);
+
+      // Small safety clamps; a lost context / exotic driver should never be
+      // able to turn the feedback pass into an exploding image.
+      height = clamp(height, -0.09, 0.09);
+      velocity = clamp(velocity, -0.12, 0.12);
+
+      gl_FragColor = vec4(height, velocity, 0.0, 1.0);
+    }
+  `;
+
+  const simMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      uPrev: { value: null },
+      uTexel: { value: new THREE.Vector2(1 / 512, 1 / 288) },
+      uTime: { value: 0 },
+      uSeed: { value: 0 }
+    },
+    vertexShader: simVertexShader,
+    fragmentShader: simFragmentShader,
+    depthTest: false,
+    depthWrite: false
+  });
+
+  const simQuad = new THREE.Mesh(quadGeometry, simMaterial);
+  simQuad.frustumCulled = false;
+  simScene.add(simQuad);
+
+  const simTargetOptions = {
+    minFilter: THREE.LinearFilter,
+    magFilter: THREE.LinearFilter,
+    format: THREE.RGBAFormat,
+    type: THREE.HalfFloatType,
+    wrapS: THREE.ClampToEdgeWrapping,
+    wrapT: THREE.ClampToEdgeWrapping,
+    depthBuffer: false,
+    stencilBuffer: false,
+    generateMipmaps: false
+  };
+
+  let simWidth = 512;
+  let simHeight = 288;
+  let simA = null;
+  let simB = null;
+  let simTime = 0;
+
+  function disposeSimTargets() {
+    if (simA) simA.dispose();
+    if (simB) simB.dispose();
+    simA = null;
+    simB = null;
+  }
+
+  function createSimTargets(width, height) {
+    disposeSimTargets();
+    simA = new THREE.WebGLRenderTarget(width, height, simTargetOptions);
+    simB = new THREE.WebGLRenderTarget(width, height, simTargetOptions);
+    simA.texture.name = 'wave-height-A';
+    simB.texture.name = 'wave-height-B';
+  }
+
+  function seedSimulation() {
+    simMaterial.uniforms.uSeed.value = 1.0;
+    simMaterial.uniforms.uPrev.value = simA.texture;
+    renderer.setRenderTarget(simB);
+    renderer.render(simScene, simCamera);
+
+    // Second seed goes to A, which leaves B as the most recent state.
+    simMaterial.uniforms.uPrev.value = simB.texture;
+    renderer.setRenderTarget(simA);
+    renderer.render(simScene, simCamera);
+
+    simMaterial.uniforms.uSeed.value = 0.0;
+    renderer.setRenderTarget(null);
+
+    // Put the newest seeded state in simB and start reading from it.
+    let tmp = simA;
+    simA = simB;
+    simB = tmp;
+  }
+
+  function stepSimulation(dt) {
+    if (!simA || !simB) return;
+    simTime += dt;
+    simMaterial.uniforms.uPrev.value = simB.texture;
+    simMaterial.uniforms.uTime.value = simTime;
+    simMaterial.uniforms.uTexel.value.set(1 / simWidth, 1 / simHeight);
+    renderer.setRenderTarget(simA);
+    renderer.render(simScene, simCamera);
+    renderer.setRenderTarget(null);
+    const temp = simA;
+    simA = simB;
+    simB = temp;
+  }
+
+  function warmupSimulation(steps) {
+    for (let i = 0; i < steps; i++) {
+      stepSimulation(1 / 60);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Main full-screen ocean shader
+  // ---------------------------------------------------------------------------
+  const oceanVertexShader = `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = vec4(position.xy, 0.0, 1.0);
+    }
+  `;
+
+  const oceanFragmentShader = `
+    precision highp float;
+
+    uniform float uTime;
+    uniform vec2 uResolution;
+    uniform sampler2D uSim;
+    uniform vec2 uSimTexel;
+    uniform sampler2D uPalm;
+    uniform sampler2D uPalmSharp;
+    varying vec2 vUv;
+
+    #define PI 3.141592653589793
+    #define TAU 6.283185307179586
+
+    const vec2 SHORE_C = vec2(-0.33, 1.30);
+    const vec2 SHORE_R = vec2(1.05, 0.77);
+    const vec3 SUN_DIR = vec3(0.62, 0.48, 0.66);
+
+    // -------------------------------------------------------------------------
+    // Noise helpers
+    // -------------------------------------------------------------------------
+    float hash12(vec2 p) {
+      vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+      p3 += dot(p3, p3.yzx + 33.33);
+      return fract((p3.x + p3.y) * p3.z);
+    }
+
+    float hash21(vec2 p) {
+      return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+    }
+
+    float vnoise(vec2 p) {
+      vec2 i = floor(p);
+      vec2 f = fract(p);
+      f = f * f * (3.0 - 2.0 * f);
+      float a = hash12(i);
+      float b = hash12(i + vec2(1.0, 0.0));
+      float c = hash12(i + vec2(0.0, 1.0));
+      float d = hash12(i + vec2(1.0, 1.0));
+      return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+    }
+
+    float fbm4(vec2 p) {
+      float v = 0.0;
+      float a = 0.5;
+      for (int i = 0; i < 4; i++) {
+        v += a * vnoise(p);
+        p = mat2(1.58, 1.16, -1.16, 1.58) * p + vec2(1.7, 9.2);
+        a *= 0.5;
+      }
+      return v;
+    }
+
+    float fbm3(vec2 p) {
+      float v = 0.0;
+      float a = 0.5;
+      for (int i = 0; i < 3; i++) {
+        v += a * vnoise(p);
+        p = mat2(1.63, 1.21, -1.21, 1.63) * p + vec2(4.1, 2.7);
+        a *= 0.5;
+      }
+      return v;
+    }
+
+    // -------------------------------------------------------------------------
+    // Coastline: a warped ellipse. The upper-left corner is land; distance is
+    // signed, positive offshore, and follows the ellipse's local metric.
+    // -------------------------------------------------------------------------
+    vec2 coastCoord(vec2 p) {
+      return (p - SHORE_C) / SHORE_R;
+    }
+
+    float coastAngle(vec2 p) {
+      vec2 w = coastCoord(p);
+      return atan(w.y, w.x);
+    }
+
+    vec2 seaDirection(vec2 p) {
+      vec2 w = coastCoord(p);
+      return normalize(vec2(w.x / (SHORE_R.x * SHORE_R.x), w.y / (SHORE_R.y * SHORE_R.y)) + vec2(1e-5));
+    }
+
+    float coastDistance(vec2 p) {
+      vec2 w = coastCoord(p);
+      float e0 = length(w);
+      float ang = atan(w.y, w.x);
+      float wobble = 0.022 * sin(ang * 3.0 + 0.55) + 0.010 * sin(ang * 7.0 - 1.4);
+      float e = e0 + wobble;
+      vec2 g = vec2(w.x / (SHORE_R.x * SHORE_R.x), w.y / (SHORE_R.y * SHORE_R.y));
+      float grad = length(g) / max(e0, 0.0001);
+      return (e - 1.0) / max(grad, 0.035);
+    }
+
+    // -------------------------------------------------------------------------
+    // Caustics: three interfering, slowly warping wave systems. Their zero
+    // crossings become the bright web that the refracted seabed receives.
+    // -------------------------------------------------------------------------
+    float causticPattern(vec2 q, float t) {
+      float v = 0.0;
+      for (int i = 0; i < 3; i++) {
+        float fi = float(i);
+        q += vec2(
+          sin(q.y * 1.9 + t * 0.26 + fi * 2.1),
+          cos(q.x * 1.6 - t * 0.22 + fi * 1.6)
+        ) * 0.15;
+        float a = sin(q.x * (2.15 + fi * 0.23) + t * (0.48 + fi * 0.09) + fi * 1.47);
+        float b = sin(q.y * (2.55 + fi * 0.19) - t * (0.41 + fi * 0.07) + fi * 2.23);
+        v += pow(max(0.0, 1.0 - abs(a * b)), 9.0);
+      }
+      return v / 3.0;
+    }
+
+    // -------------------------------------------------------------------------
+    // Foam lace. A thin contour field plus bubbly patches; coverage controls
+    // how much of the dense whitewater survives the threshold.
+    // -------------------------------------------------------------------------
+    float foamTexture(vec2 q, float t) {
+      vec2 drift = vec2(t * 0.22, -t * 0.15);
+      float n1 = fbm4(q * 34.0 + drift * 7.0);
+      float n2 = fbm3(q * 79.0 - drift * 9.0 + vec2(5.2, 8.7));
+      float ridges = 1.0 - smoothstep(0.0, 0.065, abs(n1 - 0.51));
+      float patches = smoothstep(0.32, 0.65, n2);
+      float pores = smoothstep(0.61, 0.76, vnoise(q * 145.0 + vec2(-t * 0.55, t * 0.34)));
+      return clamp(ridges * 0.82 + patches * 0.34 - pores * 0.14, 0.0, 1.0);
+    }
+
+    vec3 drySand(vec2 p, float along, float shoreDepth) {
+      float broad = fbm4(p * vec2(11.0, 8.0) + vec2(1.8, 4.1));
+      float medium = fbm3(p * vec2(36.0, 28.0) + vec2(5.7, 2.2));
+      float fine = vnoise(p * vec2(330.0, 275.0) + 3.4);
+      float grain = hash12(floor(p * vec2(980.0, 860.0)));
+      float shell = smoothstep(0.82, 0.95, vnoise(p * vec2(46.0, 37.0) + 9.0));
+      float winding = sin(shoreDepth * 290.0 + along * 12.0 + broad * 7.0 + medium * 3.0);
+      float ripples = 0.5 + 0.5 * winding;
+      float darkDebris = smoothstep(0.93, 0.99, vnoise(p * vec2(77.0, 53.0) + 3.1));
+      vec3 pale = vec3(0.975, 0.895, 0.710);
+      vec3 warm = vec3(0.730, 0.605, 0.410);
+      vec3 c = mix(warm, pale, 0.46 + 0.36 * broad + 0.11 * medium);
+      c *= 0.986 + 0.018 * ripples;
+      c += (fine - 0.5) * 0.032;
+      c += (grain - 0.5) * 0.028;
+      c *= 0.95 + 0.10 * medium;
+      c += vec3(0.065, 0.060, 0.042) * shell;
+      c = mix(c, vec3(0.32, 0.28, 0.20), darkDebris * 0.35);
+      return c;
+    }
+
+    void main() {
+      vec2 uv = vUv;
+      // On portrait screens keep a minimum horizontal world extent so the
+      // whole beach and the palm shadow remain framed instead of sliding off
+      // the right edge.
+      float aspect = max(1.0, uResolution.x / uResolution.y);
+      vec2 p = vec2(uv.x * aspect, uv.y);
+
+      float along = coastAngle(p);
+      float shore = coastDistance(p);
+      float depth = max(shore, 0.0);
+      vec2 seaDir = seaDirection(p);
+
+      float landMask = 1.0 - smoothstep(-0.0045, 0.0045, shore);
+      float waterMask = smoothstep(-0.0045, 0.0045, shore);
+
+      // ---- simulated ripple gradient ---------------------------------------
+      float hC = texture2D(uSim, uv).r;
+      float hL = texture2D(uSim, uv - vec2(uSimTexel.x, 0.0)).r;
+      float hR = texture2D(uSim, uv + vec2(uSimTexel.x, 0.0)).r;
+      float hD = texture2D(uSim, uv - vec2(0.0, uSimTexel.y)).r;
+      float hU = texture2D(uSim, uv + vec2(0.0, uSimTexel.y)).r;
+      vec2 simSlope = vec2(hR - hL, hU - hD);
+
+      // Fade the simulation down at the beach (it is irrelevant on land) and
+      // in the absorbing fringe of the frame.
+      vec2 simEdge = min(uv, vec2(1.0) - uv);
+      float simEdgeFade = smoothstep(0.0, 0.055, min(simEdge.x, simEdge.y));
+      simSlope *= 270.0 * simEdgeFade * waterMask;
+
+      // ---- long swell -------------------------------------------------------
+      float alongPhase = 0.82 * sin(along * 6.0 + 0.7) + 0.30 * sin(along * 13.0 - uTime * 0.16);
+      float swellPhase = shore * 10.2 + uTime * 1.22 + alongPhase;
+      float swell = sin(swellPhase);
+      float swell2 = sin(shore * 17.1 + uTime * 0.86 + along * 7.0 + 1.7);
+      float shoal = 1.0 - smoothstep(0.035, 0.55, shore);
+      float swellAmp = mix(0.036, 0.145, shoal);
+      vec2 swellSlope = seaDir * (cos(swellPhase) * swellAmp);
+      swellSlope += seaDir * (cos(shore * 17.1 + uTime * 0.86 + along * 7.0 + 1.7) * 0.022);
+
+      // ---- small wind chop --------------------------------------------------
+      float chopPhase = p.x * 27.0 - p.y * 19.0 + uTime * 1.12 + sin(p.y * 12.0 + uTime * 0.31) * 1.4;
+      float chopPhase2 = p.x * 16.0 + p.y * 37.0 - uTime * 0.86 + sin(p.x * 9.0 - uTime * 0.24) * 1.1;
+      vec2 windSlope = vec2(cos(chopPhase), sin(chopPhase)) * 0.025;
+      windSlope += vec2(0.58, 0.81) * cos(chopPhase2) * 0.019;
+
+      // ---- very fine surface slope for sun glitter -------------------------
+      vec2 microP = p * vec2(430.0, 515.0);
+      vec2 microP2 = p * vec2(255.0, -340.0);
+      float fA = vnoise(microP + vec2(uTime * 0.78, -uTime * 0.46));
+      float fB = vnoise(microP + vec2(0.006, 0.0) + vec2(uTime * 0.78, -uTime * 0.46));
+      float fC = vnoise(microP + vec2(0.0, 0.006) + vec2(uTime * 0.78, -uTime * 0.46));
+      float fD = vnoise(microP2 + vec2(-uTime * 0.38, uTime * 0.51));
+      vec2 microSlope = vec2(fB - fA, fC - fA) * 7.0;
+      microSlope += vec2(fD - 0.5) * 0.035;
+      microSlope *= (1.0 - smoothstep(0.22, 0.75, depth));
+
+      vec2 slope = simSlope + swellSlope + windSlope + microSlope;
+      vec3 N = normalize(vec3(-slope, 1.0));
+
+      vec3 V = vec3(0.0, 0.0, 1.0);
+      vec3 L = normalize(SUN_DIR);
+      vec3 H = normalize(L + V);
+      float ndh = max(dot(N, H), 0.0);
+
+      // ---- tide line / swash animation -------------------------------------
+      float peakReach = 0.116 + 0.022 * sin(along * 4.2 + 1.0) + 0.007 * sin(along * 10.6 + 2.6);
+      float cycle = fract(uTime / 7.2 + 0.06 + 0.035 * sin(along * 6.0 + 0.4));
+      float upBeach = -shore;
+      float runRise = smoothstep(0.035, 0.195, cycle);
+      float runDrain = 1.0 - smoothstep(0.235, 0.735, cycle);
+      float runEnvelope = runRise * runDrain;
+      float edgeWobble = 0.0032 * sin(along * 59.0 + 0.7) + 0.0016 * sin(along * 131.0 - 1.3);
+      float reach = peakReach * runEnvelope + 0.0025 + edgeWobble * runEnvelope;
+      float front = shore + reach;
+
+      // A steady train of small shorebreak waves marches toward the sand. The
+      // crest is deliberately asymmetric: a dark, steep leading face, a hard
+      // white lip, then a lace-edged whitewater trail spilling shoreward.
+      float surfPhase = shore * 30.5 + uTime * 2.18
+                      + 0.90 * sin(along * 7.5 + 0.35)
+                      + 0.40 * sin(along * 18.3 - 1.1);
+      float surfZone = (1.0 - smoothstep(0.13, 0.235, shore)) * smoothstep(0.006, 0.018, shore);
+      float surfP = mod(surfPhase - 1.5707963, TAU);
+      float crestX = surfP / 0.42;
+      float surfCrest = exp(-crestX * crestX) * surfZone;
+      // Phase offset signs: smaller phase lies shoreward of the crest.
+      float surfTrail = pow(max(sin(surfPhase + 0.55), 0.0), 2.8) * surfZone;
+      float surfFace = pow(max(sin(surfPhase - 0.48), 0.0), 2.4) * surfZone;
+      float surfBreak = max(surfCrest, surfTrail * 0.82);
+      float breakSections = smoothstep(0.16, 0.54, vnoise(vec2(along * 19.0 + 3.4, uTime * 0.05)));
+      surfBreak *= 0.46 + 0.54 * breakSections;
+      float surfWhite = pow(max(sin(surfPhase + 1.15), 0.0), 5.0) * surfZone;
+      surfWhite *= 0.30 + 0.70 * breakSections;
+
+      // Lace-edged swash lip and the thin water sheet that trails behind it.
+      float lipWidth = 0.021 + 0.005 * sin(along * 16.0 + 0.7);
+      float lipX = front / max(lipWidth, 0.003);
+      float swashLip = exp(-lipX * lipX) * smoothstep(-0.016, 0.001, front);
+      swashLip *= (0.35 + 0.65 * runEnvelope) * (0.90 + 0.10 * sin(along * 43.0 - uTime * 1.2));
+      float lipEdgeX = front / 0.0035;
+      float lipEdge = exp(-lipEdgeX * lipEdgeX) * smoothstep(-0.007, 0.0, front);
+      float swashSheet = landMask * smoothstep(0.004, 0.022, front) * (1.0 - smoothstep(0.012, 0.085, upBeach));
+      float highWaterX = (shore + peakReach * 0.92) / 0.0040;
+      float highWater = exp(-highWaterX * highWaterX);
+      highWater *= smoothstep(0.36, 0.64, cycle) * (1.0 - smoothstep(0.91, 1.0, cycle));
+
+      float foamCoverage = 0.0;
+      foamCoverage = max(foamCoverage, surfBreak * 0.96);
+      foamCoverage = max(foamCoverage, surfWhite * 0.52);
+      foamCoverage = max(foamCoverage, swashLip * 0.98);
+      foamCoverage = max(foamCoverage, highWater * 0.42);
+      foamCoverage = max(foamCoverage, swashSheet * 0.09);
+      float shoreFoamX = shore / 0.008;
+      foamCoverage = max(foamCoverage, exp(-shoreFoamX * shoreFoamX) * 0.14 * smoothstep(-0.004, 0.005, shore));
+      foamCoverage = clamp(foamCoverage, 0.0, 1.0);
+
+      float ftex = foamTexture(p + slope * 0.02, uTime);
+      float lace = smoothstep(0.10, 0.72, ftex);
+      float poreField = vnoise(p * vec2(430.0, 355.0) + vec2(-uTime * 0.32, uTime * 0.21));
+      float pores = smoothstep(0.58, 0.74, poreField);
+      float finePores = smoothstep(0.66, 0.78, vnoise(p * vec2(720.0, 610.0) + vec2(uTime * 0.37, -uTime * 0.23)));
+      float foamBody = smoothstep(0.20, 0.52, foamCoverage);
+
+      // Foam is built in shoreline coordinates: a whitewater body eroded by
+      // bubbles, plus a finer lace network. Stretching the noise alongshore
+      // makes the remnants read as flowing surf rather than isotropic pepper.
+      vec2 foamQ = vec2(along * 16.0 + uTime * 0.26,
+                        shore * 108.0 + uTime * 0.52);
+      float foamN1 = fbm3(foamQ);
+      float foamN2 = fbm3(foamQ * 2.4 + vec2(3.1, 7.7) - uTime * vec2(0.08, 0.16));
+      float bodyMask = smoothstep(0.42, 0.60, foamN1);
+      float bigHoles = smoothstep(0.47, 0.60, foamN2);
+      float body = bodyMask * (1.0 - bigHoles * 0.62);
+      float laceEdge = 1.0 - smoothstep(0.0, 0.042, abs(foamN1 - 0.51));
+      float fineLace = 1.0 - smoothstep(0.0, 0.060, abs(foamN2 - 0.52));
+      laceEdge *= 0.45 + 0.55 * smoothstep(0.10, 0.62, ftex);
+      float foamPattern = clamp(body * 1.05 + laceEdge * 0.38 + fineLace * 0.18, 0.0, 1.0);
+      foamPattern *= 0.45 + 0.55 * smoothstep(0.10, 0.65, ftex);
+
+      float foam = foamBody * (0.34 + 0.66 * foamPattern);
+      foam *= 1.0 - pores * 0.24 - finePores * 0.12;
+      foam = smoothstep(0.02, 0.60, foam);
+      foam = max(foam, surfCrest * breakSections * (0.30 + 0.70 * foamPattern) * 0.82);
+      foam = max(foam, lipEdge * (0.30 + 0.70 * foamPattern) * 0.56);
+      float spray = smoothstep(0.87, 0.99, vnoise(p * vec2(370.0, 300.0) + uTime * 0.7));
+      foam = clamp(foam + spray * swashLip * 0.28, 0.0, 1.0);
+
+      // ---- sand / seabed ----------------------------------------------------
+      vec3 sand = drySand(p, along, shore);
+
+      float wetEdgeNoise = (vnoise(p * vec2(34.0, 27.0) + 4.3) - 0.5) * 0.015
+                         + (vnoise(p * vec2(12.0, 9.0) + 8.9) - 0.5) * 0.010;
+      float wetTop = peakReach + wetEdgeNoise;
+      float wetBand = 1.0 - smoothstep(wetTop - 0.0035, wetTop + 0.0065, upBeach);
+      wetBand *= smoothstep(-0.012, 0.003, upBeach);
+      wetBand = clamp(wetBand, 0.0, 1.0);
+      float tideMarkX = (upBeach - wetTop) / 0.0028;
+      float tideMark = exp(-tideMarkX * tideMarkX);
+
+      float fineSand = vnoise(p * vec2(330.0, 265.0) + 2.7);
+      float coarseSand = vnoise(p * vec2(72.0, 54.0) + 8.1);
+      float shellGrit = smoothstep(0.78, 0.95, vnoise(p * vec2(215.0, 185.0) + 11.3));
+
+      // A polished film of water fills the sand's micro-grain on the lower
+      // beach; sky and sun are smeared across it as broad liquid highlights.
+      float recent = 1.0 - smoothstep(0.33, 0.92, cycle);
+      float glossNoise = fbm3(p * vec2(28.0, 21.0) + vec2(uTime * 0.10, -uTime * 0.06));
+      float glossBands = smoothstep(0.28, 0.70, glossNoise + 0.20 * sin(along * 33.0 + 1.4));
+      vec2 wetGrain = vec2(
+        vnoise(p * vec2(370.0, 290.0) + vec2(0.01, 0.0)),
+        vnoise(p * vec2(370.0, 290.0) + vec2(0.0, 0.01))
+      ) - vnoise(p * vec2(370.0, 290.0));
+      float wetSpec = pow(max(ndh + (wetGrain.x + wetGrain.y) * 0.95, 0.0), 7.0);
+      wetSpec *= 0.22 + 0.78 * glossBands;
+
+      // Thin water sheet on the sand. Its refracted underside still carries a
+      // little turquoise and a moving caustic net.
+      float film = landMask * smoothstep(0.0, 0.010, front) * (1.0 - smoothstep(0.012, 0.22, upBeach));
+      float filmDepth = smoothstep(0.0, 0.048, front);
+
+      float wetSandBase = 0.43 + 0.06 * smoothstep(0.28, 0.80, coarseSand);
+      vec3 wetSandDark = sand * wetSandBase * vec3(1.0, 0.88, 0.78);
+      wetSandDark = mix(wetSandDark, vec3(0.11, 0.19, 0.20), 0.11 + 0.08 * fineSand);
+      wetSandDark += vec3(0.10, 0.115, 0.085) * shellGrit * 0.24;
+      vec3 beach = mix(sand, wetSandDark, wetBand);
+      beach *= 1.0 - tideMark * 0.14;
+      float wetEdgeSheen = 1.0 - smoothstep(0.0, 0.010, abs(upBeach - wetTop));
+      beach += vec3(0.19, 0.30, 0.28) * wetEdgeSheen * wetBand * 0.10;
+
+      // The sand that has only just been uncovered by the retreating swash is
+      // the shiniest part of the beach. The dark base gives way to a cool,
+      // broken sky reflection along the waterline.
+      float behindSwash = max(upBeach - reach, 0.0);
+      float freshWet = exp(-behindSwash / (0.030 + 0.014 * runEnvelope));
+      freshWet *= wetBand * smoothstep(0.0, 0.012, upBeach);
+      float exposedWet = wetBand * (1.0 - film);
+      float pooledSky = smoothstep(0.0, 0.055, upBeach) * (1.0 - smoothstep(0.08, 0.20, upBeach));
+      float lowerWet = exp(-behindSwash / 0.070);
+      float mirrorBands = smoothstep(0.28, 0.66, fbm3(p * vec2(13.0, 9.0) + vec2(2.3, 5.1)));
+      float wetGlaze = exposedWet * (0.20 + 0.22 * mirrorBands);
+      beach = mix(beach, vec3(0.15, 0.30, 0.335), wetGlaze * (0.55 + 0.45 * pooledSky));
+      beach = mix(beach, vec3(0.27, 0.46, 0.485),
+                  exposedWet * lowerWet * (0.30 + 0.22 * glossBands));
+      float sheenLine = exp(-behindSwash / 0.009) * exposedWet * (0.40 + 0.60 * glossBands);
+      beach += vec3(0.56, 0.71, 0.70) * sheenLine * 0.62;
+      beach += vec3(0.90, 0.90, 0.74) * freshWet * pow(wetSpec, 1.4) * 0.68;
+      // A soft, slightly broken glare across the middle of the wet band. It
+      // reads as the pale sky pooled on a still-damp, mirror-smooth surface.
+      float glareX = (upBeach - peakReach * 0.58) / 0.026;
+      float wetGlare = exp(-glareX * glareX) * (0.30 + 0.70 * glossBands);
+      beach = mix(beach, vec3(0.45, 0.61, 0.62), wetBand * wetGlare * 0.28);
+      float glossPoolNoise = fbm3(vec2(along * 15.0 + uTime * 0.05, upBeach * 62.0 + uTime * 0.04));
+      float glossPools = smoothstep(0.54, 0.72, glossPoolNoise) * (1.0 - smoothstep(0.10, 0.22, upBeach));
+      beach += vec3(0.40, 0.58, 0.58) * exposedWet * glossPools * 0.45;
+      // A soft reflection of the bright waterline is the final cue that this
+      // strip is polished by the last film of water.
+      float reflectX = (behindSwash - 0.022) / 0.013;
+      float reflectedFoam = exp(-reflectX * reflectX) * exposedWet * (0.5 + 0.5 * glossBands);
+      beach += vec3(0.36, 0.52, 0.51) * reflectedFoam * 0.22;
+      vec2 sandSparkleP = p * vec2(300.0, 250.0) + vec2(4.7, 9.1);
+      vec2 sandSparkleID = floor(sandSparkleP);
+      vec2 sandSparkleF = fract(sandSparkleP) - 0.5;
+      vec2 sandSparkleJitter = vec2(hash21(sandSparkleID + 2.1), hash21(sandSparkleID + 6.4)) - 0.5;
+      float sandSparkleSpot = 1.0 - smoothstep(0.035, 0.15, length(sandSparkleF - sandSparkleJitter * 0.5));
+      float sandSparkleMask = smoothstep(0.91, 0.983, hash21(sandSparkleID + 11.7));
+      beach += vec3(1.0, 0.965, 0.865) * sandSparkleSpot * sandSparkleMask * exposedWet * 0.85;
+
+      // A narrow dark line on the sand just above the swash edge frames the
+      // white lip and makes the advancing waterline unmistakable.
+      float dryLipX = (upBeach - reach - 0.010) / 0.006;
+      float dryLip = exp(-dryLipX * dryLipX) * wetBand;
+      beach *= 1.0 - dryLip * 0.22;
+
+      if (film > 0.001) {
+        vec2 localQ = p * 27.0 + slope * 5.0 + vec2(uTime * 0.28, -uTime * 0.19);
+        float filmCaustic = causticPattern(localQ, uTime * 0.72);
+        vec3 filmWater = mix(vec3(0.44, 0.42, 0.30), vec3(0.165, 0.58, 0.545), 0.46 + 0.40 * filmDepth);
+        filmWater += filmCaustic * vec3(0.31, 0.54, 0.44) * (0.38 + 0.62 * filmDepth);
+        filmWater += vec3(0.46, 0.59, 0.54) * wetSpec * 1.15;
+        filmWater += vec3(0.24, 0.36, 0.34) * glossBands * (0.22 + 0.32 * filmDepth);
+        filmWater += vec3(0.10, 0.17, 0.15) * (0.6 + 0.4 * glossNoise) * filmDepth;
+        beach = mix(beach, filmWater, film * (0.38 + 0.34 * filmDepth));
+      }
+
+      // ---- ocean body, seabed refraction and caustics ----------------------
+      vec2 refrOffset = clamp(N.xy, -0.9, 0.9) * (0.035 + 0.105 * exp(-depth * 4.2)) + simSlope * 0.20;
+      vec2 refr = p + refrOffset;
+
+      // Clean, warm sand seen through the moving surface. The ripples travel
+      // through a second, slower noise so the refraction has something legible
+      // to distort.
+      float bedNoise = fbm3(refr * vec2(23.0, 19.0) + vec2(0.0, -uTime * 0.012));
+      float dune = fbm3(refr * vec2(6.0, 5.0) + vec2(2.7, 4.3));
+      float sandRipple = 0.5 + 0.5 * sin(refr.x * 162.0 + refr.y * 53.0 + bedNoise * 7.0);
+      float fineRipple = 0.5 + 0.5 * sin(refr.x * 420.0 - refr.y * 130.0 + dune * 4.0);
+      vec3 seabed = mix(vec3(0.50, 0.52, 0.355), vec3(0.880, 0.835, 0.620), 0.35 + bedNoise * 0.65);
+      seabed *= 0.925 + 0.075 * sandRipple;
+      seabed *= 0.97 + 0.045 * fineRipple;
+      seabed *= 0.94 + 0.12 * dune;
+      seabed += (vnoise(refr * 330.0) - 0.5) * 0.026;
+
+      // Caustics, in broad cells, are added to the bed before the water tint.
+      float causticMask = smoothstep(0.0015, 0.020, depth) * (1.0 - smoothstep(0.28, 0.58, depth));
+      float causticFocus = 0.42 + 0.58 * smoothstep(0.24, 0.78, fbm3(p * 3.4 + vec2(6.2, -1.4)));
+      vec2 cq1 = refr * 18.0 + vec2(uTime * 0.48, -uTime * 0.33);
+      vec2 cq2 = refr * 29.0 + vec2(-uTime * 0.38, uTime * 0.44) + vec2(3.7, 1.9);
+      float caustic = causticPattern(cq1, uTime * 0.56) * 0.88
+                    + causticPattern(cq2, uTime * 0.42) * 0.28;
+      caustic *= causticMask * causticFocus;
+      seabed += caustic * vec3(1.25, 1.40, 1.17) * (0.92 + 0.38 * bedNoise);
+
+      // Light loses red first with depth; the bottom fades into clean water.
+      vec3 absorption = mix(vec3(0.46, 0.98, 0.96), vec3(0.20, 0.74, 0.82), smoothstep(0.02, 0.30, depth));
+      seabed *= absorption;
+
+      float shallowTint = exp(-depth * 3.0);
+      vec3 waterCol = mix(vec3(0.085, 0.775, 0.735), vec3(0.020, 0.535, 0.585), smoothstep(0.0, 0.12, depth));
+      waterCol = mix(waterCol, vec3(0.006, 0.255, 0.455), smoothstep(0.10, 0.34, depth));
+      waterCol = mix(waterCol, vec3(0.0018, 0.085, 0.260), smoothstep(0.28, 0.67, depth));
+      waterCol = mix(waterCol, vec3(0.0008, 0.030, 0.150), smoothstep(0.60, 1.20, depth));
+      waterCol += vec3(0.024, 0.070, 0.060) * (1.0 - smoothstep(0.0, 0.10, depth));
+      waterCol *= 0.975 + 0.05 * fbm3(p * 2.8 + vec2(7.0, -2.0));
+
+      // Light coming through the surface: a broad crest sheen and darker
+      // troughs make the long swell legible even before it breaks.
+      float crestShade = smoothstep(-0.28, 0.82, swell);
+      float crestLine = smoothstep(0.34, 0.96, swell);
+      float troughShade = smoothstep(0.10, 0.92, -swell);
+      waterCol *= 0.83 + 0.28 * crestShade - 0.07 * troughShade;
+      waterCol += vec3(0.040, 0.115, 0.110) * crestLine * (0.34 + 0.66 * shoal);
+      waterCol += vec3(0.026, 0.060, 0.056) * smoothstep(0.25, 0.98, swell2) * (0.42 + 0.58 * shoal);
+      waterCol += vec3(0.024, 0.080, 0.083) * pow(max(swell, 0.0), 12.0) * (0.35 + 0.65 * shoal);
+
+      // Refracted sea floor becomes visible through the clear shallows.
+      float bottomVis = exp(-depth * 5.2) * (1.0 - 0.30 * smoothstep(0.22, 0.64, depth));
+      bottomVis *= 0.80 + 0.20 * (1.0 - foam);
+      vec3 ocean = mix(waterCol, seabed, clamp(bottomVis, 0.0, 0.94));
+      // Keep the caustic light attached to the visible bed instead of letting
+      // it float over the deep water.
+      ocean += caustic * vec3(0.22, 0.38, 0.29) * (bottomVis * 1.25 + shallowTint * 0.25 + 0.20);
+
+      // The long swell also tilts the sky reflection, giving each broad crest
+      // a pale travelling sheen.
+      vec3 swellN = normalize(vec3(-swellSlope * 5.0, 1.0));
+      float swellSheen = pow(max(dot(swellN, H), 0.0), 7.0);
+      ocean += vec3(0.125, 0.235, 0.225) * swellSheen * 0.18 * waterMask;
+      ocean *= 0.88 + 0.13 * crestShade - 0.04 * troughShade;
+      ocean += vec3(0.032, 0.092, 0.096) * smoothstep(0.42, 0.98, swell) * (0.28 + 0.72 * shoal);
+      ocean += vec3(0.062, 0.152, 0.148) * pow(max(swell, 0.0), 14.0) * (0.35 + 0.65 * shoal);
+      ocean += vec3(0.06, 0.145, 0.155) * smoothstep(0.955, 0.999, swell) * (0.35 + 0.65 * shoal);
+      ocean *= 1.0 - 0.045 * smoothstep(0.18, 0.92, -swell);
+      // Faint drifting wind texture over the deep blue keeps the far water
+      // from flattening into a solid field.
+      float deepDrift = vnoise(p * vec2(16.0, 11.0) + vec2(uTime * 0.028, -uTime * 0.017));
+      ocean *= 0.985 + 0.030 * deepDrift * smoothstep(0.35, 0.95, depth);
+      ocean += vec3(0.006, 0.012, 0.016) * deepDrift * smoothstep(0.6, 1.2, depth);
+      // Sloping facets catch the sky and give the swell its three-dimensional
+      // roll, especially in the deeper blue part of the bay.
+      float facetTilt = dot(N, normalize(vec3(-0.36, 0.54, 0.76))) - 0.76;
+      ocean *= 0.955 + clamp(facetTilt * 2.8, -0.075, 0.085);
+
+      // The steep leading face of each shorebreak sits in its own water shadow,
+      // so the white crest reads as a rolling wave instead of a painted stripe.
+      ocean *= 1.0 - surfFace * 0.23;
+      ocean = mix(ocean, ocean * vec3(0.66, 0.90, 0.95), surfFace * 0.25);
+      ocean += vec3(0.060, 0.145, 0.142) * surfCrest * 0.62;
+      ocean += vec3(0.016, 0.042, 0.038) * surfTrail * 0.20;
+      // Fine spray kicked up around the crest.
+      float crestSpray = smoothstep(0.58, 0.86, vnoise(p * vec2(270.0, 230.0) + vec2(uTime * 0.6, -uTime * 0.4)));
+      ocean += vec3(0.55, 0.68, 0.64) * crestSpray * surfCrest * 0.18;
+
+      // A hint of open-sky reflection in the troughs and on steep ripples.
+      float fres = pow(1.0 - clamp(N.z, 0.0, 1.0), 3.0);
+      ocean += vec3(0.10, 0.24, 0.30) * fres * 0.65;
+      ocean += vec3(0.055, 0.105, 0.090) * (1.0 - smoothstep(0.0, 0.034, depth));
+
+      // Only a whisper of the caustic light should appear on the surface; the
+      // real caustics live in the refracted seabed layer above.
+      ocean += caustic * vec3(0.04, 0.075, 0.055) * (1.0 - smoothstep(0.01, 0.075, depth));
+
+      // Fine glitter: broad wave facets produce a soft sheen, while jittered
+      // micro-cell layers break the sun's reflection into crisp, uneven point
+      // lights. The cells are gated by the micro-normal so they cluster on
+      // facets that could genuinely turn a glint toward the camera.
+      float broadGlint = pow(ndh, 110.0);
+      ocean += vec3(1.0, 0.92, 0.72) * broadGlint * 0.07 * (0.55 + 0.45 * crestShade) * waterMask;
+
+      vec3 glitterN = normalize(vec3(-(microSlope * 1.75 + windSlope * 0.22), 1.0));
+      float glintFacing = max(dot(glitterN, H), 0.0);
+      float glintFacet = smoothstep(0.46, 0.965, glintFacing);
+      float glintCluster = smoothstep(0.30, 0.72, fbm3(p * vec2(4.3, 5.4) + vec2(uTime * 0.035, 0.0)));
+      // The best facets live on the backs of the swell crests.
+      float crestFacing = smoothstep(0.06, 0.92, swell);
+      float glintCrest = 0.18 + 0.82 * crestFacing * crestFacing;
+      float deepQuiet = 0.62 + 0.38 * (1.0 - smoothstep(0.55, 1.15, depth));
+      vec2 glintAxis = normalize(vec2(-seaDir.y, seaDir.x) + vec2(1e-5));
+
+      vec2 glitterUV = p * vec2(72.0, 86.0);
+      glitterUV += vec2(N.y, -N.x) * 2.4;
+      glitterUV = mat2(0.984, 0.178, -0.178, 0.984) * glitterUV;
+      vec2 glitterID = floor(glitterUV);
+      vec2 glitterF = fract(glitterUV) - 0.5;
+      vec2 glitterJitter = vec2(hash21(glitterID + 13.1), hash21(glitterID + 71.7)) - 0.5;
+      vec2 glitterPoint = glitterF - glitterJitter * 0.60;
+      float glintAlong = dot(glitterPoint, glintAxis);
+      float glintAcross = dot(glitterPoint, vec2(-glintAxis.y, glintAxis.x));
+      float sparkScale = mix(0.060, 0.185, pow(hash21(glitterID + 25.4), 2.0));
+      float glitterDist = length(vec2(glintAlong / 2.15, glintAcross / 0.66));
+      float glitterCore = 1.0 - smoothstep(sparkScale * 0.35, sparkScale, glitterDist);
+      float glitterHalo = exp(-glitterDist * glitterDist * 14.0) * 0.24;
+      float glitterMask = smoothstep(0.84, 0.965, hash21(glitterID + 4.7));
+      float glitterTwinkle = 0.28 + 0.72 * pow(0.5 + 0.5 * sin(uTime * 2.9 + hash21(glitterID + 8.4) * 31.0), 2.0);
+      float glitter = (glitterCore + glitterHalo) * glitterMask * glitterTwinkle * glintFacet
+                    * glintCluster * glintCrest * deepQuiet;
+
+      vec2 glitterUV2 = p * vec2(147.0, 171.0) + vec2(4.3, 1.7);
+      glitterUV2 += vec2(N.y, -N.x) * 1.2;
+      glitterUV2 = mat2(0.797, -0.604, 0.604, 0.797) * glitterUV2;
+      vec2 glitterID2 = floor(glitterUV2);
+      vec2 glitterF2 = fract(glitterUV2) - 0.5;
+      vec2 glitterJitter2 = vec2(hash21(glitterID2 + 17.9), hash21(glitterID2 + 39.3)) - 0.5;
+      vec2 glitterPoint2 = glitterF2 - glitterJitter2 * 0.66;
+      float glint2Along = dot(glitterPoint2, glintAxis);
+      float glint2Across = dot(glitterPoint2, vec2(-glintAxis.y, glintAxis.x));
+      float glitterDist2 = length(vec2(glint2Along / 1.85, glint2Across / 0.78));
+      float glitterSpot2 = 1.0 - smoothstep(0.022, 0.085, glitterDist2);
+      float glitter2 = glitterSpot2 * smoothstep(0.90, 0.985, hash21(glitterID2 + 9.6))
+                     * (0.22 + 0.78 * pow(0.5 + 0.5 * sin(uTime * 3.4 + hash21(glitterID2 + 5.2) * 27.0), 2.0))
+                     * glintFacet * (0.50 + 0.50 * glintCluster) * glintCrest * deepQuiet;
+
+      float microGlint = pow(max(dot(glitterN, H), 0.0), 110.0);
+      ocean += vec3(1.0, 0.94, 0.79) * microGlint * 0.22 * waterMask * (0.25 + 0.75 * glintCluster) * glintCrest;
+      ocean += vec3(1.0, 0.93, 0.76) * glitter * 3.60 * waterMask;
+      ocean += vec3(1.0, 0.965, 0.855) * glitter2 * 1.40 * waterMask;
+      ocean += vec3(0.045, 0.065, 0.040) * (0.22 + 0.30 * crestShade) * waterMask;
+
+      // Foam is warmer than the water and should remain readable in the deep
+      // blue as it trails off the break.
+      vec3 foamCol = mix(vec3(0.85, 0.95, 0.92), vec3(1.0, 1.0, 0.965), lace);
+      foamCol *= 0.92 + 0.14 * ndh;
+      foamCol += vec3(0.025, 0.035, 0.025) * smoothstep(0.55, 0.92, ftex);
+      ocean = mix(ocean, foamCol, foam);
+      beach = mix(beach, foamCol * (0.96 + 0.04 * sandRipple), foam * landMask * 0.95);
+
+      // Combine beach and sea. The soft water line keeps the curved shore from
+      // reading like a cut-out.
+      vec3 col = mix(beach, ocean, waterMask);
+
+      // Sliver of wet sand right where the swash meets the sea.
+      float wetEdgeX = shore / 0.006;
+      col += vec3(0.09, 0.10, 0.07) * exp(-wetEdgeX * wetEdgeX) * (1.0 - foam) * 0.4;
+
+      // ---- palm shadow ------------------------------------------------------
+      // The crown and trunk are rendered into a separate, softly blurred mask.
+      // Over water we let the ripples walk the shadow around a little; over
+      // sand it stays soft and warm.
+      vec2 palmUv = uv;
+      palmUv += vec2(N.y, -N.x) * vec2(0.009 / aspect, 0.007) * waterMask;
+      palmUv += vec2(sin(p.y * 24.0 + uTime * 0.45), cos(p.x * 19.0 - uTime * 0.36)) * 0.0007 * waterMask;
+      float palmBlur = texture2D(uPalm, palmUv).r;
+      float palmSharp = texture2D(uPalmSharp, palmUv).r;
+      float palm = clamp(palmBlur + smoothstep(0.20, 0.70, palmSharp) * 0.42, 0.0, 1.0);
+      float palmSoft = smoothstep(0.0, 0.30, palm);
+      vec3 shadeMul = mix(vec3(0.43, 0.36, 0.30), vec3(0.25, 0.41, 0.43), waterMask);
+      float shadeStrength = palmSoft * mix(0.78, 0.56, waterMask);
+      shadeStrength *= 1.0 - foam * 0.55;
+      col *= mix(vec3(1.0), shadeMul, shadeStrength);
+
+      // ---- finishing --------------------------------------------------------
+      // Soft top-right sun warmth and a very gentle vignette.
+      float sunWarmth = smoothstep(0.10, 1.55, p.x + (1.0 - p.y) * 0.9);
+      col += vec3(0.065, 0.043, 0.012) * sunWarmth * 0.52;
+      vec2 vpos = uv - 0.5;
+      float vignette = smoothstep(0.38, 0.96, length(vpos * vec2(1.10, 0.96)));
+      col *= 1.0 - vignette * 0.17;
+
+      // Keep the tropical colours saturated and the foam highlights bright;
+      // only the very top of the range is rolled off.
+      col = max(col, 0.0);
+      float luma = dot(col, vec3(0.2126, 0.7152, 0.0722));
+      col = mix(vec3(luma), col, 1.115);
+      col = col * 1.035;
+      col = col / (1.0 + max(col - 0.82, 0.0) * 0.55);
+      col += (hash12(gl_FragCoord.xy + fract(uTime) * 19.0) - 0.5) / 185.0;
+
+      gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+    }
+  `;
+
+  const oceanMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      uTime: { value: 0 },
+      uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+      uSim: { value: null },
+      uSimTexel: { value: new THREE.Vector2(1 / 512, 1 / 288) },
+      uPalm: { value: null },
+      uPalmSharp: { value: null }
+    },
+    vertexShader: oceanVertexShader,
+    fragmentShader: oceanFragmentShader,
+    depthTest: false,
+    depthWrite: false
+  });
+
+  const oceanQuad = new THREE.Mesh(quadGeometry, oceanMaterial);
+  oceanQuad.frustumCulled = false;
+  scene.add(oceanQuad);
+
+  // ---------------------------------------------------------------------------
+  // A hand-drawn palm shadow on a 2D canvas: a curved, tapering trunk and
+  // pinnate fronds. The canvas is uploaded, then blurred horizontally and
+  // vertically on the GPU to make a soft, layered penumbra.
+  // ---------------------------------------------------------------------------
+  const blurVertexShader = `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = vec4(position.xy, 0.0, 1.0);
+    }
+  `;
+
+  const blurFragmentShader = `
+    uniform sampler2D uMask;
+    uniform vec2 uDirection;
+    varying vec2 vUv;
+
+    void main() {
+      vec4 sum = texture2D(uMask, vUv) * 0.227027;
+      sum += (texture2D(uMask, vUv + uDirection) + texture2D(uMask, vUv - uDirection)) * 0.194595;
+      sum += (texture2D(uMask, vUv + uDirection * 2.0) + texture2D(uMask, vUv - uDirection * 2.0)) * 0.121622;
+      sum += (texture2D(uMask, vUv + uDirection * 3.0) + texture2D(uMask, vUv - uDirection * 3.0)) * 0.054054;
+      sum += (texture2D(uMask, vUv + uDirection * 4.0) + texture2D(uMask, vUv - uDirection * 4.0)) * 0.016216;
+      gl_FragColor = vec4(sum.rgb, 1.0);
+    }
+  `;
+
+  const blurMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      uMask: { value: null },
+      uDirection: { value: new THREE.Vector2(1 / 900, 0) }
+    },
+    vertexShader: blurVertexShader,
+    fragmentShader: blurFragmentShader,
+    depthTest: false,
+    depthWrite: false
+  });
+
+  const blurScene = new THREE.Scene();
+  const blurQuad = new THREE.Mesh(quadGeometry, blurMaterial);
+  blurQuad.frustumCulled = false;
+  blurScene.add(blurQuad);
+
+  const palmCanvas = document.createElement('canvas');
+  const palmContext = palmCanvas.getContext('2d');
+  const palmTexture = new THREE.CanvasTexture(palmCanvas);
+  palmTexture.minFilter = THREE.LinearFilter;
+  palmTexture.magFilter = THREE.LinearFilter;
+  palmTexture.generateMipmaps = false;
+  palmTexture.wrapS = THREE.ClampToEdgeWrapping;
+  palmTexture.wrapT = THREE.ClampToEdgeWrapping;
+
+  const palmTargetOptions = {
+    minFilter: THREE.LinearFilter,
+    magFilter: THREE.LinearFilter,
+    format: THREE.RGBAFormat,
+    type: THREE.UnsignedByteType,
+    wrapS: THREE.ClampToEdgeWrapping,
+    wrapT: THREE.ClampToEdgeWrapping,
+    depthBuffer: false,
+    stencilBuffer: false,
+    generateMipmaps: false
+  };
+
+  let palmCanvasWidth = 1024;
+  let palmCanvasHeight = 640;
+  let palmBlurTargetA = null;
+  let palmBlurTargetB = null;
+  let palmShadowLastDrawn = -10;
+
+  function disposePalmTargets() {
+    if (palmBlurTargetA) palmBlurTargetA.dispose();
+    if (palmBlurTargetB) palmBlurTargetB.dispose();
+    palmBlurTargetA = null;
+    palmBlurTargetB = null;
+  }
+
+  function buildPalmCanvas() {
+    const aspect = Math.max(1.0, window.innerWidth / Math.max(1, window.innerHeight));
+    let h = 720;
+    let w = Math.round(h * aspect);
+    if (w > 1240) {
+      w = 1240;
+      h = Math.round(w / aspect);
+    }
+    w = Math.max(240, w);
+    h = Math.max(360, h);
+    palmCanvasWidth = w;
+    palmCanvasHeight = h;
+    palmCanvas.width = w;
+    palmCanvas.height = h;
+  }
+
+  function createPalmTargets() {
+    disposePalmTargets();
+    buildPalmCanvas();
+    palmBlurTargetA = new THREE.WebGLRenderTarget(palmCanvasWidth, palmCanvasHeight, palmTargetOptions);
+    palmBlurTargetB = new THREE.WebGLRenderTarget(palmCanvasWidth, palmCanvasHeight, palmTargetOptions);
+    palmShadowLastDrawn = -10;
+  }
+
+  // Deterministic pseudo-random helper for frond variation.
+  function fractValue(value) {
+    return value - Math.floor(value);
+  }
+
+  function strokeLeafletPath(ctx, x0, y0, cx, cy, x1, y1) {
+    ctx.moveTo(x0, y0);
+    ctx.quadraticCurveTo(cx, cy, x1, y1);
+  }
+
+  function drawPalmShadow(time) {
+    if (!palmContext) return;
+    const ctx = palmContext;
+    const W = palmCanvasWidth;
+    const H = palmCanvasHeight;
+    const S = H;
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    const breeze = 0.080 * Math.sin(time * 0.47 + 0.65) + 0.026 * Math.sin(time * 1.13 + 2.1);
+    const crownX = (0.525 + 0.009 * Math.sin(time * 0.61 + 0.4)) * S;
+    const crownY = (1.0 - (0.775 + 0.006 * Math.sin(time * 0.47 + 1.8))) * S;
+
+    // The trunk shadow curves in from just above the top-left corner.
+    const rootX = 0.015 * S;
+    const rootY = (1.0 - 1.105) * S;
+    const controlX = rootX + (crownX - rootX) * 0.40 - 0.058 * S;
+    const controlY = rootY + (crownY - rootY) * 0.54 + 0.012 * S;
+
+    function trunkPoint(t) {
+      const inv = 1 - t;
+      return {
+        x: inv * inv * rootX + 2 * inv * t * controlX + t * t * crownX,
+        y: inv * inv * rootY + 2 * inv * t * controlY + t * t * crownY
+      };
+    }
+
+    const trunkSegments = 15;
+    for (let i = 0; i < trunkSegments; i++) {
+      const t0 = i / trunkSegments;
+      const t1 = (i + 1) / trunkSegments;
+      const a = trunkPoint(t0);
+      const b = trunkPoint(t1);
+      ctx.strokeStyle = 'rgba(255,255,255,0.83)';
+      ctx.lineWidth = S * (0.0145 - 0.0081 * t0);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+    }
+
+    // A small dark heart where all the fronds meet.
+    ctx.fillStyle = 'rgba(255,255,255,0.82)';
+    ctx.beginPath();
+    ctx.ellipse(crownX, crownY, S * 0.0085, S * 0.0070, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    const frondCount = 7;
+    for (let i = 0; i < frondCount; i++) {
+      const inner = i >= 5 ? 1 : 0;
+      const flutter = 0.070 * Math.sin(time * 0.73 + i * 1.73);
+      const indexJitter = (fractValue(Math.sin(i * 12.9898) * 43758.5453) - 0.5) * 0.34;
+      const angle = i * (Math.PI * 2 / frondCount) + indexJitter + breeze * (0.72 + 0.28 * Math.sin(i * 1.7)) + flutter;
+
+      let lengthWorld = (inner ? 0.128 : 0.205) * (0.78 + 0.32 * (0.5 + 0.5 * Math.sin(i * 2.43 + 1.6)));
+      lengthWorld *= 1.0 + 0.055 * Math.sin(time * 0.66 + i * 2.17);
+      const length = lengthWorld * S;
+      const bend = (0.020 + 0.036 * fractValue(Math.sin(i * 7.13) * 127.1)) * S
+                 * (Math.sin(i * 1.91 + 0.4) >= 0 ? 1 : -1);
+
+      ctx.save();
+      ctx.translate(crownX, crownY);
+      ctx.rotate(angle);
+
+      // Rachis: a slim, slightly drooping curve.
+      const rachisControlX = length * 0.46;
+      const rachisControlY = bend * 0.25;
+      const rachisTipX = length;
+      const rachisTipY = bend;
+
+      // A faint, tapered blade sits underneath the leaflets and gives the
+      // projected frond a coherent palm silhouette.
+      const bladeHalfWidth = length * (inner ? 0.048 : 0.062);
+      ctx.beginPath();
+      for (let s = 0; s <= 14; s++) {
+        const tt = 0.04 + (s / 14) * 0.92;
+        const inv = 1 - tt;
+        const px = 2 * inv * tt * rachisControlX + tt * tt * rachisTipX;
+        const py = 2 * inv * tt * rachisControlY + tt * tt * rachisTipY;
+        const tx = 2 * inv * rachisControlX + 2 * tt * (rachisTipX - rachisControlX);
+        const ty = 2 * inv * rachisControlY + 2 * tt * (rachisTipY - rachisControlY);
+        const tl = Math.max(0.0001, Math.sqrt(tx * tx + ty * ty));
+        const profile = Math.pow(Math.sin(Math.PI * Math.min(1, tt)), 0.66);
+        const bx = px - (ty / tl) * bladeHalfWidth * profile;
+        const by = py + (tx / tl) * bladeHalfWidth * profile;
+        if (s === 0) ctx.moveTo(bx, by); else ctx.lineTo(bx, by);
+      }
+      for (let s = 14; s >= 0; s--) {
+        const tt = 0.04 + (s / 14) * 0.92;
+        const inv = 1 - tt;
+        const px = 2 * inv * tt * rachisControlX + tt * tt * rachisTipX;
+        const py = 2 * inv * tt * rachisControlY + tt * tt * rachisTipY;
+        const tx = 2 * inv * rachisControlX + 2 * tt * (rachisTipX - rachisControlX);
+        const ty = 2 * inv * rachisControlY + 2 * tt * (rachisTipY - rachisControlY);
+        const tl = Math.max(0.0001, Math.sqrt(tx * tx + ty * ty));
+        const profile = Math.pow(Math.sin(Math.PI * Math.min(1, tt)), 0.66);
+        ctx.lineTo(px + (ty / tl) * bladeHalfWidth * profile, py - (tx / tl) * bladeHalfWidth * profile);
+      }
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(255,255,255,0.018)';
+      ctx.fill();
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.72)';
+      ctx.lineWidth = Math.max(1.5, S * 0.0034);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(rachisControlX, rachisControlY, rachisTipX, rachisTipY);
+      ctx.stroke();
+
+      const leafletCount = inner ? 19 : 26;
+      const leafletBase = length * (inner ? 0.195 : 0.250);
+      ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+      ctx.lineWidth = Math.max(1.05, S * 0.00185);
+      ctx.beginPath();
+
+      for (let k = 0; k <= leafletCount; k++) {
+        const tt = 0.06 + (k / leafletCount) * 0.89;
+        const inv = 1 - tt;
+        // point on the quadratic rachis
+        const px = 2 * inv * tt * rachisControlX + tt * tt * rachisTipX;
+        const py = 2 * inv * tt * rachisControlY + tt * tt * rachisTipY;
+        const tx = 2 * inv * (rachisControlX) + 2 * tt * (rachisTipX - rachisControlX);
+        const ty = 2 * inv * (rachisControlY) + 2 * tt * (rachisTipY - rachisControlY);
+        const tl = Math.max(0.0001, Math.sqrt(tx * tx + ty * ty));
+        const nx = -ty / tl;
+        const ny = tx / tl;
+
+        const envelope = Math.pow(Math.sin(Math.PI * Math.min(1, Math.max(0, tt / 0.95))), 0.52);
+        const variation = 0.74 + 0.26 * Math.sin(k * 2.17 + i * 4.1);
+        const leafLength = leafletBase * envelope * variation;
+        const forward = leafLength * (0.44 + 0.16 * Math.sin(k * 1.31 + i));
+        const flutterPerLeaf = 0.09 * Math.sin(time * 1.16 + i * 2.1 + k * 0.57);
+
+        for (let side = -1; side <= 1; side += 2) {
+          const dx = (tx / tl) * forward + nx * side * leafLength;
+          const dy = (ty / tl) * forward + ny * side * leafLength;
+          const c1x = px + (tx / tl) * leafLength * 0.17 + nx * side * leafLength * (0.54 + flutterPerLeaf);
+          const c1y = py + (ty / tl) * leafLength * 0.17 + ny * side * leafLength * (0.54 - flutterPerLeaf);
+          strokeLeafletPath(ctx, px, py, c1x, c1y, px + dx, py + dy);
+        }
+      }
+      ctx.stroke();
+
+      // A crisp little tip leaf.
+      ctx.strokeStyle = 'rgba(255,255,255,0.72)';
+      ctx.lineWidth = Math.max(1.0, S * 0.0020);
+      ctx.beginPath();
+      ctx.moveTo(rachisTipX - length * 0.06, rachisTipY - bend * 0.04);
+      ctx.quadraticCurveTo(rachisTipX - length * 0.02, rachisTipY - bend * 0.03, rachisTipX, rachisTipY);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // Fine airborne leaflets cast irregular shadow at the crown's fringe.
+    ctx.globalAlpha = 0.45;
+    for (let i = 0; i < 9; i++) {
+      const a = i * 2.399 + breeze * 2.0;
+      const r = (0.06 + 0.09 * fractValue(Math.sin(i * 7.3) * 91.7)) * S;
+      const x = crownX + Math.cos(a) * r * 1.10;
+      const y = crownY + Math.sin(a) * r;
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.beginPath();
+      ctx.ellipse(x, y, S * 0.0032, S * 0.0016, a + 0.7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1.0;
+  }
+
+  function updatePalmShadow(time) {
+    if (!palmBlurTargetA) return;
+    // Redraw at about 30 Hz. A projected shadow does not need 60 Hz updates.
+    if (time - palmShadowLastDrawn < 1 / 31) return;
+    palmShadowLastDrawn = time;
+
+    drawPalmShadow(time);
+    palmTexture.needsUpdate = true;
+
+    blurMaterial.uniforms.uMask.value = palmTexture;
+    blurMaterial.uniforms.uDirection.value.set(1.15 / palmCanvasWidth, 0);
+    renderer.setRenderTarget(palmBlurTargetA);
+    renderer.render(blurScene, orthoCamera);
+
+    blurMaterial.uniforms.uMask.value = palmBlurTargetA.texture;
+    blurMaterial.uniforms.uDirection.value.set(0, 1.15 / palmCanvasHeight);
+    renderer.setRenderTarget(palmBlurTargetB);
+    renderer.render(blurScene, orthoCamera);
+
+    renderer.setRenderTarget(null);
+    oceanMaterial.uniforms.uPalm.value = palmBlurTargetB.texture;
+    oceanMaterial.uniforms.uPalmSharp.value = palmTexture;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Sizing, simulation reset and animation
+  // ---------------------------------------------------------------------------
+  function tileSimulation() {
+    const width = Math.max(256, Math.min(560, Math.round(512)));
+    const aspect = window.innerWidth / Math.max(1, window.innerHeight);
+    let w = width;
+    let h = Math.round(width / aspect);
+    const maxDimension = 580;
+    if (h > maxDimension) {
+      h = maxDimension;
+      w = Math.round(maxDimension * aspect);
+    }
+    w = Math.max(192, w);
+    h = Math.max(192, h);
+    simWidth = w;
+    simHeight = h;
+
+    createSimTargets(w, h);
+    simMaterial.uniforms.uTexel.value.set(1 / w, 1 / h);
+    oceanMaterial.uniforms.uSimTexel.value.set(1 / w, 1 / h);
+
+    seedSimulation();
+    warmupSimulation(230);
+    oceanMaterial.uniforms.uSim.value = simA.texture;
+  }
+
+  function resize() {
+    const width = Math.max(1, window.innerWidth);
+    const height = Math.max(1, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, pixelRatioCap));
+    renderer.setSize(width, height, false);
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    oceanMaterial.uniforms.uResolution.value.set(
+      Math.max(1, Math.floor(width * renderer.getPixelRatio())),
+      Math.max(1, Math.floor(height * renderer.getPixelRatio()))
+    );
+    if (supportsHalfFloatRender) {
+      tileSimulation();
+    } else {
+      simA = null;
+      simB = null;
+      oceanMaterial.uniforms.uSim.value = fallbackSimTexture;
+      oceanMaterial.uniforms.uSimTexel.value.set(1, 1);
+    }
+    createPalmTargets();
+    updatePalmShadow(0);
+  }
+
+  window.addEventListener('resize', resize, { passive: true });
+  resize();
+
+  const clock = new THREE.Clock();
+  let elapsed = 0;
+  let accumulator = 0;
+  const fixedStep = 1 / 60;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    const dt = Math.min(clock.getDelta(), 0.05);
+    elapsed += dt;
+
+    // Two fixed simulation substeps per display frame keeps the waves lively
+    // and frame-rate independent without risking an unstable time step.
+    accumulator += dt;
+    if (simA) {
+      let steps = 0;
+      while (accumulator >= fixedStep && steps < 4) {
+        stepSimulation(fixedStep);
+        stepSimulation(fixedStep);
+        accumulator -= fixedStep;
+        steps++;
+      }
+      oceanMaterial.uniforms.uSim.value = simA.texture;
+    } else {
+      accumulator = 0;
+    }
+
+    oceanMaterial.uniforms.uTime.value = elapsed;
+    updatePalmShadow(elapsed);
+
+    renderer.setRenderTarget(null);
+    renderer.clear();
+    renderer.render(scene, orthoCamera);
+  }
+
+  requestAnimationFrame(animate);
+
+  // A polite pause when the tab is hidden avoids huge dt jumps.
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) clock.getDelta();
+  });
+})();
+</script>
+</body>
+</html>
+
+

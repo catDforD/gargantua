@@ -35,6 +35,7 @@ i18n_dir: :lang
 skip_render:
   - works/dandandang/**
   - works/hailmary/**
+  - works/model_test/**
   - works/neural-network/**
 
 # Writing
