@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
       images.dataset.count = String(moment.images.length);
       moment.images.forEach(function(image) {
         var figure = document.createElement('figure');
-        figure.innerHTML = '<img src="' + escapeHtml(image.src) + '" alt="' + escapeHtml(image.alt) + '" loading="lazy">';
+        figure.innerHTML = '<img loading="lazy" src="' + escapeHtml(image.thumbnail || image.src) + '" alt="' + escapeHtml(image.alt) + '">';
         var imageElement = figure.querySelector('img');
         if (image.position && /^[\w.%\s-]+$/.test(image.position)) {
           imageElement.style.objectPosition = image.position;
@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (image.height && /^\d+(\.\d+)?(px|rem)?$/.test(image.height)) {
           figure.style.setProperty('--moment-image-height', /^[\d.]+$/.test(image.height) ? image.height + 'px' : image.height);
         }
+        imageElement.dataset.fullSrc = image.src;
         imageElement.tabIndex = 0;
         imageElement.setAttribute('role', 'button');
         imageElement.setAttribute('aria-label', '点击放大图片');
@@ -99,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   var openLightbox = function(image) {
-    lightboxImage.src = image.currentSrc || image.src;
+    lightboxImage.src = image.dataset.fullSrc || image.currentSrc || image.src;
     lightboxImage.alt = image.alt || '动态图片';
     lightbox.classList.add('is-open');
     lightbox.setAttribute('aria-hidden', 'false');

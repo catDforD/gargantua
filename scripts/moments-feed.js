@@ -13,15 +13,22 @@ function parseDate(value, fallback) {
   return Number.isFinite(timestamp) ? timestamp : 0;
 }
 
+function thumbnailFor(src) {
+  if (!src.startsWith('/img/') || src.includes('..') || /[?#]/.test(src)) return '';
+  const thumbnail = `/img/moment-thumbs${src}.webp`;
+  return fs.existsSync(path.join(hexo.source_dir, thumbnail.slice(1))) ? thumbnail : '';
+}
+
 function parseImages(value) {
   const values = Array.isArray(value) ? value : value ? [value] : [];
 
   return values
     .map((item) => {
-      if (typeof item === 'string') return { src: item, alt: '', position: '', height: '' };
+      if (typeof item === 'string') return { src: item, thumbnail: thumbnailFor(item), alt: '', position: '', height: '' };
       if (!item || typeof item !== 'object' || !item.src) return null;
       return {
         src: String(item.src),
+        thumbnail: thumbnailFor(String(item.src)),
         alt: String(item.alt || ''),
         position: item.position ? String(item.position) : '',
         height: item.height ? String(item.height) : '',

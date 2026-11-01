@@ -34,3 +34,11 @@ images:
 ```
 
 图片放在 `source/img/moments/`，动态里使用以 `/img/moments/` 开头的网站路径。少量图片可以直接提交到 GitHub；大量相册图片再考虑对象存储或独立图片服务器。
+
+为动态图片生成列表缩略图（需要 Python 和 Pillow），再提交生成的 WebP；点击图片时仍会加载原图：
+
+```bash
+python tools/generate-moment-thumbnails.py source/img/moments/your-image.webp
+```
+
+未生成缩略图的图片会自动回退到原图。
