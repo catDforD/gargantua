@@ -4,6 +4,7 @@ db.json
 *.log
 node_modules/
 public/
+/tmp/
 .deploy*/
 _multiconfig.yml
 /.codex
