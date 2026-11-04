@@ -466,7 +466,6 @@ recommendations:
         genre: 日系流行
         tags: [日系流行, J-Pop]
         embed: {netease: '1902312404'}
-        embed_note: 该曲在网易云为会员曲目，播放需登录账号。
         intro: >-
           milet 第二张专辑《visions》中的收录曲，英日双语切换的唱腔配上明亮跳跃的鼓点，是专辑里最具元气的一首。后被选为都市开放世界游戏《无限大》(ANANTA) 技术性测试预告片的 BGM，在玩家中广为流传。
       - title: 希望有羽毛和翅膀
@@ -548,3 +547,48 @@ recommendations:
         embed: {netease: '1939401645'}
         intro: >-
           日本“废墟系流行”组合 cadode 的出道单曲，也是 TV 动画《夏日重现》前半段的片尾曲，作词为 koshi、作曲与编曲为 eba。吉他音墙与合成器铺出水面般摇晃的底色，koshi 略带沙哑的嗓音把“回不去的夏天”唱成一种闷痛，与动画每集收尾的定格画面相当契合。
+      - title: 我走以后
+        year: 2025
+        # cover 来源: 网易云音乐 单曲《我走以后》封面 https://music.163.com/album?id=350276517
+        cover: /img/recommendations/music-wo-zou-yi-hou.webp
+        artist: 水仙LONE
+        type: 单曲
+        genre: 纯音乐
+        tags: [纯音乐, 器乐]
+        embed: {netease: '3317665578'}
+        intro: >-
+          水仙LONE 的纯音乐作品，以器乐旋律描绘离别与回忆，情绪从安静的叙述逐渐铺展，余韵悠长。
+      - title: 耀斑
+        original: Flares of the Blazing Sun
+        year: 2025
+        # cover 来源: 网易云音乐 单曲《崩坏星穹铁道-耀斑 Flares of the Blazing Sun》封面 https://music.163.com/album?id=277287176
+        cover: /img/recommendations/music-flares.jpg
+        artist: HOYO-MiX / YMIR
+        type: 单曲
+        genre: 游戏原声
+        tags: [游戏原声, 角色曲]
+        embed: {netease: '2722510685'}
+        intro: >-
+          《崩坏：星穹铁道》白厄动画短片《听！狂欢在那神佑的山巅》中的歌曲，由 HOYO-MiX 制作、YMIR 演唱，旋律与人声共同铺陈出炽烈的英雄气息。
+      - title: Why Do You Love Me
+        year: 2019
+        # cover 来源: 网易云音乐 单曲《Why Do You Love Me》封面 https://music.163.com/album?id=80429011
+        cover: /img/recommendations/music-why-do-you-love-me.jpg
+        artist: Charlotte Lawrence
+        type: 单曲
+        genre: 流行
+        tags: [流行, 欧美]
+        embed: {netease: '1378371552'}
+        intro: >-
+          Charlotte Lawrence 的流行单曲，以富有律动的编曲和直白的唱词，唱出一段亲密关系中的矛盾与不安。
+      - title: 熄灭
+        year: 2023
+        # cover 来源: 网易云音乐 单曲《熄灭》封面 https://music.163.com/album?id=163848123
+        cover: /img/recommendations/music-xi-mie.jpg
+        artist: TC
+        type: 单曲
+        genre: 流行
+        tags: [流行, 情歌]
+        embed: {netease: '2040015902'}
+        intro: >-
+          TC 创作并演唱的情歌，用舒缓的旋律和内心独白讲述感情从炽热走向冷却的失落。

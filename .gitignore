@@ -25,6 +25,10 @@ source/img/head/*.jpg
 source/img/moments/*.jpg
 source/img/photo/*.jpg
 source/img/recommendations/*.jpg
+# 这些封面转 WebP 后无法在保持画质的同时缩小，发布原始 JPEG。
+!source/img/recommendations/music-flares.jpg
+!source/img/recommendations/music-why-do-you-love-me.jpg
+!source/img/recommendations/music-xi-mie.jpg
 source/img/recommendations/*.jpeg
 source/img/recommendations/*.png
 source/works/dandandang/assets/images/*.png
