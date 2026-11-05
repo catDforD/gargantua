@@ -52,6 +52,14 @@ recommendations:
         tags: [科幻, 末世, 时空通信]
         intro: >-
           末日之后的南京成了一座空城，而 2019 年的高三学生白杨，用一台业余电台联系上了那里。废墟与习题、生存与日常交替出现，硬核设定之下是相当温柔的笔触。银河奖得主天瑞说符的代表作。
+      - title: 诡秘之主
+        year: 2018
+        # cover 来源: 中国作家网 https://www.chinawriter.com.cn/n1/2020/0717/c405068-31787376.html (333x469)
+        cover: /img/recommendations/book-lord-of-mysteries.webp
+        author: 爱潜水的乌贼
+        tags: [奇幻, 蒸汽朋克, 神秘学]
+        intro: >-
+          周明瑞醒来后成为克莱恩·莫雷蒂，在蒸汽机械与神秘力量并存的世界里寻找回家的路。魔药、占卜与古老秘密层层交织，塔罗会众人的故事也随之展开。细密的世界观和人物之间的牵绊，让这段充满迷雾的旅程格外动人。
   - key: movies
     name: 电影
     title: 放映厅
