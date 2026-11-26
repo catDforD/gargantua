@@ -1,0 +1,1060 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Gargantua">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="3Blue1Brown 信息论第三期学习笔记：从香农信息量出发，分析算术编码如何把预测模型变成压缩器，为什么大模型预训练等价于最优压缩，以及「压缩即智能」。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="压缩即智能">
+<meta property="og:url" content="https://catdfd.com/2026/11/26/compression-is-intelligence-arithmetic-coding/index.html">
+<meta property="og:site_name" content="Gargantua&#39;Blog">
+<meta property="og:description" content="3Blue1Brown 信息论第三期学习笔记：从香农信息量出发，分析算术编码如何把预测模型变成压缩器，为什么大模型预训练等价于最优压缩，以及「压缩即智能」。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://catdfd.com/img/doc/ac-shannon-information.webp">
+<meta property="og:image" content="https://catdfd.com/img/doc/ac-ascii-encoding.webp">
+<meta property="og:image" content="https://catdfd.com/img/doc/ac-unit-interval.webp">
+<meta property="og:image" content="https://catdfd.com/img/doc/ac-nested-intervals.webp">
+<meta property="og:image" content="https://catdfd.com/img/doc/ac-mathematics-binary.webp">
+<meta property="og:image" content="https://catdfd.com/img/doc/ac-binary-tick-interval.webp">
+<meta property="og:image" content="https://catdfd.com/img/doc/ac-pretraining-equivalence.webp">
+<meta property="og:image" content="https://catdfd.com/img/doc/ac-qwen-preamble.webp">
+<meta property="og:image" content="https://catdfd.com/img/doc/ac-honest-compression-size.webp">
+<meta property="og:image" content="https://catdfd.com/img/doc/ac-online-finetuning.webp">
+<meta property="article:published_time" content="2026-11-26T11:15:00.000Z">
+<meta property="article:modified_time" content="2026-11-26T07:19:32.588Z">
+<meta property="article:author" content="Gargantua">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="信息论">
+<meta property="article:tag" content="学习笔记">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://catdfd.com/img/doc/ac-shannon-information.webp">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>压缩即智能 - Gargantua&#39;Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"catdfd.com","root":"/","version":"1.9.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"openkounter":{"server_url":"https://open-kounter.mintimate.cn","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Gargantua&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content (desktop) -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/moments/" target="_self">
+                <i class="iconfont icon-clock-fill"></i>
+                <span>动态</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/graph/" target="_self">
+                <i class="iconfont icon-plan"></i>
+                <span>图谱</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/works/" target="_self">
+                <i class="iconfont icon-images"></i>
+                <span>Works</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/about/" target="_self">
+                    <i class="iconfont icon-brush"></i>
+                    <span>个人简介</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/recommendations/" target="_self">
+                    <i class="iconfont icon-books"></i>
+                    <span>推荐</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/leetcode/" target="_self">
+                    <i class="iconfont icon-list"></i>
+                    <span>刷题</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile grid menu overlay -->
+<div id="mobile-grid-menu" class="d-lg-none">
+  <div class="mobile-grid-menu-inner">
+    <div class="container">
+      <div class="row">
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-home-fill"></i>
+                  <span>首页</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/moments/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-clock-fill"></i>
+                  <span>动态</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/tags/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-tags-fill"></i>
+                  <span>标签</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/graph/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-plan"></i>
+                  <span>图谱</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/works/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-images"></i>
+                  <span>Works</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            
+            <div class="col-12 mobile-grid-group-header">
+              <i class="iconfont icon-user-fill"></i>
+              <span>关于</span>
+            </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/about/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-brush"></i>
+                    <span>个人简介</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/recommendations/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-books"></i>
+                    <span>推荐</span>
+                  </div>
+                </a>
+              </div>
+            
+              
+              
+              
+              <div class="col-4 mobile-grid-cell">
+                <a href="/leetcode/" target="_self">
+                  <div class="mobile-grid-item">
+                    <i class="iconfont icon-list"></i>
+                    <span>刷题</span>
+                  </div>
+                </a>
+              </div>
+            
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/links/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-link-fill"></i>
+                  <span>友链</span>
+                </div>
+              </a>
+            </div>
+          
+        
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
+            <a href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-search"></i>
+                <span>搜索</span>
+              </div>
+            </a>
+          </div>
+        
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn"
+               data-label-light="开灯"
+               data-label-dark="关灯">
+            <a href="javascript:;" aria-label="Color Toggle">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
+                <span id="mobile-color-toggle-label">关灯</span>
+              </div>
+            </a>
+          </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg/sky.webp') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="压缩即智能"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2026-11-26 11:15" pubdate>
+          2026年11月26日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          48 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">压缩即智能</h1>
+            
+              <p id="updated-time" class="note note-info" style="">
+                
+                  
+                    本文最后更新于 2026年11月26日 早上
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <ul>
+<li>原视频（3Blue1Brown）：<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=qbsb9DpdZ6s">https://www.youtube.com/watch?v=qbsb9DpdZ6s</a>（<em>This algorithm changed how I think about compression | Information theory, part 3</em>，2026-11-17）</li>
+<li>关联知识节点：<a href="/graph/">信息熵</a> · <a href="/graph/">交叉熵</a></li>
+</ul>
+<hr>
+<p>Hutter Prize（哈特奖）悬赏能把 1 GB 维基百科无损压得更小的方案，且把<strong>压缩比特流</strong>和<strong>解码程序体积</strong>算在一起。历届所有获奖方案的核心，都是同一个算法：<strong>算术编码（Arithmetic Coding）</strong>。</p>
+<h2 id="一、为什么-−log₂-p-听起来很荒谬？"><a href="#一、为什么-−log₂-p-听起来很荒谬？" class="headerlink" title="一、为什么 −log₂ p 听起来很荒谬？"></a>一、为什么 <code>−log₂ p</code> 听起来很荒谬？</h2><p>香农在 1940 年代证明，一条消息在最优压缩下的比特数约等于 <code>−log₂ p</code>，即它出现概率的负对数。换一种更好懂的写法是 <code>log₁/₂ p</code>：<strong>概率每砍半一次，信息量增加 1 bit</strong>；概率为 <code>(1/2)^k</code> 的消息，恰好携带 <code>k</code> 比特信息。</p>
+<p><img src="/../img/doc/ac-shannon-information.webp" srcset="/img/loading.gif" lazyload alt="香农信息量曲线：−log₂ P &#x3D; log₁&#x2F;₂ P，概率每减半一次，所需比特数增加 1 bit。"></p>
+<p>定性上看很直观：越常见越短，越罕见越长。但落到具体文本上，这个结论听起来近乎荒谬。</p>
+<p>以美国宪法序言为例，听完开头 <em>“We the People of the United States…”</em>，熟悉它的人几乎能背出后面整段话。就算只给后面原文 50% 的概率，香农信息量也只有 <strong>1 bit</strong>；哪怕保守给到千分之一，也不过 <strong>10 bit</strong>。可传统编码完全摸不到这个边：ASCII 定长编码每个字符占 8 bit，整段要花两千多比特（图示部分为 2,352 bits）；按字母频率分配变长码的霍夫曼编码，也要消耗约 1,500 bits。</p>
+<p><img src="/../img/doc/ac-ascii-encoding.webp" srcset="/img/loading.gif" lazyload alt="ASCII 编码下美国宪法序言图示部分占 2,352 bits；换用霍夫曼编码，整段仍在 1,500 bits 量级。"></p>
+<p>把大半段话塞进 10 个比特，这怎么可能？症结在于：霍夫曼编码把每个字符（或固定词块）映射成一成不变的比特串，<strong>完全没有利用上下文</strong>。可预测性高度依赖前文，而我们手里正好有根据上文预测下一个词元的工具——语言模型。剩下的问题很明确：<strong>怎么把一个输出概率分布的预测器，变成真正的无损压缩器？</strong></p>
+<h2 id="二、把文本变成-0-1-里的一个实数"><a href="#二、把文本变成-0-1-里的一个实数" class="headerlink" title="二、把文本变成 [0, 1] 里的一个实数"></a>二、把文本变成 <code>[0, 1]</code> 里的一个实数</h2><p>算术编码的思路非常反直觉，却又干净得惊人：<strong>不再给单个字符分配 0&#x2F;1 码，而是把整段文本映射成数轴 <code>[0, 1]</code> 里的一个实数</strong>，再把这个实数写成二进制发给对方。通信的前提只有一条：发送方和接收方各自装一份<strong>完全一致的语言模型</strong>。模型就像一本共同的「地图册」——编码端拿它把文本一步步定位到数轴上，解码端拿它按图索骥反查回原文。算术编码本身只是通用外壳，模型预测得越准，压出来的比特流就越短。为了看清每一步怎么运作，先假设一个只输出 26 个小写字母的字符级模型（实际换成大模型的词表完全同理）。整个算法分成三步。</p>
+<h3 id="1-单位区间-0-1-的逐层嵌套：如何编解码？"><a href="#1-单位区间-0-1-的逐层嵌套：如何编解码？" class="headerlink" title="1. 单位区间 [0, 1] 的逐层嵌套：如何编解码？"></a>1. 单位区间 <code>[0, 1]</code> 的逐层嵌套：如何编解码？</h3><p><strong>第一步：把概率排在 <code>[0, 1]</code> 上。</strong> 从空上下文开始，模型会给出首字母的概率分布，所有字母的概率加起来正好是 <code>1</code>。把它们按字母顺序首尾相接排在数轴 <code>[0, 1]</code> 上，每个字母就分到了一段宽度等于其概率的子区间——常见字母（如 <code>t</code> 占 <code>0.16</code>、<code>a</code> 占 <code>0.13</code>）宽敞得多，冷门字母（如 <code>q</code>）只剩一条细缝。</p>
+<p><img src="/../img/doc/ac-unit-interval.webp" srcset="/img/loading.gif" lazyload alt="首字母概率分布平铺在 [0, 1] 单位区间上，每个字母占据的宽度等于它的出现概率，总宽度为 1。"></p>
+<p><strong>第二步：按上下文逐层切分。</strong> 现在要编码单词 <code>&quot;math&quot;</code>：</p>
+<ol>
+<li>首字母是 <code>m</code>，选定 <code>m</code> 的区间（宽度为 <code>P(m) ≈ 0.04</code>，落在 <code>0.484</code> 到 <code>0.523</code> 之间）。</li>
+<li>把 <code>&quot;m&quot;</code> 喂给模型，得到第二个字母的条件概率分布（元音占大头，<code>a</code> 约 38%，<code>e</code> 约 16%）。把整张分布按比例<strong>缩进 <code>m</code> 的区间里</strong>，选出 <code>a</code>。此时区间宽度变成 <code>P(m) × P(a | m)</code>，恰好就是开头为 <code>&quot;ma&quot;</code> 的概率。</li>
+<li>继续把 <code>&quot;ma&quot;</code> 喂给模型，在 <code>a</code> 的区间里切出 <code>t</code>；再把 <code>&quot;mat&quot;</code> 喂给模型，在 <code>t</code> 的区间里切出 <code>h</code>。</li>
+</ol>
+<p><img src="/../img/doc/ac-nested-intervals.webp" srcset="/img/loading.gif" lazyload alt="以 &quot;math&quot; 为例放大观察四层嵌套：每一层都在上一层的子区间内，按当前前缀的条件概率继续切分。"></p>
+<p>四次连乘下来，由概率链式法则，最终落定的窄区间宽度<strong>正好等于模型给整个词打出的联合概率</strong>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">最终区间宽度 = P(m) × P(a | m) × P(t | ma) × P(h | mat) = P(&quot;math&quot;)<br></code></pre></td></tr></table></figure>
+
+<p><strong>怎么解码？</strong> 只要把上面的过程逆向重放一遍。编码方在 <code>&quot;math&quot;</code> 的最终区间里<strong>随便挑一个实数</strong>（比如 <code>0.4970580</code>），连同消息长度 <code>4</code>（或者在词表里约定一个结束符 EOF）一起发出去。接收方用同一份模型一步步反查：</p>
+<ol>
+<li>给模型喂空上下文，画出第一层 <code>[0, 1]</code> 划分，看 <code>0.4970580</code> 落在 <code>m</code> 的范围里 → 确定第 1 个字母是 <code>m</code>；</li>
+<li>把 <code>&quot;m&quot;</code> 喂给模型，在 <code>m</code> 内部画出第二层划分，看 <code>0.4970580</code> 落在 <code>a</code> 里 → 确定第 2 个字母是 <code>a</code>；</li>
+<li>依次把 <code>&quot;ma&quot;</code>、<code>&quot;mat&quot;</code> 喂给模型，凑满 4 个字母，无损还原出 <code>&quot;math&quot;</code>。</li>
+</ol>
+<p>因为收发两端用着同一份模型、同一套切分顺序，只要发过来的数落进了目标区间，解码路径就绝对唯一。这里还有一个很漂亮的副产品：如果你在 <code>[0, 1]</code> 上<strong>均匀随机</strong>戳一个点，按这套解码流程展开，得到的往往不是乱码，而是读起来像模像样的英文片段——因为模型认为越合理的句子，在数轴上占的宽度越大。这既呼应了香农「最优压缩结果应与随机噪声无异」的直觉，也恰好画出了语言模型采样生成文本的几何图像。</p>
+<h3 id="2-把实数变成比特流：二进制小数与-mathematics"><a href="#2-把实数变成比特流：二进制小数与-mathematics" class="headerlink" title="2. 把实数变成比特流：二进制小数与 &quot;mathematics&quot;"></a>2. 把实数变成比特流：二进制小数与 <code>&quot;mathematics&quot;</code></h3><p>网络里只能传 <code>0</code> 和 <code>1</code>，所以得把挑出来的实数写成<strong>二进制小数</strong>。原理和十进制小数一样，只是把「十等分」换成「反复对半切」：</p>
+<ul>
+<li>小数点后第 1 位：<code>.0</code> 选左半 <code>[0, 0.5)</code>，<code>.1</code> 选右半 <code>[0.5, 1)</code>；</li>
+<li>第 2 位把刚才选中的那一半再对半切（例如 <code>.01 = 1/4 = 0.25</code>，<code>.11 = 3/4 = 0.75</code>）；</li>
+<li>每往后多写 1 bit，候选范围就缩小一半；写完停下来，对应的就是那个精确刻度点。</li>
+</ul>
+<p>于是，<strong>编码问题彻底简化为：在目标区间里，找一个二进制写法尽量短的刻度，把小数点后的 0&#x2F;1 串发出去。</strong></p>
+<p>回到 <code>&quot;math&quot;</code>：9 位二进制刻度还太粗，离目标区间最近的左右两个 9 位刻度都落在了外面；加到第 10 位，刻度 <code>.0111111101</code> 刚好踩进 <code>&quot;math&quot;</code> 的区间里。4 个字母花 10 bit，均摊 2.5 bit&#x2F;字符，看起来还很一般。</p>
+<p>但把词拉长成 <code>&quot;mathematics&quot;</code>，威力立刻显现：前面 <code>&quot;math&quot;</code> 定下来之后，模型对后面的 <code>e、m、a、t、i、c</code> 极有把握（每一步概率几乎接近 100%），切分时目标区间<strong>几乎没有缩小</strong>，直到最后一个 <code>s</code> 才略微收窄。结果，刚才代表 <code>&quot;math&quot;</code> 的<strong>同一个 10 位小数 <code>.0111111101</code>，依然稳稳落在 <code>&quot;mathematics&quot;</code> 的目标区间里</strong>！（接收方靠附带的消息长度 <code>4</code> 还是 <code>11</code>，就能区分这两个词。）11 个字母总共只花 10 bit，均摊已经压到了 <code>0.91 bit/字符</code>。</p>
+<p><img src="/../img/doc/ac-mathematics-binary.webp" srcset="/img/loading.gif" lazyload alt="编码 &quot;mathematics&quot;：后续字母高度可预测，目标区间几乎不再收窄，同一个 10 位小数 .0111111101 依然命中其中（约 0.91 bit&#x2F;字符）。"></p>
+<h3 id="3-2⁻ᵏ-p：保底为什么只需要-⌈−log₂-p⌉-比特？"><a href="#3-2⁻ᵏ-p：保底为什么只需要-⌈−log₂-p⌉-比特？" class="headerlink" title="3. 2⁻ᵏ &lt; p：保底为什么只需要 ⌈−log₂ p⌉ 比特？"></a>3. <code>2⁻ᵏ &lt; p</code>：保底为什么只需要 <code>⌈−log₂ p⌉</code> 比特？</h3><p>细看上图会发现一个微妙之处：<code>&quot;mathematics&quot;</code> 的最终区间宽度其实只有约 <code>2⁻¹⁸</code>（理论信息量是 18 bit），而 10 位二进制小数的相邻刻度间距是 <code>2⁻¹⁰</code>，宽得多——之所以 10 位就够用，纯粹是这个窄区间<strong>碰巧跨过了一个 10 位刻度</strong>，撞大运了。那不靠运气，<strong>最坏情况下保底需要多少比特</strong>？</p>
+<p>数一下二进制刻度尺的密度：2 位小数相邻间隔 <code>1/4 = 2⁻²</code>，3 位相邻间隔 <code>1/8 = 2⁻³</code>；一般地，所有不超过 <code>k</code> 位的二进制小数在数轴上均匀排布，相邻刻度间距正好是 <strong><code>2⁻ᵏ</code></strong>。现在有一段宽度为 <code>p</code> 的目标区间。不管它藏在数轴多刁钻的位置，只要刻度间距比区间宽度更小，这段区间就不可能从两个相邻刻度的缝隙里溜走——<strong>必然至少压住一个 <code>k</code> 位刻度</strong>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">2⁻ᵏ &lt; p   ⇔   −k &lt; log₂ p   ⇔   k &gt; −log₂ p<br></code></pre></td></tr></table></figure>
+
+<p><img src="/../img/doc/ac-binary-tick-interval.webp" srcset="/img/loading.gif" lazyload alt="二进制刻度直觉：k 位二进制小数的相邻间距为 2⁻ᵏ，只要 2⁻ᵏ &lt; p，宽度为 p 的区间无论落在何处，都必然至少包含一个 k 位刻度。"></p>
+<p>换句话说，对 <code>−log₂ p</code> 向上取整（<code>⌈−log₂ p⌉</code>），就是<strong>保证</strong>能唯一标定这段文本的比特数；碰巧压中更粗的刻度时，还能更少。顺带补齐两个常见疑问：</p>
+<ul>
+<li><strong>额外传的消息长度会拖后腿吗？</strong> 几乎不会。固定一个 32 bit 文件头就能表示长达 40 亿字符的文本，长消息里摊到每个字几乎为零。</li>
+<li><strong>像 <code>&quot;mathematics&quot;</code> 这样 10 bit &lt; 18 bit，算打破香农极限吗？</strong> 不算。更极端的情况，全由 <code>a</code> 组成的字符串一直贴在左端点 <code>0</code> 上，甚至只需要空比特串。但香农定理限制的是<strong>平均长度</strong>——少数撞大运省下来的比特，会被绝大多数时候不得不向上取整多花的比特抵消掉。</li>
+</ul>
+<h2 id="三、预训练交叉熵-算术编码压缩长度"><a href="#三、预训练交叉熵-算术编码压缩长度" class="headerlink" title="三、预训练交叉熵 &#x3D; 算术编码压缩长度"></a>三、预训练交叉熵 &#x3D; 算术编码压缩长度</h2><p>真正拉开与香农极限距离的，是公式里的 <code>p</code> 代表<strong>模型的预测概率</strong>，而非语言的真实分布。把联合概率按链式法则展开，对数里的乘积变成求和：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">−log₂ P(x₁…xₙ) = Σₜ −log₂ P(xₜ | x&lt;ₜ)<br></code></pre></td></tr></table></figure>
+
+<p>每一项都是模型预测下一个词元的比特开销：猜得准趋近 0，猜错了代价暴涨。这项开销在训练语料上的平均值，正是语言模型预训练最小化的<strong>交叉熵损失</strong>。于是预训练有了两种数学等价、直觉却迥异的视角：</p>
+<ul>
+<li><strong>预测视角</strong>：训练一个下一词元预测器，交叉熵只是选出来的一个损失函数。</li>
+<li><strong>压缩视角</strong>：直接训练一个<strong>最强的文本压缩器</strong>，优化目标再直白不过——让每条训练样本压出来的比特数尽可能小。</li>
+</ul>
+<p><img src="/../img/doc/ac-pretraining-equivalence.webp" srcset="/img/loading.gif" lazyload alt="预训练的两种等价表述：最小化下一词元预测的交叉熵损失，等价于最小化语料的无损压缩体积。"></p>
+<p>换用更强的模型，压缩率肉眼可见地跳变。同一句关于古希腊数学与欧几里得《几何原本》的句子，370 万参数的 <strong>NanoGPT</strong> 需要 254 bits（约 2 bits&#x2F;字符）；换成 5 亿参数的 <strong>Qwen</strong>，整体降到 <strong>1 bit&#x2F;字符以下</strong>，末尾 <em>“Euclid’s Elements”</em> 两个词只花了 5 bits。</p>
+<p>回到开篇的美国宪法序言：用 Qwen（词元粒度）编码，开头 <em>“We the People of the United States…”</em> 消耗约 35 bits，而<strong>后面整段正文总共只多花了 10 bits</strong>——比霍夫曼少了两个数量级。后续词元几乎占满每一步概率条，这 10 bits 大多只是用来确认大小写和拼写变体（如 <code>defence</code> 用 <code>c</code> 还是 <code>s</code>）。</p>
+<p><img src="/../img/doc/ac-qwen-preamble.webp" srcset="/img/loading.gif" lazyload alt="Qwen 0.5B 压缩美国宪法序言：开头之后，_domestic、_Tran、qu、ility、_provide、_for 等词元几乎占满区间，几乎不耗额外比特。"></p>
+<blockquote>
+<p><strong>工程落地</strong>：照字面存超高精度实数很快会精度溢出。这个构想最早由 Peter Elias 在 1960 年提出，1976 年 Jorma Rissanen 与 Richard Pascoe 独立引入<strong>重归一化（renormalization）</strong>——每步把工作区间重新放大回单位宽度——才成为实用的<strong>算术编码</strong>。2013 年 Jarek Duda 提出的 <strong>非对称数制（ANS）</strong> 则改用不断增长的整数编码，避开了实数精度问题，速度更快。</p>
+</blockquote>
+<h2 id="四、重新审视「压缩即智能」"><a href="#四、重新审视「压缩即智能」" class="headerlink" title="四、重新审视「压缩即智能」"></a>四、重新审视「压缩即智能」</h2><p>最后回到标题：<strong>压缩即智能</strong>。「智能」是个含混的日常概念。视频建议像看待牛顿定义「能量」（<code>kg·(m/s)²</code>）那样看待这句话：数学定义必然是片面的，装不下日常语言里的所有细微含义；但只要它<strong>有生产力</strong>，能把原本分散的现象统一进同一套框架，就值得认真对待。借着算术编码，压缩至少抓住了智能的三个侧面：</p>
+<h3 id="1-压缩与预测等价"><a href="#1-压缩与预测等价" class="headerlink" title="1. 压缩与预测等价"></a>1. 压缩与预测等价</h3><p>算术编码把任意预测器变成压缩器；反过来，任意黑盒压缩器也能变成预测器——把候选词拼在原文后面再压一次，看体积多出 <code>δ</code> 比特，<code>2^(-δ)</code> 就是它隐含的条件概率估计。预测离不开对背后规律的建模，这也呼应了神经科学里的**预测加工（Predictive Processing）**假说：大脑持续自上而下预测感官输入，感官只向上传递「预测与现实的误差」。</p>
+<h3 id="2-诚实的压缩账单"><a href="#2-诚实的压缩账单" class="headerlink" title="2. 诚实的压缩账单"></a>2. 诚实的压缩账单</h3><p>单靠「预测」还漏掉了一种重要的理解：我们觉得懂了一件事，往往是因为它在脑子里<strong>变小了</strong>——我们可以用极少原理推导出大片事实。<br>用几亿参数的 Qwen 把宪法序言压成 10 bits 之所以像作弊，是因为模型早把它背进了权重里。所以必须算<strong>诚实账单（Honest compression size）</strong>：像 Hutter Prize 那样，把**压缩比特流 + 解码程序（含模型权重）**合并计总（否则把整部维基百科硬写进解码器就能把载荷压成 0）。</p>
+<p><img src="/../img/doc/ac-honest-compression-size.webp" srcset="/img/loading.gif" lazyload alt="诚实压缩尺寸（Honest compression size）：必须将压缩比特流与解码程序（含模型权重）一并计入总大小。"></p>
+<p>在这套账本下，两个预测能力相同的模型，<strong>参数更小的那个才是更好的压缩器</strong>——它靠的是通用规律而非死记硬背。这正是「压缩即智能」比「预测即智能」更深刻的地方。</p>
+<h3 id="3-边压边学，把学习速度也装进压缩率"><a href="#3-边压边学，把学习速度也装进压缩率" class="headerlink" title="3. 边压边学，把学习速度也装进压缩率"></a>3. 边压边学，把学习速度也装进压缩率</h3><p>聪明人进入陌生领域学得极快。静态模型的压缩率看似和训练速度无关，但只要加一个小改动：拿维基百科训练的模型去压莎士比亚全集时，不冻结参数，而是<strong>边压边微调</strong>——每读一个词元就做一次确定性的反向传播更新权重。解码端同步重放完全一致的更新，两端预测分布依然严丝合缝。甚至可以从同一个伪随机种子起步，连预训练权重都省掉。此时，<strong>模型适应新语境越快，最终压出来的比特流就越短</strong>。</p>
+<p><img src="/../img/doc/ac-online-finetuning.webp" srcset="/img/loading.gif" lazyload alt="边压边微调：压缩莎士比亚文本时，编解码两端按确定性规则逐词元同步更新权重，学习越快，压缩率越高。"></p>
+<hr>
+<p>译者：</p>
+<p>当我们把 3BlueBrown 的 <strong>压缩即智能</strong> 三部曲串起来看：第一期，香农想研究压缩却被迫调查人类的预测能力；第二期，现代 AI 工程运转在为压缩发明的数学工具上；第三期，想造出最强的压缩器，我们就需要一个<strong>预测准、体积小、学得快</strong>的模型。</p>
+<p>压缩当然不等同于全部人类智能，就像 <code>kg·(m/s)²</code> 装不下词典里「Energy」的全部含义。但把「让文件变小」这个朴素目标推到足够的深度，这个过程中竟能把预测、简约抽象与快速学习这几件事相关关联起来。</p>
+<p>3BlueBorwn 的系列视频我都十分喜欢，我目前还是觉得个人的表述能力和思考深度不足以支撑我写出优秀的内容，所以选择这种方式去转述我喜欢的视频核心内容。补充一点，上文中所有图片都来自 3BlueBorwn 的视频。这篇处理过程中我借助了 gemini-4-neon 的写作能力，在它写出来的内容上我再行修改，哈吉米这代模型语言能力真的很不错，文风相对 gpt 十分自然易懂，感兴趣可以多多尝试！</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li>3Blue1Brown, <em>This algorithm changed how I think about compression | Information theory, part 3</em>：<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=qbsb9DpdZ6s">https://www.youtube.com/watch?v=qbsb9DpdZ6s</a></li>
+<li>Hutter Prize（Human Knowledge Compression Contest）：<a target="_blank" rel="noopener" href="http://prize.hutter1.net/">http://prize.hutter1.net/</a></li>
+<li>Nayuki, <em>Reference arithmetic coding</em>：<a target="_blank" rel="noopener" href="https://www.nayuki.io/page/reference-arithmetic-coding">https://www.nayuki.io/page/reference-arithmetic-coding</a></li>
+<li>Jarek Duda, <em>Asymmetric numeral systems (ANS)</em>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/0902.0271">https://arxiv.org/abs/0902.0271</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E4%BF%A1%E6%81%AF%E8%AE%BA/" class="print-no-link">#信息论</a>
+      
+        <a href="/tags/LLM/" class="print-no-link">#LLM</a>
+      
+        <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="print-no-link">#学习笔记</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>压缩即智能</div>
+      <div>https://catdfd.com/2026/11/26/compression-is-intelligence-arithmetic-coding/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Gargantua</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2026年11月26日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2026/10/19/Deepseek-4-1-flash-1017-%E5%AE%9E%E6%B5%8B%E8%AE%B0%E5%BD%95/" title="Deepseek-4.1-flash-1017 实测">
+                        <span class="hidden-mobile">Deepseek-4.1-flash-1017 实测</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <span>© 2026 catdfd.com</span> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">›</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">›</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  
+<script src="/js/custom.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
