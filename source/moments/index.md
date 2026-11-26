@@ -10,6 +10,7 @@ banner_mask_alpha: 0.45
 <div class="moments-layout">
   <header class="moments-header">
     <h2>动态<span aria-hidden="true">.</span></h2>
+    <a class="moments-rss-link" href="/moments/atom.xml" title="订阅动态 Atom Feed"><i class="iconfont icon-rss" aria-hidden="true"></i> RSS</a>
   </header>
 
   <div id="moments-feed" class="moments-feed" aria-live="polite">

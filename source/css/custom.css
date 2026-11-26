@@ -366,10 +366,27 @@ body:has(.moments-layout) #banner .banner-text {
 }
 
 .moments-header {
-  display: grid;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
   margin-bottom: 1.5rem;
   padding: 0 0.25rem 1rem;
   border-bottom: 1px solid var(--line-color);
+}
+
+.moments-rss-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.88rem;
+  color: var(--sec-text-color);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.moments-rss-link:hover {
+  color: #49b8a6;
 }
 
 .moments-header h2 {

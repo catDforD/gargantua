@@ -474,6 +474,8 @@ footer:
   # HTML of the first line of the footer, it is recommended to keep the Fluid link to promote this theme to more people
   content: '
       <span>© 2026 catdfd.com</span>
+      <span> · </span>
+      <a href="/atom.xml" title="RSS / Atom 订阅"><i class="iconfont icon-rss"></i> RSS</a>
   '
 
   # 展示网站的 PV、UV 统计数
@@ -1020,6 +1022,7 @@ about:
     - { class: "iconfont icon-github-fill", link: "https://github.com/catDforD", tip: "GitHub" }
     - { class: "iconfont icon-mail", link: "mailto:husdengsh@gmail.com", tip: "husdengsh@gmail.com" }
     - { class: "iconfont icon-qq-fill", link: "https://wpa.qq.com/msgrd?v=3&uin=3276453835&site=qq&menu=yes", tip: "QQ: 3276453835" }
+    - { class: "iconfont icon-rss-fill", link: "/atom.xml", tip: "RSS 订阅" }
 
 
 #---------------------------
